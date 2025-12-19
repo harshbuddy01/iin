@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructions - Assessment Examination Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
+        
+        /* HEADER */
+        .header { background-color: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 1.2rem; font-weight: bold; }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; background: white; border-radius: 50%; color: #2c3e50; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* CONTAINER */
+        .container { display: flex; height: calc(100vh - 70px); }
+        .left-panel { flex: 1; background: white; padding: 30px; overflow-y: auto; border-right: 1px solid #ccc; }
+        .right-panel { width: 300px; background: #f9f9f9; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+
+        /* INSTRUCTIONS TEXT */
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
+        .instruction-list { line-height: 1.6; font-size: 0.95rem; text-align: left; }
+        .instruction-list li { margin-bottom: 10px; }
+
+        /* FORM */
+        .login-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; margin-top: 20px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        
+        /* FOOTER CONFIRMATION */
+        .confirmation { margin-top: 20px; padding: 15px; background: #e8f4fd; border: 1px solid #b6e0fe; border-radius: 4px; text-align: left; font-size: 0.9rem; }
+        
+        .btn-start { background: #3498db; color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; width: 100%; transition: 0.3s; }
+        .btn-start:hover { background: #2980b9; }
+        .btn-start:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        .error-msg { color: red; font-size: 0.85rem; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">Instructions</div>
+        <div class="user-profile">
+            <div class="avatar" id="headerInitials">U</div>
+            <span id="headerEmail">Student</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="left-panel">
+            <h2>Please Read Instructions Carefully</h2>
+            
+            <p><strong>General Instructions:</strong></p>
+            <ol class="instruction-list">
+                <li>Total duration of examination is <strong>180 minutes</strong>.</li>
+                <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination.</li>
+                <li>The Question Palette displayed on the right side of screen will show the status of each question using one of the following symbols:
+                    <ul style="list-style: none; padding: 10px 0;">
+                        <li>⚪ <strong>Not Visited:</strong> You have not visited the question yet.</li>
+                        <li>🔴 <strong>Not Answered:</strong> You have not answered the question.</li>
+                        <li>🟢 <strong>Answered:</strong> You have answered the question.</li>
+                        <li>🟣 <strong>Marked for Review:</strong> You have NOT answered the question, but have marked the question for review.</li>
+                    </ul>
+                </li>
+                <li>Click on <strong>Save & Next</strong> to save your answer for the current question and then go to the next question.</li>
+                <li><strong>Marking Scheme:</strong> +4 for correct answer, -1 for incorrect answer.</li>
+            </ol>
+
+            <div class="confirmation">
+                <input type="checkbox" id="agreeCheck" onchange="toggleButton()">
+                <label for="agreeCheck" style="display:inline; font-weight:normal;">
+                    I have read and understood the instructions. I agree that in case of not adhering to the exam instructions, I shall be liable to be debarred from this Test.
+                </label>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User" width="80" style="margin-bottom:10px;">
+            <div id="studentNameDisplay" style="font-weight:bold; margin-bottom:20px;">Student Login</div>
+
+            <div class="login-box">
+                <div class="input-group">
+                    <label>Candidate Name</label>
+                    <input type="text" id="candidateName" placeholder="Enter your full name">
+                </div>
+                <div class="input-group">
+                    <label>Exam Roll Number</label>
+                    <input type="text" id="rollNumber" placeholder="Enter 8-digit Roll Number">
+                </div>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <button id="startBtn" class="btn-start" onclick="verifyAndStart()" disabled>I am ready to begin</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. On Load: Fill Email
+        window.onload = function() {
+            const email = localStorage.getItem("userEmail");
+            if(email) {
+                document.getElementById("headerEmail").innerText = email;
+                document.getElementById("studentNameDisplay").innerText = email;
+                document.getElementById("headerInitials").innerText = email.charAt(0).toUpperCase();
+            } else {
+                window.location.href = "signinpage.html";
+            }
+        };
+
+        // 2. Enable Button only if Checkbox is checked
+        function toggleButton() {
+            const isChecked = document.getElementById("agreeCheck").checked;
+            const btn = document.getElementById("startBtn");
+            if (isChecked) {
+                btn.disabled = false;
+            } else {
+                btn.disabled = true;
+            }
+        }
+
+        // 3. Verify Roll Number with Backend
+        async function verifyAndStart() {
+            const name = document.getElementById("candidateName").value;
+            const roll = document.getElementById("rollNumber").value;
+            const email = localStorage.getItem("userEmail");
+            const errorMsg = document.getElementById("errorMsg");
+            const btn = document.getElementById("startBtn");
+
+            // Basic Validation
+            if(!name || !roll) {
+                errorMsg.innerText = "Please fill in all details.";
+                errorMsg.style.display = "block";
+                return;
+            }
+
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
+            try {
+                // Call the API we already made (api/start-test checks roll+email)
+                const res = await axios.post("http://127.0.0.1:4000/api/start-test", {
+                    rollNumber: roll,
+                    email: email
+                });
+
+                if (res.data.success) {
+                    // SUCCESS!
+                    // Get the test ID from the URL (passed from dashboard)
+                    const params = new URLSearchParams(window.location.search);
+                    const testId = params.get("testId") || "iat"; // Default to iat if missing
+                    
+                    // Redirect to the Real Exam
+                    window.location.href = `exam.html?test=${testId}`;
+                }
+
+            } catch (error) {
+                btn.innerText = "I am ready to begin";
+                btn.disabled = false;
+                errorMsg.style.display = "block";
+                
+                if (error.response) {
+                    errorMsg.innerText = error.response.data.message; // "Invalid Token" or "Already Used"
+                } else {
+                    errorMsg.innerText = "Connection Error. Is server running?";
+                }
+            }
+        }
+    </script>
+</body>
+</html>

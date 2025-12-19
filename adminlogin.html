@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - IIN Command Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+      // Centralized API configuration for Render
+      const API_BASE_URL = "https://iin-backend.onrender.com";
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* ... existing styles remain exactly as you have them ... */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { display: flex; height: 100vh; background-color: #0f1419; color: #e2e8f0; overflow: hidden; }
+        .sidebar { width: 250px; background: #1a1f2e; border-right: 1px solid #2d3748; display: flex; flex-direction: column; }
+        .logo { padding: 20px; font-size: 1.5rem; font-weight: bold; color: #6366f1; border-bottom: 1px solid #2d3748; }
+        .nav-links { flex: 1; padding: 20px 0; }
+        .nav-item { padding: 15px 25px; cursor: pointer; color: #94a3b8; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover, .nav-item.active { background: #2d3748; color: white; border-left: 4px solid #6366f1; }
+        .logout { padding: 20px; border-top: 1px solid #2d3748; color: #ef4444; cursor: pointer; }
+        .main { flex: 1; padding: 30px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 30px; }
+        .stat-card { background: #1a1f2e; padding: 12px; border-radius: 10px; border: 1px solid #2d3748; text-align: center; }
+        .stat-num { font-size: 1.4rem; font-weight: bold; color: #6366f1; }
+        .stat-label { color: #94a3b8; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+        .card { background: #1a1f2e; padding: 30px; border-radius: 12px; border: 1px solid #2d3748; display: none; }
+        .card.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #cbd5e1; }
+        input, select, textarea { width: 100%; padding: 12px; background: #0f1419; border: 1px solid #2d3748; color: white; border-radius: 6px; }
+        .btn { padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; }
+        .btn-primary { background: #6366f1; color: white; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #2d3748; font-size: 0.9rem; }
+        th { background: #2d3748; color: #cbd5e1; font-size: 0.8rem; }
+        img.preview { max-width: 150px; margin-top: 10px; display: none; border: 1px solid #444; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: #1a1f2e; width: 85%; height: 85%; border-radius: 12px; padding: 25px; overflow-y: auto; border: 1px solid #6366f1; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: #ef4444; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">IIN ADMIN</div>
+        <div class="nav-links">
+            <div class="nav-item active" onclick="switchTab('upload')"><i class="fas fa-upload"></i> Upload Question</div>
+            <div class="nav-item" onclick="switchTab('manage')"><i class="fas fa-tasks"></i> Manage Questions</div>
+            <div class="nav-item" onclick="switchTab('results')"><i class="fas fa-user-graduate"></i> Student Results</div>
+            <div class="nav-item" onclick="switchTab('feedbacks')"><i class="fas fa-comments"></i> Feedbacks</div>
+        </div>
+        <div class="logout" onclick="logout()"><i class="fas fa-power-off"></i> Logout</div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Command Center</h1>
+            <div id="adminClock" style="color: #94a3b8; font-size: 0.9rem;"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Total Questions</div><div class="stat-num" id="statTotal">0</div></div>
+            <div class="stat-card"><div class="stat-label">Physics</div><div class="stat-num" id="statPhy">0</div></div>
+            <div class="stat-card"><div class="stat-label">Chemistry</div><div class="stat-num" id="statChem">0</div></div>
+            <div class="stat-card"><div class="stat-label">Mathematics</div><div class="stat-num" id="statMath">0</div></div>
+            <div class="stat-card"><div class="stat-label">Biology</div><div class="stat-num" id="statBio">0</div></div>
+            <div class="stat-card"><div class="stat-label">Results Filed</div><div class="stat-num" id="statResults">0</div></div>
+        </div>
+
+        <div id="tab-upload" class="card active">
+            <h2 style="color:#6366f1; margin-bottom:20px;">Add New Challenge</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Test Series</label>
+                    <select id="testId">
+                        <option value="iat">IAT TEST SERIES</option>
+                        <option value="nest">NEST TEST SERIES</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="subject">
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Biology">Biology</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Question Text</label><textarea id="questionText" rows="4" placeholder="Standard LaTeX supported: $E=mc^2$"></textarea></div>
+            <div class="form-group"><label>Upload Diagram</label><input type="file" id="qImage" accept="image/*" onchange="previewImage()"><img id="imgPreview" class="preview" src=""></div>
+            <div class="form-group">
+                <label>Options</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="text" id="opt1" placeholder="Option A">
+                    <input type="text" id="opt2" placeholder="Option B">
+                    <input type="text" id="opt3" placeholder="Option C">
+                    <input type="text" id="opt4" placeholder="Option D">
+                </div>
+            </div>
+            <div class="form-group"><label>Correct Answer (Exact Match)</label><input type="text" id="correctAnswer" placeholder="e.g. Option A"></div>
+            <button class="btn btn-primary" onclick="uploadQuestion()">Deploy Question</button>
+        </div>
+
+        <div id="tab-manage" class="card">
+            <button class="btn btn-primary" style="width:auto; margin-bottom:15px;" onclick="loadAllQuestions()">Refresh Repository</button>
+            <table>
+                <thead><tr><th>Subject</th><th>Question</th><th>Diagram</th><th>Action</th></tr></thead>
+                <tbody id="questionsTable"></tbody>
+            </table>
+        </div>
+
+        <div id="tab-results" class="card">
+            <button class="btn btn-primary" style="width:auto; margin-bottom:15px;" onclick="loadResults()">Refresh Results</button>
+            <table>
+                <thead><tr><th>Roll No</th><th>Email</th><th>Test</th><th>Time</th><th>Action</th></tr></thead>
+                <tbody id="resultsTable"></tbody>
+            </table>
+        </div>
+
+        <div id="tab-feedbacks" class="card">
+            <button class="btn btn-primary" style="width:auto; margin-bottom:15px;" onclick="loadFeedbacks()">Refresh Reviews</button>
+            <table>
+                <thead><tr><th>Roll No</th><th>Email</th><th>Rating</th><th>Comment</th></tr></thead>
+                <tbody id="feedbackTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="responseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('responseModal').style.display='none'">&times;</span>
+            <h2 id="modalStudentName" style="color:#6366f1; margin-bottom:20px;">Audit Log</h2>
+            <div id="sheetContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Security Check
+        if (localStorage.getItem("adminKey") !== "secret_unlocked") window.location.href = "adminlogin.html";
+        function logout() { localStorage.removeItem("adminKey"); window.location.href = "adminlogin.html"; }
+        setInterval(() => { document.getElementById('adminClock').innerText = new Date().toLocaleString(); }, 1000);
+
+        function switchTab(t) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
+            if(t === 'manage') loadAllQuestions();
+            if(t === 'results') loadResults();
+            if(t === 'feedbacks') loadFeedbacks();
+        }
+
+        let base64Image = "";
+        function previewImage() {
+            const file = document.getElementById("qImage").files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => { base64Image = reader.result; document.getElementById("imgPreview").src = base64Image; document.getElementById("imgPreview").style.display = "block"; };
+            if(file) reader.readAsDataURL(file);
+        }
+
+        // Logic to push to live backend
+        async function uploadQuestion() {
+            const data = {
+                testId: document.getElementById("testId").value,
+                subject: document.getElementById("subject").value,
+                questionText: document.getElementById("questionText").value,
+                image: base64Image,
+                options: [document.getElementById("opt1").value, document.getElementById("opt2").value, document.getElementById("opt3").value, document.getElementById("opt4").value],
+                correctAnswer: document.getElementById("correctAnswer").value
+            };
+            try {
+                await axios.post(`${API_BASE_URL}/api/upload-question`, data);
+                alert("✅ Deployed Successfully!");
+                resetForm();
+            } catch (e) { alert("Deployment Failed"); }
+        }
+
+        function resetForm() { document.getElementById("questionText").value = ""; document.getElementById("correctAnswer").value = ""; document.getElementById("opt1").value = ""; document.getElementById("opt2").value = ""; document.getElementById("opt3").value = ""; document.getElementById("opt4").value = ""; document.getElementById("qImage").value = ""; document.getElementById("imgPreview").style.display = "none"; base64Image = ""; }
+
+        async function loadAllQuestions() {
+            try {
+                // Calls the GET route in examRoutes.js
+                const res = await axios.get(`${API_BASE_URL}/api/get-questions?testId=iat`); 
+                const tbody = document.getElementById("questionsTable");
+                tbody.innerHTML = "";
+                res.data.questions.forEach(q => {
+                    tbody.innerHTML += `<tr><td>${q.subject}</td><td style="font-size:0.8rem;">${q.questionText}</td><td>${q.image ? '<i class="fas fa-image"></i>' : '-'}</td><td><button onclick="deleteQ('${q._id}')" style="color:red; background:none; border:none;"><i class="fas fa-trash"></i></button></td></tr>`;
+                });
+                updateStats(res.data.questions);
+                if(window.MathJax) MathJax.typeset();
+            } catch(e) { console.log(e); }
+        }
+
+        async function deleteQ(id) { if(confirm("Permanently Delete?")) { await axios.delete(`${API_BASE_URL}/api/admin/delete-question/${id}`); loadAllQuestions(); } }
+
+        function updateStats(q) {
+            document.getElementById("statTotal").innerText = q.length;
+            document.getElementById("statPhy").innerText = q.filter(x => x.subject === "Physics").length;
+            document.getElementById("statChem").innerText = q.filter(x => x.subject === "Chemistry").length;
+            document.getElementById("statMath").innerText = q.filter(x => x.subject === "Mathematics").length;
+            document.getElementById("statBio").innerText = q.filter(x => x.subject === "Biology").length;
+        }
+
+        let cachedData = [];
+        async function loadResults() {
+            const res = await axios.get(`${API_BASE_URL}/api/admin/results`);
+            if(res.data.success) {
+                const tbody = document.getElementById("resultsTable");
+                tbody.innerHTML = "";
+                cachedData = res.data; 
+                document.getElementById("statResults").innerText = res.data.results.length;
+                res.data.results.forEach((r, idx) => {
+                    tbody.innerHTML += `<tr><td style="color:#f1c40f;">${r.rollNumber}</td><td>${r.email}</td><td>${r.testId.toUpperCase()}</td><td>${new Date(r.submissionTime).toLocaleDateString()}</td><td><button onclick="viewSheet(${idx})" style="background:#3b82f6; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Inspect</button></td></tr>`;
+                });
+            }
+        }
+
+        function viewSheet(idx) {
+            const r = cachedData.results[idx];
+            // Refined Audit logic
+            let html = `<table style="width:100%"><thead><tr><th>Subject</th><th>Status</th><th>Score</th></tr></thead><tbody>`;
+            // Add breakdown as needed
+            html += `<tr><td colspan="3" style="text-align:center">Summary for ${r.email}</td></tr></tbody></table>`;
+            document.getElementById("sheetContent").innerHTML = html;
+            document.getElementById("responseModal").style.display = "flex";
+        }
+    </script>
+</body>
+</html>

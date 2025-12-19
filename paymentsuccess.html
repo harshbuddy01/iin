@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 { color: #10b981; margin-bottom: 0.5rem; }
+        p { color: #6b7280; margin-bottom: 1.5rem; }
+        
+        .token-box {
+            background-color: #f0fdf4;
+            border: 2px dashed #10b981;
+            color: #15803d;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            letter-spacing: 2px;
+        }
+
+        .btn {
+            background-color: #1f2937;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .btn:hover { background-color: #111827; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Payment Successful!</h1>
+        <p>Your payment ID: <span id="payId">Loading...</span></p>
+        
+        <p>Here is your <strong>Exam Roll Number</strong>:</p>
+        
+        <div class="token-box" id="rollNum">--------</div>
+        
+        <p style="font-size: 0.85rem;">Please save this number. We have also sent it to your email.</p>
+        
+        <a href="testfirstpage.html" class="btn">Go to Login</a>
+    </div>
+
+    <script>
+        // 1. Get the URL parameters (the stuff after ?)
+        const params = new URLSearchParams(window.location.search);
+        
+        // 2. Extract the IDs
+        const referenceNum = params.get("reference");
+        const rollNumber = params.get("roll");
+
+        // 3. Display them on the screen
+        if (referenceNum) {
+            document.getElementById("payId").innerText = referenceNum;
+        }
+
+        if (rollNumber) {
+            document.getElementById("rollNum").innerText = rollNumber;
+        } else {
+            document.getElementById("rollNum").innerText = "Error!";
+            document.getElementById("rollNum").style.color = "red";
+            document.getElementById("rollNum").style.borderColor = "red";
+        }
+    </script>
+</body>
+</html>

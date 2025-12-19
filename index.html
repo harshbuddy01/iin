@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIN - Institute Network</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #0a0a0a;
+            color: white; 
+            overflow-x: hidden; 
+        }
+
+        /* Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(6, 182, 212, 0.12) 0%, transparent 50%);
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 20px 5%; 
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .navbar.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+        }
+        
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            font-family: 'Space Grotesk', sans-serif;
+            color: white;
+        }
+        
+        .logo span { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        
+        .nav-links a { 
+            text-decoration: none; 
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500; 
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover { color: white; }
+        
+        .btn-login { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important; 
+            padding: 10px 28px; 
+            border-radius: 50px;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 120px 20px 80px;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: heroGlow 8s ease-in-out infinite;
+        }
+
+        @keyframes heroGlow {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0.5;
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 900px;
+        }
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #a8edea 50%, #fed6e3 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            letter-spacing: -2px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            font-weight: 300;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .scroll-indicator i {
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s ease;
+        }
+
+        .scroll-indicator:hover i {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-15px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-8px);
+            }
+        }
+
+        /* Institute Section */
+        .institute-section {
+            min-height: 100vh;
+            position: relative;
+            padding: 150px 40px 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Category Header */
+        .category-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        .category-header h2 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .category-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 300;
+        }
+
+        /* Pendulum Container */
+        .pendulum-container {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            height: 500px;
+            margin-top: 60px;
+        }
+
+        /* Pendulum Anchor Bar */
+        .anchor-bar {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+            border-radius: 2px;
+        }
+
+        /* Individual Pendulum */
+        .pendulum {
+            position: absolute;
+            top: 0;
+            transform-origin: top center;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+
+        /* Pendulum String */
+        .pendulum-string {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.6), rgba(99, 102, 241, 0.2));
+        }
+
+        /* Pendulum Card - positioned at END of string */
+        .pendulum-card {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 160px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Position cards at bottom of each string */
+        .pendulum:nth-child(2) .pendulum-card {
+            top: calc(4px + 280px);
+        }
+
+        .pendulum:nth-child(3) .pendulum-card {
+            top: calc(4px + 150px);
+        }
+
+        .pendulum:nth-child(4) .pendulum-card {
+            top: calc(4px + 260px);
+        }
+
+        .pendulum:nth-child(5) .pendulum-card {
+            top: calc(4px + 200px);
+        }
+
+        .pendulum:nth-child(6) .pendulum-card {
+            top: calc(4px + 160px);
+        }
+
+        .pendulum:nth-child(7) .pendulum-card {
+            top: calc(4px + 270px);
+        }
+
+        .pendulum:nth-child(8) .pendulum-card {
+            top: calc(4px + 190px);
+        }
+
+        .prestige-pendulum:nth-child(2) .pendulum-card {
+            top: calc(4px + 240px);
+        }
+
+        .prestige-pendulum:nth-child(3) .pendulum-card {
+            top: calc(4px + 170px);
+        }
+
+        .niser-pendulum:nth-child(2) .pendulum-card {
+            top: calc(4px + 220px);
+        }
+
+        .pendulum-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px 20px 0 0;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .pendulum-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .pendulum-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .pendulum-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .pendulum-card:hover .pendulum-logo {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .pendulum-logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .pendulum-card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .pendulum-card p {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Pendulum Swing Animations - Different speeds based on length */
+        @keyframes swing-short {
+            0% { transform: rotate(-12deg); }
+            100% { transform: rotate(12deg); }
+        }
+
+        @keyframes swing-medium {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(10deg); }
+        }
+
+        @keyframes swing-long {
+            0% { transform: rotate(-8deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+        /* Apply swinging animations directly */
+        /* IISER Pendulums - 7 institutes */
+        .pendulum:nth-child(2) { /* Pune - Long */
+            left: 7%;
+            animation: swing-long 3.5s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(2) .pendulum-string {
+            height: 280px;
+        }
+
+        .pendulum:nth-child(3) { /* Kolkata - Short */
+            left: 20%;
+            animation: swing-short 2.2s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(3) .pendulum-string {
+            height: 150px;
+        }
+
+        .pendulum:nth-child(4) { /* Mohali - Long */
+            left: 33%;
+            animation: swing-long 3.3s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(4) .pendulum-string {
+            height: 260px;
+        }
+
+        .pendulum:nth-child(5) { /* Bhopal - Medium */
+            left: 46%;
+            animation: swing-medium 2.8s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(5) .pendulum-string {
+            height: 200px;
+        }
+
+        .pendulum:nth-child(6) { /* TVM - Short */
+            left: 59%;
+            animation: swing-short 2.3s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(6) .pendulum-string {
+            height: 160px;
+        }
+
+        .pendulum:nth-child(7) { /* Tirupati - Long */
+            left: 72%;
+            animation: swing-long 3.4s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(7) .pendulum-string {
+            height: 270px;
+        }
+
+        .pendulum:nth-child(8) { /* Berhampur - Medium */
+            left: 85%;
+            animation: swing-medium 2.7s infinite alternate ease-in-out;
+        }
+        .pendulum:nth-child(8) .pendulum-string {
+            height: 190px;
+        }
+
+        /* Prestige Pendulums - 2 institutes */
+        .prestige-pendulum:nth-child(2) { /* IISc - Long */
+            left: 35%;
+            animation: swing-long 3.2s infinite alternate ease-in-out;
+        }
+        .prestige-pendulum:nth-child(2) .pendulum-string {
+            height: 240px;
+        }
+
+        .prestige-pendulum:nth-child(3) { /* ISI - Short */
+            left: 65%;
+            animation: swing-short 2.4s infinite alternate ease-in-out;
+        }
+        .prestige-pendulum:nth-child(3) .pendulum-string {
+            height: 170px;
+        }
+
+        /* NISER Pendulum - 1 institute */
+        .niser-pendulum:nth-child(2) { /* NISER - Medium */
+            left: 50%;
+            animation: swing-medium 2.9s infinite alternate ease-in-out;
+        }
+        .niser-pendulum:nth-child(2) .pendulum-string {
+            height: 220px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .pendulum-container {
+                height: 450px;
+            }
+            
+            .pendulum-card {
+                width: 140px;
+                padding: 15px;
+            }
+            
+            .pendulum-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .pendulum-logo img {
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 5%;
+            }
+            .nav-links {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .institute-section {
+                padding: 120px 20px 80px;
+            }
+
+            .pendulum-container {
+                height: 400px;
+            }
+            
+            .pendulum-card {
+                width: 120px;
+                padding: 12px;
+            }
+            
+            .pendulum-card h4 {
+                font-size: 0.9rem;
+            }
+            
+            .pendulum-card p {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pendulum-container {
+                height: 350px;
+            }
+            
+            .pendulum-card {
+                width: 100px;
+                padding: 10px;
+            }
+            
+            .pendulum-logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .pendulum-logo img {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .pendulum-card h4 {
+                font-size: 0.8rem;
+            }
+            
+            .category-header h2 {
+                font-size: 2rem;
+            }
+            
+            /* Adjust string lengths for mobile */
+            .pendulum:nth-child(2) .pendulum-string {
+                height: 200px;
+            }
+            .pendulum:nth-child(2) .pendulum-card {
+                top: calc(4px + 200px);
+            }
+            
+            .pendulum:nth-child(3) .pendulum-string {
+                height: 120px;
+            }
+            .pendulum:nth-child(3) .pendulum-card {
+                top: calc(4px + 120px);
+            }
+            
+            .pendulum:nth-child(4) .pendulum-string {
+                height: 200px;
+            }
+            .pendulum:nth-child(4) .pendulum-card {
+                top: calc(4px + 200px);
+            }
+            
+            .pendulum:nth-child(5) .pendulum-string {
+                height: 160px;
+            }
+            .pendulum:nth-child(5) .pendulum-card {
+                top: calc(4px + 160px);
+            }
+            
+            .pendulum:nth-child(6) .pendulum-string {
+                height: 120px;
+            }
+            .pendulum:nth-child(6) .pendulum-card {
+                top: calc(4px + 120px);
+            }
+            
+            .pendulum:nth-child(7) .pendulum-string {
+                height: 200px;
+            }
+            .pendulum:nth-child(7) .pendulum-card {
+                top: calc(4px + 200px);
+            }
+            
+            .pendulum:nth-child(8) .pendulum-string {
+                height: 160px;
+            }
+            .pendulum:nth-child(8) .pendulum-card {
+                top: calc(4px + 160px);
+            }
+            
+            .prestige-pendulum:nth-child(2) .pendulum-string {
+                height: 200px;
+            }
+            .prestige-pendulum:nth-child(2) .pendulum-card {
+                top: calc(4px + 200px);
+            }
+            
+            .prestige-pendulum:nth-child(3) .pendulum-string {
+                height: 120px;
+            }
+            .prestige-pendulum:nth-child(3) .pendulum-card {
+                top: calc(4px + 120px);
+            }
+            
+            .niser-pendulum:nth-child(2) .pendulum-string {
+                height: 160px;
+            }
+            .niser-pendulum:nth-child(2) .pendulum-card {
+                top: calc(4px + 160px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="logo">IIN<span>.edu</span></div>
+        <div class="nav-links">
+            <a href="home.html" style="color:#fff">Home</a>
+            <a href="aboutpage.html">About</a>
+            <a href="subtittlepyq.html">PYQ</a>
+            <a href="testfirstpage.html">Tests</a>
+            <a href="future.html">Future Career</a>
+            <a href="signinpage.html" class="btn-login">Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Gateway to Science.</h1>
+            <p>Unlocking the premier research institutes of India.</p>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- IISER Section -->
+    <section class="institute-section" id="iiser">
+        <div class="category-header">
+            <h2>IISER</h2>
+            <p>Indian Institutes of Science Education and Research</p>
+        </div>
+
+        <div class="pendulum-container" data-section="iiser">
+            <div class="anchor-bar"></div>
+            
+            <!-- Pune -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISER,_PUNE_Logo.svg" alt="Pune">
+                    </div>
+                    <h4>Pune</h4>
+                    <p>Maharashtra</p>
+                </div>
+            </div>
+            
+            <!-- Kolkata -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISER-K_Logo.svg" alt="Kolkata">
+                    </div>
+                    <h4>Kolkata</h4>
+                    <p>West Bengal</p>
+                </div>
+            </div>
+            
+            <!-- Mohali -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISER-Mohali_Logo.svg" alt="Mohali">
+                    </div>
+                    <h4>Mohali</h4>
+                    <p>Punjab</p>
+                </div>
+            </div>
+            
+            <!-- Bhopal -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="Indian_Institute_of_Science_Education_and_Research_Berhampur_Logo.svg" alt="Bhopal">
+                    </div>
+                    <h4>Bhopal</h4>
+                    <p>Madhya Pradesh</p>
+                </div>
+            </div>
+            
+            <!-- TVM -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISER_Thiruvananthapuram_Logo.svg" alt="TVM">
+                    </div>
+                    <h4>TVM</h4>
+                    <p>Kerala</p>
+                </div>
+            </div>
+            
+            <!-- Tirupati -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISER_Tirupati_logo.png" alt="Tirupati">
+                    </div>
+                    <h4>Tirupati</h4>
+                    <p>Andhra Pradesh</p>
+                </div>
+            </div>
+            
+            <!-- Berhampur -->
+            <div class="pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="IISERB_logo.png" alt="Berhampur">
+                    </div>
+                    <h4>Berhampur</h4>
+                    <p>Odisha</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prestige Section -->
+    <section class="institute-section" id="prestige">
+        <div class="category-header">
+            <h2>Prestige</h2>
+            <p>Institutes of National Importance</p>
+        </div>
+
+        <div class="pendulum-container" data-section="prestige">
+            <div class="anchor-bar"></div>
+            
+            <!-- IISc -->
+            <div class="pendulum prestige-pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="Indian_Institute_of_Science_2019_logo.svg" alt="IISc">
+                    </div>
+                    <h4>IISc</h4>
+                    <p>Karnataka</p>
+                </div>
+            </div>
+            
+            <!-- ISI -->
+            <div class="pendulum prestige-pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="Indianstatisticalinstitutelogo.svg" alt="ISI">
+                    </div>
+                    <h4>ISI</h4>
+                    <p>West Bengal</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NISER Section -->
+    <section class="institute-section" id="niser">
+        <div class="category-header">
+            <h2>NISER</h2>
+            <p>National Institute of Science Education and Research</p>
+        </div>
+
+        <div class="pendulum-container" data-section="niser">
+            <div class="anchor-bar"></div>
+            
+            <!-- NISER -->
+            <div class="pendulum niser-pendulum">
+                <div class="pendulum-string"></div>
+                <div class="pendulum-card">
+                    <div class="pendulum-logo">
+                        <img src="National_Institute_of_Science_Education_and_Research.svg" alt="NISER">
+                    </div>
+                    <h4>NISER</h4>
+                    <p>Bhubaneswar</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navbar scroll
+        const navbar = document.getElementById('navbar');
+        let lastY = 0;
+        window.addEventListener('scroll', () => {
+            const y = window.pageYOffset;
+            if (Math.abs(y - lastY) > 20) {
+                navbar.classList.toggle('scrolled', y > 50);
+                lastY = y;
+            }
+        }, { passive: true });
+
+        // Smooth scroll for indicators
+        document.querySelectorAll('.scroll-indicator, .section-scroll-indicator').forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const currentSection = indicator.closest('section, .institute-section');
+                const nextSection = currentSection.nextElementSibling;
+                if (nextSection) {
+                    nextSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Intersection Observer for pendulum animations
+        const observerOptions = {
+            threshold: 0.3,
+            rootMargin: '0px'
+        };
+
+        const pendulumObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.classList.contains('active')) {
+                    // Add active class to trigger drop animation
+                    entry.target.classList.add('active');
+                    
+                    // After drop animation completes, start swinging
+                    const pendulums = entry.target.querySelectorAll('.pendulum');
+                    pendulums.forEach((pendulum, index) => {
+                        setTimeout(() => {
+                            pendulum.classList.add('swinging');
+                        }, 800 + (index * 100)); // Start swinging after drop completes
+                    });
+                }
+            });
+        }, observerOptions);
+
+        // Observe all pendulum containers
+        document.querySelectorAll('.pendulum-container').forEach(container => {
+            pendulumObserver.observe(container);
+        });

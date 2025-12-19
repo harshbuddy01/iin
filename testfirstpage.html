@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Series Matrix | IIN.edu</title>
+    
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        // Centralized API configuration for Render deployment
+        const API_BASE_URL = "https://iin-backend.onrender.com";
+    </script>
+
+    <style>
+        :root { --blue: #3b82f6; --violet: #8b8dfc; --navy-dark: #020617; }
+        
+        html, body {
+            background-color: var(--navy-dark) !important;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            scroll-behavior: smooth;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Fixed Grid Background */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        nav {
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .glass-panel { 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--blue);
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.2);
+        }
+
+        .hud-text { font-family: monospace; font-size: 10px; color: #475569; letter-spacing: 2px; text-transform: uppercase; }
+
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+        .buy-btn:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            transform: scale(1.02);
+        }
+
+        /* Modern Email Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            justify-content:center; align-items:center;
+        }
+
+        .modal-content {
+            background: #121212;
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 123, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 123, 255, 0.2);
+            width: 90%; max-width: 420px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .modal-input:focus { border-color: #007bff; box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 7rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div id="emailModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color: white; margin: 0; font-weight: 800;">UNLOCK ACCESS</h2>
+            <p style="color: #888; font-size: 14px; margin-top: 10px;">Enter your email to receive your unique Exam Token.</p>
+            
+            <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@university.edu" required>
+            
+            <button onclick="handleModalSubmit()" class="modal-btn">PROCEED TO SECURE PAYMENT</button>
+            <button onclick="closeModal()" style="background:none; border:none; color:#555; margin-top:15px; cursor:pointer; font-size: 12px; font-weight: bold;">CANCEL TRANSACTION</button>
+        </div>
+    </div>
+
+    <div class="grid-bg"></div>
+
+    <nav class="fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center">
+        <div class="text-2xl font-extrabold tracking-tighter text-white">IIN<span class="text-[#8b8dfc]">.edu</span></div>
+        <div class="hidden lg:flex items-center space-x-12">
+            <div class="flex space-x-8 text-sm font-semibold text-gray-400">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="aboutpage.html" class="hover:text-white transition">About</a>
+                <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
+                <a href="testfirstpage.html" class="text-white underline underline-offset-8">Tests</a>
+                <a href="future.html" class="hover:text-white transition">Future Career</a>
+            </div>
+            <button id="loginBtn" onclick="window.location.href='signinpage.html'" class="login-btn">Login</button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pt-48 pb-32">
+        <header class="mb-32 reveal">
+            <div class="hud-text mb-4">Strategic Assessment // v2025.04</div>
+            <h1 class="hero-title mb-8">
+                PREMIUM <br><span class="text-blue-500">TEST SERIES.</span>
+            </h1>
+            <p class="text-slate-400 text-lg max-w-2xl leading-relaxed border-l-2 border-blue-500 pl-8">
+                Unlocking India's premier research ecosystem. Comprehensive preparation sequences designed by researchers for IAT, NEST, and ISI aspirants.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer"></div>
+    </main>
+
+    <script>
+        // Data for Test Series
+        const testSeries = [
+            {
+                id: 'iat', name: 'IAT TEST SERIES', fullName: 'Indian Aptitude Test', price: 199,
+                features: ['3-day unlock sequence', 'IISER standard modules', 'Detailed logic solutions', 'Glow-Matrix analytics']
+            },
+            {
+                id: 'nest', name: 'NEST TEST SERIES', fullName: 'National Entrance Screening Test', price: 199,
+                features: ['Topic-wise precision', 'Expert research curation', 'Real-time tracking', 'Scientific strategy sessions']
+            },
+            {
+                id: 'isi', name: 'ISI TEST SERIES', fullName: 'Indian Statistical Institute', price: 199,
+                features: ['Statistical reasoning', 'Math problem matrices', 'Exam pattern simulation', 'Rigorous logic testing']
+            }
+        ];
+
+        // 1. Render Cards
+        const cardsContainer = document.getElementById('cardsContainer');
+        testSeries.forEach(test => {
+            const card = document.createElement('div');
+            card.className = 'glass-panel p-8 rounded-[2rem] reveal flex flex-col justify-between h-full';
+            card.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-start mb-8">
+                        <span class="hud-text text-blue-500 font-bold">${test.id}</span>
+                        <div class="text-2xl font-black text-white">₹${test.price}</div>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-white uppercase tracking-tight mb-1">${test.name}</h3>
+                    <p class="text-slate-500 text-xs font-bold uppercase mb-8">${test.fullName}</p>
+                    <ul class="space-y-3 mb-10">
+                        ${test.features.map(feature => `
+                            <li class="flex items-center text-sm text-slate-400">
+                                <span class="text-blue-500 mr-2">✓</span>${feature}
+                            </li>`).join('')}
+                    </ul>
+                </div>
+                <button onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn w-full py-4 rounded-xl text-white text-xs" id="btn-${test.id}">
+                    Execute Purchase
+                </button>
+            `;
+            cardsContainer.appendChild(card);
+        });
+
+        // 2. Modern Modal & Purchase Logic
+        let currentPurchase = {};
+
+        function executePurchase(testId, amount) {
+            const savedEmail = localStorage.getItem("userEmail");
+            if (savedEmail) {
+                // Professional Step: Skip prompt if already recognized
+                startPayment(savedEmail, testId, amount);
+            } else {
+                currentPurchase = { testId, amount };
+                document.getElementById("emailModal").style.display = "flex";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("emailModal").style.display = "none";
+        }
+
+        async function handleModalSubmit() {
+            const email = document.getElementById("modalUserEmail").value;
+            if (!email || !email.includes("@")) {
+                alert("Please enter a valid academic email.");
+                return;
+            }
+            localStorage.setItem("userEmail", email); // Save for repeat purchases
+            closeModal();
+            startPayment(email, currentPurchase.testId, currentPurchase.amount);
+        }
+
+        // 3. Razorpay Integration
+        async function startPayment(userEmail, testId, amount) {
+            try {
+                const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
+                const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
+
+                const options = {
+                    key,
+                    amount: order.amount,
+                    currency: "INR",
+                    name: "IIN Education",
+                    description: `${testId.toUpperCase()} Research Sequence`,
+                    order_id: order.id,
+                    callback_url: `${API_BASE_URL}/api/paymentverification`, // Pointing to Render
+                    prefill: { email: userEmail },
+                    theme: { "color": "#3b82f6" }
+                };
+                const razor = new window.Razorpay(options);
+                razor.open();
+            } catch (error) {
+                console.error("Payment error:", error);
+                alert("The server is currently waking up. Please wait 30 seconds and try again.");
+            }
+        }
+
+        // 4. Page Initialization & UI State
+        window.onload = function() {
+            const userEmail = localStorage.getItem("userEmail");
+            const purchasedData = localStorage.getItem("purchasedTests");
+            const myTests = purchasedData ? JSON.parse(purchasedData) : [];
+
+            if (userEmail) {
+                const loginBtn = document.getElementById("loginBtn");
+                loginBtn.innerText = userEmail.split('@')[0].toUpperCase();
+                loginBtn.style.background = "rgba(59, 130, 246, 0.1)";
+                loginBtn.style.border = "1px solid #3b82f6";
+
+                ['iat', 'nest', 'isi'].forEach(id => {
+                    const btn = document.getElementById(`btn-${id}`);
+                    if (myTests.includes(id)) {
+                        btn.innerHTML = "★ START SEQUENCE";
+                        btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                        btn.onclick = () => window.location.href = `instructions.html?testId=${id}`;
+                    }
+                });
+            }
+
+            // Scroll Reveal Animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        };
+    </script>
+</body>
+</html>

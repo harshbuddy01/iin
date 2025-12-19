@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Archives | IIN.edu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --blue: #3b82f6; 
+            --navy-dark: #0B021D; /* Richer Deep Indigo */
+            --violet: #8b5cf6;
+        }
+        
+        html, body {
+            background-color: var(--navy-dark) !important;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            scroll-behavior: smooth;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Fixed Grid Background with subtle violet glow */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(139, 92, 246, 0.05) 1px, transparent 0);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Header Style matched to screenshot */
+        nav {
+            background: rgba(11, 2, 29, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        /* High-fidelity glass cards with violet hover */
+        .glass-panel { 
+            background: rgba(20, 10, 40, 0.8); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel:hover {
+            border-color: #a855f7;
+            transform: translateY(-8px);
+            background: rgba(30, 15, 60, 0.9);
+            box-shadow: 0 20px 40px -15px rgba(168, 85, 247, 0.3);
+        }
+
+        .hud-text { font-family: monospace; font-size: 10px; color: #7c3aed; letter-spacing: 2px; text-transform: uppercase; }
+
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; 
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .year-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #c4b5fd;
+        }
+
+        /* Gradient for the Title */
+        .text-gradient {
+            background: linear-gradient(to right, #8b5cf6, #d946ef, #f43f5e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <nav class="fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center">
+        <div class="text-2xl font-extrabold tracking-tighter text-white">IIN<span class="text-[#8b8dfc]">.edu</span></div>
+        <div class="hidden lg:flex items-center space-x-12">
+            <div class="flex space-x-8 text-sm font-semibold text-gray-300">
+                <a href="index.html" class="hover:text-white transition">Home</a>
+                <a href="aboutpage.html" class="hover:text-white transition">About</a>
+                <a href="subtittlepyq.html" class="text-white underline underline-offset-8">PYQ</a>
+                <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
+                <a href="future.html" class="hover:text-white transition">Future Career</a>
+            </div>
+            <a href="signinpage.html" class="login-btn text-white text-sm">Login</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 pt-48 pb-32">
+        
+        <header class="mb-32 reveal">
+            <div class="hud-text mb-4 font-bold tracking-[0.3em]">Archive Acquisition // v2025.04</div>
+            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] uppercase text-white">
+                RESOURCE <br><span class="text-gradient">ARCHIVES.</span>
+            </h1>
+            <div class="border-l-4 border-violet-500 pl-8">
+                <p class="text-slate-300 text-lg max-w-2xl leading-relaxed">
+                    Select your target institute to access comprehensive previous year question papers from 2018 to 2025. 
+                    Master your preparation with the rigorous standards of India's premier research ecosystem.
+                </p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='iiserpyqhome.html'">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 font-bold mb-8 italic text-xl">II</div>
+                    <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">IISER PYQ</h3>
+                    <p class="hud-text text-[9px] mb-6 font-bold">Indian Institute of Science Education & Research</p>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Access authentic previous year questions from IISER entrance exams. Practice with comprehensive question papers to excel in your preparation.</p>
+                </div>
+                <div>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="year-badge">2025</span>
+                        <span class="year-badge">2024</span>
+                        <span class="year-badge">2023</span>
+                        <span class="year-badge">2018-21</span>
+                    </div>
+                    <button class="w-full py-4 bg-white text-black font-black uppercase tracking-widest text-xs rounded-xl hover:bg-violet-600 hover:text-white transition">Explore Matrix</button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='isipyqhome.html'">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-400 font-bold mb-8 italic text-xl">IS</div>
+                    <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">ISI PYQ</h3>
+                    <p class="hud-text text-[9px] mb-6 font-bold">Indian Statistical Institute</p>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Master your ISI entrance preparation with carefully curated previous year questions. Build confidence with authentic exam papers.</p>
+                </div>
+                <div>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="year-badge">2025</span>
+                        <span class="year-badge">2024</span>
+                        <span class="year-badge">2023</span>
+                        <span class="year-badge">2018-21</span>
+                    </div>
+                    <button class="w-full py-4 bg-white text-black font-black uppercase tracking-widest text-xs rounded-xl hover:bg-fuchsia-600 hover:text-white transition">Explore Matrix</button>
+                </div>
+            </div>
+
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='/niser-pyq.html'">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold mb-8 italic text-xl">NI</div>
+                    <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">NISER PYQ</h3>
+                    <p class="hud-text text-[9px] mb-6 font-bold">National Institute of Science Education</p>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Unlock your potential with NISER previous year questions. Practice systematically with real exam papers from 2018 to 2025.</p>
+                </div>
+                <div>
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <span class="year-badge">2025</span>
+                        <span class="year-badge">2024</span>
+                        <span class="year-badge">2023</span>
+                        <span class="year-badge">2018-21</span>
+                    </div>
+                    <button class="w-full py-4 bg-white text-black font-black uppercase tracking-widest text-xs rounded-xl hover:bg-purple-600 hover:text-white transition">Explore Matrix</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Simple, native Reveal Logic that doesn't break scrolling
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

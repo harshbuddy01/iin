@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - IIN Test Series</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; background-color: #0f1419; color: #e2e8f0; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: #1a1f2e; border-right: 1px solid #2d3748; display: flex; flex-direction: column; }
+        .logo { padding: 25px; font-size: 1.6rem; font-weight: bold; color: #6366f1; border-bottom: 1px solid #2d3748; letter-spacing: 1px; }
+        .nav-links { flex: 1; padding: 20px 0; }
+        .nav-item { padding: 15px 25px; cursor: pointer; color: #94a3b8; transition: all 0.3s; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+        .nav-item:hover, .nav-item.active { background: #2d3748; color: #fff; border-left: 4px solid #6366f1; }
+        .logout { padding: 20px; border-top: 1px solid #2d3748; color: #ef4444; cursor: pointer; font-weight: bold; }
+
+        /* MAIN CONTENT AREA */
+        .main { flex: 1; padding: 30px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* DASHBOARD STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #1a1f2e; padding: 20px; border-radius: 12px; border: 1px solid #2d3748; transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); border-color: #6366f1; }
+        .stat-num { font-size: 2.2rem; font-weight: bold; color: #6366f1; }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* CARDS & FORMS */
+        .card { background: #1a1f2e; padding: 35px; border-radius: 15px; border: 1px solid #2d3748; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .card.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 10px; color: #cbd5e1; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 14px; background: #0f1419; border: 1px solid #2d3748; color: white; border-radius: 8px; font-size: 1rem; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+        
+        /* BUTTONS */
+        .btn { padding: 12px 28px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; transition: 0.3s; }
+        .btn-primary { background: #6366f1; color: white; width: 100%; margin-top: 10px; }
+        .btn-primary:hover { background: #4f46e5; box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+        .btn-refresh { background: #2d3748; color: white; font-size: 0.85rem; }
+
+        /* TABLES */
+        .table-container { margin-top: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #2d3748; }
+        table { width: 100%; border-collapse: collapse; background: #1a1f2e; }
+        th, td { padding: 18px; text-align: left; border-bottom: 1px solid #2d3748; }
+        th { background: #2d3748; color: #cbd5e1; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; }
+        tr:hover { background: #232938; }
+
+        /* IMAGES & BADGES */
+        img.preview { max-width: 200px; max-height: 200px; margin-top: 15px; border: 2px dashed #2d3748; border-radius: 8px; display: none; }
+        .table-img { height: 50px; border-radius: 5px; cursor: pointer; border: 1px solid #333; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        .badge-phys { background: rgba(59, 130, 246, 0.2); color: #3b82f6; border: 1px solid #3b82f6; }
+        .badge-chem { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .badge-math { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid #eab308; }
+        .badge-bio { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+
+        /* MODALS */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a1f2e; width: 85%; height: 85%; border-radius: 15px; padding: 30px; overflow-y: auto; border: 1px solid #2d3748; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #ef4444; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="logo">IIN ADMIN</div>
+        <div class="nav-links">
+            <div class="nav-item active" onclick="switchTab('upload')"><i class="fas fa-upload"></i> Upload Question</div>
+            <div class="nav-item" onclick="switchTab('manage')"><i class="fas fa-tasks"></i> Manage Questions</div>
+            <div class="nav-item" onclick="switchTab('results')"><i class="fas fa-user-graduate"></i> Student Results</div>
+            <div class="nav-item" onclick="switchTab('feedbacks')"><i class="fas fa-comments"></i> Student Feedbacks</div>
+        </div>
+        <div class="logout" onclick="logout()"><i class="fas fa-power-off"></i> Logout</div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Command Center</h1>
+            <div id="currentTime" style="color: #94a3b8; font-size: 0.9rem;"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-label">Total Questions</div><div class="stat-num" id="statTotal">0</div></div>
+            <div class="stat-card"><div class="stat-label">Physics</div><div class="stat-num" id="statPhy">0</div></div>
+            <div class="stat-card"><div class="stat-label">Chemistry</div><div class="stat-num" id="statChem">0</div></div>
+            <div class="stat-card"><div class="stat-label">Results Filed</div><div class="stat-num" id="statResults">0</div></div>
+        </div>
+
+        <div id="tab-upload" class="card active">
+            <h2 style="color:#6366f1; margin-bottom:20px;">Add New Challenge</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label>Test Series</label>
+                    <select id="testId">
+                        <option value="iat">IAT TEST SERIES</option>
+                        <option value="nest">NEST TEST SERIES</option>
+                        <option value="isi">ISI TEST SERIES</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <select id="subject">
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Biology">Biology</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Question Text (Use $ for Math: e.g., $H_2O$ or $\int x dx$)</label>
+                <textarea id="questionText" rows="4" placeholder="Describe the question here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-image"></i> Upload Diagram (Optional)</label>
+                <input type="file" id="qImage" accept="image/*" onchange="previewImage()">
+                <img id="imgPreview" class="preview" src="">
+            </div>
+
+            <div class="form-group">
+                <label>Options</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <input type="text" id="opt1" placeholder="Option A">
+                    <input type="text" id="opt2" placeholder="Option B">
+                    <input type="text" id="opt3" placeholder="Option C">
+                    <input type="text" id="opt4" placeholder="Option D">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Correct Answer (Exact Match)</label>
+                <input type="text" id="correctAnswer" placeholder="Paste the exact text of the correct option">
+            </div>
+
+            <button class="btn btn-primary" onclick="uploadQuestion()">Deploy Question</button>
+        </div>
+
+        <div id="tab-manage" class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Question Repository</h2>
+                <button class="btn btn-refresh" onclick="loadAllQuestions()"><i class="fas fa-sync"></i> Sync Data</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="12%">Subject</th>
+                            <th width="45%">Question</th>
+                            <th width="10%">Diagram</th>
+                            <th width="23%">Correct Ans</th>
+                            <th width="10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-results" class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Student Performance Analytics</h2>
+                <button class="btn btn-refresh" onclick="loadResults()"><i class="fas fa-sync"></i> Refresh List</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll Number</th>
+                            <th>Email Address</th>
+                            <th>Test ID</th>
+                            <th>Score</th>
+                            <th>Timestamp</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-feedbacks" class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>Student Voice & Reviews</h2>
+                <button class="btn btn-refresh" onclick="loadFeedbacks()"><i class="fas fa-sync"></i> Update Reviews</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Student</th>
+                            <th>Rating (L/I/Q/S)</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="responseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('responseModal').style.display='none'">&times;</span>
+            <h2 id="modalStudentName" style="color:#6366f1; margin-bottom:25px; border-bottom:1px solid #2d3748; padding-bottom:15px;">Detailed Response Sheet</h2>
+            <div id="sheetContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // AUTH & UI
+        if (localStorage.getItem("adminKey") !== "secret_unlocked") window.location.href = "adminlogin.html";
+        function logout() { localStorage.removeItem("adminKey"); window.location.href = "adminlogin.html"; }
+        setInterval(() => { document.getElementById('currentTime').innerText = new Date().toLocaleString(); }, 1000);
+
+        function switchTab(t) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            if(t === 'manage') loadAllQuestions();
+            if(t === 'results') loadResults();
+            if(t === 'feedbacks') loadFeedbacks();
+        }
+
+        // IMAGE HANDLING
+        let base64Image = "";
+        function previewImage() {
+            const file = document.getElementById("qImage").files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                base64Image = reader.result;
+                const img = document.getElementById("imgPreview");
+                img.src = base64Image;
+                img.style.display = "block";
+            };
+            if(file) reader.readAsDataURL(file);
+        }
+
+        // UPLOAD LOGIC
+        async function uploadQuestion() {
+            const data = {
+                testId: document.getElementById("testId").value,
+                subject: document.getElementById("subject").value,
+                questionText: document.getElementById("questionText").value,
+                image: base64Image,
+                options: [
+                    document.getElementById("opt1").value,
+                    document.getElementById("opt2").value,
+                    document.getElementById("opt3").value,
+                    document.getElementById("opt4").value
+                ],
+                correctAnswer: document.getElementById("correctAnswer").value
+            };
+
+            if(!data.questionText || !data.correctAnswer) return alert("Error: Missing Question Content or Correct Answer.");
+
+            try {
+                const res = await axios.post("http://127.0.0.1:4000/api/upload-question", data);
+                if(res.data.success) {
+                    alert("✅ Success: Question Deployed to Database.");
+                    resetForm();
+                    loadAllQuestions();
+                }
+            } catch (e) { alert("Deployment Failed."); }
+        }
+
+        function resetForm() {
+            document.getElementById("questionText").value = "";
+            document.getElementById("correctAnswer").value = "";
+            document.getElementById("opt1").value = ""; document.getElementById("opt2").value = "";
+            document.getElementById("opt3").value = ""; document.getElementById("opt4").value = "";
+            document.getElementById("qImage").value = "";
+            document.getElementById("imgPreview").style.display = "none";
+            base64Image = "";
+        }
+
+        // REPOSITORY MANAGEMENT
+        async function loadAllQuestions() {
+            const tbody = document.getElementById("questionsTable");
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Synchronizing...</td></tr>";
+            try {
+                const res = await axios.get("http://127.0.0.1:4000/api/admin/all-questions");
+                if(res.data.success) {
+                    tbody.innerHTML = "";
+                    const questions = res.data.questions;
+                    updateStats(questions);
+                    questions.forEach(q => {
+                        let b = q.subject === "Physics" ? "badge-phys" : q.subject === "Chemistry" ? "badge-chem" : q.subject === "Mathematics" ? "badge-math" : "badge-bio";
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><span class="badge ${b}">${q.subject}</span></td>
+                                <td style="font-size:0.85rem;">${q.questionText}</td>
+                                <td>${q.image ? `<img src="${q.image}" class="table-img" onclick="window.open(this.src)">` : '-'}</td>
+                                <td style="color:#10b981; font-weight:500;">${q.correctAnswer}</td>
+                                <td><button onclick="deleteQ('${q._id}')" style="background:none; border:none; color:#ef4444; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+                            </tr>
+                        `;
+                    });
+                    if(window.MathJax) MathJax.typeset();
+                }
+            } catch(e) {}
+        }
+
+        async function deleteQ(id) {
+            if(confirm("Confirm: Permanently delete this question?")) {
+                await axios.delete(`http://127.0.0.1:4000/api/admin/delete-question/${id}`);
+                loadAllQuestions();
+            }
+        }
+
+        function updateStats(q) {
+            document.getElementById("statTotal").innerText = q.length;
+            document.getElementById("statPhy").innerText = q.filter(x => x.subject === "Physics").length;
+            document.getElementById("statChem").innerText = q.filter(x => x.subject === "Chemistry").length;
+        }
+
+        // RESULTS & PERFORMANCE
+        let cachedData = [];
+        async function loadResults() {
+            const tbody = document.getElementById("resultsTable");
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Fetching Results...</td></tr>";
+            try {
+                const res = await axios.get("http://127.0.0.1:4000/api/admin/results");
+                if(res.data.success) {
+                    tbody.innerHTML = "";
+                    const { results, questions } = res.data;
+                    cachedData = { results, questions };
+                    document.getElementById("statResults").innerText = results.length;
+                    results.forEach((r, idx) => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td style="color:#f1c40f; font-weight:bold;">${r.rollNumber || 'N/A'}</td>
+                                <td>${r.email}</td>
+                                <td>${r.testId.toUpperCase()}</td>
+                                <td style="font-weight:bold;">Analyzable</td>
+                                <td style="font-size:0.8rem;">${new Date(r.submissionTime).toLocaleString()}</td>
+                                <td><button class="btn-view" onclick="viewSheet(${idx})">Inspect Response</button></td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch(e) {}
+        }
+
+        function viewSheet(idx) {
+            const r = cachedData.results[idx];
+            const testQs = cachedData.questions.filter(q => q.testId === r.testId);
+            let organized = [];
+            ["Physics", "Chemistry", "Mathematics", "Biology"].forEach(s => {
+                organized = organized.concat(testQs.filter(q => q.subject === s));
+            });
+
+            let html = `<table style="width:100%"><thead><tr><th>Subject</th><th>Question Content</th><th>Student Input</th><th>Correct Logic</th><th>Points</th></tr></thead><tbody>`;
+            let counters = { "Physics":0, "Chemistry":0, "Mathematics":0, "Biology":0 };
+
+            organized.forEach(q => {
+                const key = `${q.subject}-${counters[q.subject]}`;
+                counters[q.subject]++;
+                const uIdx = r.answers[key];
+                let uTxt = uIdx !== undefined ? q.options[uIdx] : "SKIPPED";
+                let status = uTxt === q.correctAnswer ? "<span style='color:#10b981'>+4 (CORRECT)</span>" : uTxt === "SKIPPED" ? "0" : "<span style='color:#ef4444'>-1 (WRONG)</span>";
+
+                html += `<tr>
+                    <td>${q.subject}</td>
+                    <td style="font-size:0.85rem;">${q.questionText}</td>
+                    <td style="color:#cbd5e1">${uTxt}</td>
+                    <td style="color:#10b981">${q.correctAnswer}</td>
+                    <td>${status}</td>
+                </tr>`;
+            });
+            html += "</tbody></table>";
+            document.getElementById("modalStudentName").innerText = `Audit: ${r.email} | Roll: ${r.rollNumber || 'N/A'}`;
+            document.getElementById("sheetContent").innerHTML = html;
+            document.getElementById("responseModal").style.display = "flex";
+            if(window.MathJax) MathJax.typeset();
+        }
+
+        // FEEDBACK AUDIT
+        async function loadFeedbacks() {
+            const tbody = document.getElementById("feedbackTable");
+            tbody.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Reading Reviews...</td></tr>";
+            try {
+                const res = await axios.get("http://127.0.0.1:4000/api/admin/feedbacks");
+                if(res.data.success) {
+                    tbody.innerHTML = "";
+                    res.data.feedbacks.forEach(f => {
+                        const r = f.ratings;
+                        tbody.innerHTML += `
+                            <tr>
+                                <td style="color:#f1c40f;">${f.rollNumber || 'N/A'}</td>
+                                <td>${f.email}<br><small>${f.testId.toUpperCase()}</small></td>
+                                <td>${r.login}/${r.interface}/${r.quality}/${r.server}</td>
+                                <td style="font-style:italic;">"${f.comment || 'No text feedback provided.'}"</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch(e) {}
+        }
+        
+        // Init
+        loadAllQuestions();
+    </script>
+</body>
+</html>
