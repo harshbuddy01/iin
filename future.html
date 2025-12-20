@@ -3,239 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Pipeline | IIN.edu</title>
+    <title>Future Career | Strategic Vanguard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$']],
-                processEscapes: true
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #3b82f6; --purple: #8b5cf6; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
-        
-        /* Smooth Scroll & Reveals */
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-
-        /* Text Animations */
-        @keyframes glitch {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-2px); }
-            40% { transform: translateX(2px); }
-            60% { transform: translateX(-1px); }
-            80% { transform: translateX(1px); }
+        body { background: #020617; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            transition: 0.4s;
         }
-
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
-            50% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4); }
-        }
-
-        .glitch-text:hover { animation: glitch 0.3s ease-in-out; }
-        .pulse-text { animation: pulse-glow 2s ease-in-out infinite; }
-        
-        .gradient-text {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
-            background-size: 200% 100%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradient-shift 3s ease infinite;
-        }
-
-        @keyframes gradient-shift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        .scale-in { animation: scale-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        @keyframes scale-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        
-        /* The Animated Flow Line */
-        .pipeline-line {
-            position: absolute; left: 50%; top: 0; bottom: 0; width: 2px;
-            background: linear-gradient(to bottom, transparent, var(--accent), var(--purple), #ec4899, transparent);
-            z-index: 0;
-        }
-
-        .grid-bg {
-            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0);
-            background-size: 30px 30px;
-        }
-
-        .hud-text { font-family: monospace; font-size: 10px; color: #475569; letter-spacing: 2px; }
-        .glow-node { box-shadow: 0 0 20px var(--accent); }
+        .glass-card:hover { border-color: #3b82f6; transform: translateY(-5px); }
+        .gradient-text { background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="grid-bg">
+<body class="overflow-x-hidden">
+    <nav class="fixed top-0 w-full z-50 px-12 py-6 flex justify-between items-center bg-[#020617]/80 backdrop-blur-md border-b border-white/5">
+        <div class="text-2xl font-extrabold">IIN<span class="text-blue-500">.edu</span></div>
+        <div class="login-btn"></div> </nav>
 
-    <nav class="fixed top-0 w-full z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/5 px-12 py-5 flex justify-between items-center">
-        <div class="text-2xl font-extrabold tracking-tighter text-white">IIN<span class="text-[#8b8dfc]">.edu</span></div>
-        <div class="hidden lg:flex items-center space-x-12">
-            <div class="flex space-x-8 text-sm font-semibold text-gray-300">
-                <a href="index.html" class="hover:text-white transition">Home</a>
-                <a href="aboutpage.html" class="hover:text-white transition">About</a>
-                <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-                <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
-                <a href="future.html" class="hover:text-white transition">Future Career</a>
-            </div>
-            <a href="signinpage.html" class="bg-gradient-to-r from-[#6366f1] to-[#a855f7] px-8 py-3 rounded-full text-sm font-bold text-white hover:opacity-90 transition shadow-lg shadow-indigo-500/20">Login</a>
-        </div>
-    </nav>
     <main class="max-w-7xl mx-auto px-6 pt-40 pb-20">
-        
-        <header class="mb-32 reveal">
-            <div class="hud-text mb-4 uppercase">Directorial Directive // v2025</div>
-            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] scale-in">
-                STRATEGIC <br><span class="gradient-text">VANGUARD.</span>
-            </h1>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-6">
-                    You are engaging with the high-performance architecture of Indian science. This pipeline maps the precise trajectory from secondary education to international lab leadership.
-                </p>
-                <div class="lg:col-span-2 flex space-x-12 items-center">
-                    <div>
-                        <div class="text-3xl font-bold italic">2026-30</div>
-                        <div class="hud-text uppercase">Projection Era</div>
-                    </div>
-                    <div class="h-10 w-px bg-white/10"></div>
-                    <div>
-                        <div class="text-3xl font-bold italic">₹4.2B</div>
-                        <div class="hud-text uppercase">Sector Allotment</div>
-                    </div>
-                </div>
-            </div>
+        <header class="text-center mb-20">
+            <h1 class="text-6xl font-black mb-6">STRATEGIC <span class="gradient-text">VANGUARD</span></h1>
+            <p class="text-slate-400 text-xl max-w-2xl mx-auto">Mapping the transition from competitive excellence to frontier research and scientific leadership.</p>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-40">
-            <div class="md:col-span-2 md:row-span-2 glass p-8 rounded-3xl reveal border-blue-500/20">
-                <div class="flex justify-between items-start mb-16">
-                    <h3 class="text-3xl font-bold leading-tight uppercase glitch-text">Quantum <br>Intelligence</h3>
-                    <span class="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/20 uppercase font-bold pulse-text">Priority Tier</span>
-                </div>
-                <div class="space-y-6 mb-8">
-                    <p class="text-slate-400 text-sm italic">"Focus on weak nuclear force simulations and CKM Matrix flavor-change optimizations."</p>
-                    <div class="text-xs font-mono text-blue-500">
-                        $$ \mathcal{L} = \bar{\psi}(i\gamma^\mu D_\mu - m)\psi $$
-                    </div>
-                </div>
-                <div class="flex justify-between items-end border-t border-white/5 pt-6">
-                    <div>
-                        <div class="hud-text mb-1 uppercase">Primary Node</div>
-                        <div class="text-lg font-bold">TIFR, Mumbai</div>
-                    </div>
-                    <button class="text-blue-500 font-bold text-xs uppercase tracking-widest hover:underline">Full Analysis →</button>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div class="glass-card p-10 rounded-3xl">
+                <div class="text-blue-500 font-bold mb-4 uppercase tracking-widest text-sm">Phase 01</div>
+                <h3 class="text-3xl font-bold mb-4">Academic Ascension</h3>
+                <p class="text-slate-400 leading-relaxed">Transitioning from IAT/NEST preparation to core research institutes like IISER, NISER, and IISc. Focus on building an interdisciplinary foundation.</p>
             </div>
 
-            <div class="glass p-6 rounded-3xl reveal">
-                <div class="hud-text mb-4 uppercase">Stipend (JRF)</div>
-                <div class="text-4xl font-bold tracking-tighter">₹37k<span class="text-sm text-slate-500">/mo</span></div>
-                <div class="text-[10px] text-green-500 mt-2 font-bold">+HRA & Contingency</div>
+            <div class="glass-card p-10 rounded-3xl">
+                <div class="text-purple-500 font-bold mb-4 uppercase tracking-widest text-sm">Phase 02</div>
+                <h3 class="text-3xl font-bold mb-4">Research Immersion</h3>
+                <p class="text-slate-400 leading-relaxed">Early-stage laboratory involvement, summer fellowships (KVPY/SURF), and developing specialized expertise in quantum systems or molecular biology.</p>
             </div>
-
-            <div class="glass p-6 rounded-3xl reveal">
-                <div class="hud-text mb-4 uppercase">Core Stack</div>
-                <div class="flex flex-wrap gap-2">
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">FORTRAN</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">LaTeX</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">WOLFRAM</span>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 glass p-8 rounded-3xl reveal">
-                <h3 class="hud-text mb-6 uppercase">Institute Comparison Matrix</h3>
-                <table class="w-full text-left text-[11px] uppercase tracking-wider">
-                    <thead class="text-slate-500 border-b border-white/5">
-                        <tr><th class="pb-3">Institution</th><th class="pb-3">Specialty</th><th class="pb-3 text-right">Entrance</th></tr>
-                    </thead>
-                    <tbody class="text-slate-300">
-                        <tr class="border-b border-white/5"><td class="py-4 font-bold text-white italic">IISc Bangalore</td><td>Condensed Matter</td><td class="text-right">GATE/JEST</td></tr>
-                        <tr class="border-b border-white/5"><td class="py-4 font-bold text-white italic">IUCAA Pune</td><td>Astrophysics</td><td class="text-right">INAT</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="relative">
-            <h2 class="text-5xl font-black mb-24 text-center tracking-tighter uppercase gradient-text">Chronological Acquisition</h2>
-            <div class="pipeline-line hidden md:block"></div>
-
-            <div class="reveal flex flex-col md:flex-row items-center mb-40 w-full relative">
-                <div class="md:w-1/2 md:pr-20 text-right">
-                    <div class="hud-text text-blue-500 mb-2 uppercase tracking-[0.2em] pulse-text">Acquisition_01 // Foundation</div>
-                    <h3 class="text-4xl font-black mb-4 italic uppercase glitch-text">Secondary Era</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">Mastery of classical physics and mathematics. Initial exposure to KVPY and National Olympiads. Building the logic for complex particle interactions.</p>
-                </div>
-                <div class="z-10 w-4 h-4 rounded-full bg-blue-500 border-4 border-slate-950 glow-node hidden md:block"></div>
-                <div class="md:w-1/2 md:pl-20 mt-10 md:mt-0">
-                    <div class="glass p-6 rounded-2xl border-l-4 border-blue-500">
-                        <div class="hud-text mb-4 uppercase tracking-widest font-bold">Target Gateways</div>
-                        <ul class="space-y-3 text-[11px] font-bold">
-                            <li class="flex justify-between border-b border-white/5 pb-2"><span>JEE ADVANCED</span><span class="text-blue-500">Rank &lt; 2000</span></li>
-                            <li class="flex justify-between border-b border-white/5 pb-2"><span>IAT (IISER)</span><span class="text-blue-500">Tier-1 Status</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal flex flex-col md:flex-row-reverse items-center mb-40 w-full relative">
-                <div class="md:w-1/2 md:pl-20">
-                    <div class="hud-text text-purple-500 mb-2 uppercase tracking-[0.2em] pulse-text">Acquisition_02 // Synthesis</div>
-                    <h3 class="text-4xl font-black mb-4 italic uppercase glitch-text">BS-MS / B.Tech</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">Transition from theory to computation. Engagement in SRFP (Summer Research Fellowships) at IITs or IISc. Mastering data analysis pipelines.</p>
-                </div>
-                <div class="z-10 w-4 h-4 rounded-full bg-purple-500 border-4 border-slate-950 shadow-[0_0_20px_#8b5cf6] hidden md:block"></div>
-                <div class="md:w-1/2 md:pr-20 mt-10 md:mt-0">
-                    <div class="glass p-6 rounded-2xl border-r-4 border-purple-500">
-                        <div class="hud-text mb-4 uppercase tracking-widest font-bold">Skill Requirements</div>
-                        <div class="grid grid-cols-2 gap-2 text-[9px] font-bold uppercase tracking-widest">
-                            <div class="bg-slate-900 p-2 rounded">Computational Physics</div>
-                            <div class="bg-slate-900 p-2 rounded">Experimental Design</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal flex flex-col md:flex-row items-center mb-20 w-full relative">
-                <div class="md:w-1/2 md:pr-20 text-right">
-                    <div class="hud-text text-pink-500 mb-2 uppercase tracking-[0.2em] pulse-text">Acquisition_03 // Vanguard</div>
-                    <h3 class="text-4xl font-black mb-4 italic uppercase glitch-text">Research Status</h3>
-                    <p class="text-slate-400 text-sm leading-relaxed">Attainment of JRF status. Integration into TIFR or BARC projects. Contributing to international consortia like CERN or LIGO.</p>
-                </div>
-                <div class="z-10 w-4 h-4 rounded-full bg-pink-500 border-4 border-slate-950 shadow-[0_0_20px_#ec4899] hidden md:block"></div>
-                <div class="md:w-1/2 md:pl-20 mt-10 md:mt-0">
-                    <button class="bg-white text-black font-black uppercase tracking-widest px-10 py-5 rounded hover:bg-pink-500 hover:text-white transition-all transform hover:scale-105">
-                        Access Grant Matrix
-                    </button>
-                </div>
-            </div>
-        </section>
-
+        </div>
     </main>
 
-    <script>
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.15 });
-
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-    </script>
     <script src="auth.js"></script>
 </body>
 </html>
