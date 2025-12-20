@@ -1,6 +1,6 @@
 import Question from "../models/question.js";
 import ExamResult from "../models/results.js";
-import Payment from "../models/payment.js";
+import { Payment } from "../models/payment.js"; // This matches the new named export
 
 // Login Logic
 export const adminLogin = (req, res) => {
