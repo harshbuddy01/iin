@@ -171,113 +171,77 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // Use your live Render URL
+        const API_BASE_URL = "iin-production.up.railway.app";
+        
         let questionsBySubject = { "Physics": [], "Chemistry": [], "Mathematics": [], "Biology": [] };
         let currentSubject = "Physics", currentQIndex = 0, userResponses = {}, questionStatus = {};
 
         window.onload = function() {
-            const email = localStorage.getItem("userEmail") || "Student@iin.edu";
-            document.getElementById("userName").innerText = email;
+            // Retrieve actual user email from local memory
+            const email = localStorage.getItem("userEmail");
+            if (!email) {
+                window.location.href = "signinpage.html";
+                return;
+            }
+            document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
+            
+            // Fetch questions from the production server
             fetchQuestions(new URLSearchParams(window.location.search).get("test") || "iat");
             startTimer();
         };
 
         async function fetchQuestions(testId) {
             try {
-                const res = await axios.get(`http://127.0.0.1:4000/api/get-questions?testId=${testId}`);
+                const res = await axios.get(`${API_BASE_URL}/api/get-questions?testId=${testId}`);
                 if(res.data.success) {
-                    res.data.questions.forEach(q => { if(questionsBySubject[q.subject]) questionsBySubject[q.subject].push(q); });
+                    res.data.questions.forEach(q => { 
+                        if(questionsBySubject[q.subject]) questionsBySubject[q.subject].push(q); 
+                    });
                     switchSubject("Physics");
                 }
-            } catch(e) { document.getElementById("questionText").innerText = "Network Error: Could not load questions."; }
-        }
-
-        function switchSubject(subj) {
-            currentSubject = subj; currentQIndex = 0;
-            document.getElementById("currentSubjectTitle").innerText = subj;
-            document.querySelectorAll(".section-tab").forEach(btn => {
-                btn.classList.remove("active");
-                if(btn.innerText.includes(subj)) btn.classList.add("active");
-            });
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            const list = questionsBySubject[currentSubject];
-            if(!list || !list.length) {
-                document.getElementById("questionText").innerText = "No questions uploaded for this section.";
-                document.getElementById("optionsContainer").innerHTML = "";
-                return;
+            } catch(e) { 
+                document.getElementById("questionText").innerText = "Connection Error: Server is initializing. Please wait 30s."; 
             }
-            const q = list[currentQIndex];
-            const globalKey = `${currentSubject}-${currentQIndex}`;
-            document.getElementById("qNumDisplay").innerText = `Question No. ${currentQIndex + 1}`;
-            document.getElementById("questionText").innerHTML = q.questionText;
-            document.getElementById("questionImageContainer").innerHTML = q.image ? `<img src="${q.image}" class="q-img">` : "";
-
-            const container = document.getElementById("optionsContainer");
-            container.innerHTML = "";
-            q.options.forEach((opt, i) => {
-                const isSel = userResponses[globalKey] === i ? "selected" : "";
-                container.innerHTML += `
-                    <div class="option-card ${isSel}" onclick="selectOption(${i})">
-                        <input type="radio" class="option-radio" ${isSel ? "checked" : ""}> 
-                        <div>${opt}</div>
-                    </div>`;
-            });
-
-            if(window.MathJax) MathJax.typeset();
-            if(!questionStatus[globalKey]) questionStatus[globalKey] = "not-answered";
-            renderPalette();
         }
 
-        function selectOption(i) { userResponses[`${currentSubject}-${currentQIndex}`] = i; loadQuestion(); }
-        function saveNext() { const k = `${currentSubject}-${currentQIndex}`; questionStatus[k] = userResponses[k] !== undefined ? "answered" : "not-answered"; nextQ(); }
-        function markReview() { questionStatus[`${currentSubject}-${currentQIndex}`] = "marked"; nextQ(); }
-        function clearResponse() { delete userResponses[`${currentSubject}-${currentQIndex}`]; questionStatus[`${currentSubject}-${currentQIndex}`] = "not-answered"; loadQuestion(); }
-        function nextQ() { if(currentQIndex < questionsBySubject[currentSubject].length - 1) { currentQIndex++; loadQuestion(); } else { renderPalette(); alert("End of " + currentSubject + " section."); } }
-
-        function renderPalette() {
-            const grid = document.getElementById("questionPalette"); grid.innerHTML = "";
-            (questionsBySubject[currentSubject] || []).forEach((_, i) => {
-                const s = questionStatus[`${currentSubject}-${i}`] || "not-visited";
-                let cls = "p-btn";
-                if(i === currentQIndex) cls += " p-current";
-                if(s === "answered") cls += " p-answered";
-                if(s === "not-answered") cls += " p-not-answered";
-                if(s === "marked") cls += " p-marked";
-                grid.innerHTML += `<div class="${cls}" onclick="currentQIndex=${i};loadQuestion()">${i+1}</div>`;
-            });
-        }
-
-        function startTimer() {
-            let t = 180 * 60;
-            const timerObj = setInterval(() => {
-                t--;
-                const h = Math.floor(t/3600).toString().padStart(2,'0'), m = Math.floor((t%3600)/60).toString().padStart(2,'0'), s = (t%60).toString().padStart(2,'0');
-                document.getElementById("timerDisplay").innerText = `${h}:${m}:${s}`;
-                if(t <= 0) { clearInterval(timerObj); finalSubmit(); }
-            }, 1000);
-        }
-
-        function showSummary() {
-            let html = "<table border='1' width='100%' cellpadding='10'><tr><th>Section</th><th>Attempted</th><th>Skipped</th></tr>";
-            for(let subj in questionsBySubject) {
-                let att = 0;
-                questionsBySubject[subj].forEach((_, i) => { if(userResponses[`${subj}-${i}`] !== undefined) att++; });
-                html += `<tr><td>${subj}</td><td>${att}</td><td>${questionsBySubject[subj].length - att}</td></tr>`;
-            }
-            html += "</table>";
-            document.getElementById("summaryTable").innerHTML = html;
-            document.getElementById("submitModal").style.display = "flex";
-        }
+        // ... Keep your switchSubject, loadQuestion, selectOption functions as they are ...
 
         async function finalSubmit() {
-            const email = localStorage.getItem("userEmail") || "Student@iin.edu";
+            const email = localStorage.getItem("userEmail");
             const testId = new URLSearchParams(window.location.search).get("test") || "iat";
-            await axios.post("http://127.0.0.1:4000/api/submit-exam", { email, testId, userResponses });
-            alert("Test Submitted Successfully. Response sheet will be emailed at 2:00 PM.");
-            window.location.href = "testfirstpage.html";
+            
+            try {
+                // Post responses to the live MongoDB via Render
+                await axios.post(`${API_BASE_URL}/api/submit-exam`, { 
+                    email, 
+                    testId, 
+                    userResponses 
+                });
+                alert("Test Submitted Successfully. Response sheet will be emailed to you.");
+                window.location.href = "testfirstpage.html";
+            } catch (error) {
+                alert("Submission failed. Checking connection...");
+            }
+        }
+
+        // Add the timer logic we discussed
+        function startTimer() {
+            let t = 180 * 60; // 180 minutes
+            const timerObj = setInterval(() => {
+                t--;
+                const h = Math.floor(t/3600).toString().padStart(2,'0');
+                const m = Math.floor((t%3600)/60).toString().padStart(2,'0');
+                const s = (t%60).toString().padStart(2,'0');
+                document.getElementById("timerDisplay").innerText = `${h}:${m}:${s}`;
+                
+                if(t <= 0) { 
+                    clearInterval(timerObj); 
+                    finalSubmit(); // Auto-submit when time expires
+                }
+            }, 1000);
         }
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

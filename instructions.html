@@ -3,174 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructions - Assessment Examination Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Instructions - IIN.edu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
+        :root { --blue: #3b82f6; --navy-dark: #020617; --navy-panel: #0f172a; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; padding: 0; 
+            background-color: var(--navy-dark); 
+            color: #f8fafc;
+        }
         
         /* HEADER */
-        .header { background-color: #2c3e50; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .header-title { font-size: 1.2rem; font-weight: bold; }
-        .user-profile { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: white; border-radius: 50%; color: #2c3e50; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .header { 
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(12px);
+            color: white; padding: 20px 5%; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .header-title { font-size: 1.2rem; font-weight: 800; }
+        .logo span { color: #8b8dfc; }
+
+        /* Styles for the Logout Button (Injected by auth.js) */
+        .user-auth-panel { display: flex; align-items: center; gap: 1rem; }
+        .user-greeting-text { color: #94a3b8; font-size: 0.875rem; font-weight: 700; }
+        .logout-btn-universal {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
 
         /* CONTAINER */
-        .container { display: flex; height: calc(100vh - 70px); }
-        .left-panel { flex: 1; background: white; padding: 30px; overflow-y: auto; border-right: 1px solid #ccc; }
-        .right-panel { width: 300px; background: #f9f9f9; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .container { display: flex; height: calc(100vh - 80px); }
+        .left-panel { flex: 1; background: var(--navy-panel); padding: 40px; overflow-y: auto; }
+        .right-panel { width: 350px; background: var(--navy-dark); padding: 30px; text-align: center; }
 
-        /* INSTRUCTIONS TEXT */
-        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; }
-        .instruction-list { line-height: 1.6; font-size: 0.95rem; text-align: left; }
-        .instruction-list li { margin-bottom: 10px; }
+        h2 { color: white; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 20px; }
+        .instruction-list { line-height: 1.8; color: #94a3b8; text-align: left; }
 
-        /* FORM */
-        .login-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; margin-top: 20px; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #555; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        .login-box { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); width: 100%; margin-top: 20px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; }
         
-        /* FOOTER CONFIRMATION */
-        .confirmation { margin-top: 20px; padding: 15px; background: #e8f4fd; border: 1px solid #b6e0fe; border-radius: 4px; text-align: left; font-size: 0.9rem; }
-        
-        .btn-start { background: #3498db; color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; width: 100%; transition: 0.3s; }
-        .btn-start:hover { background: #2980b9; }
-        .btn-start:disabled { background: #bdc3c7; cursor: not-allowed; }
-
-        .error-msg { color: red; font-size: 0.85rem; margin-top: 10px; display: none; }
+        .confirmation { margin-top: 30px; padding: 20px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; }
+        .btn-start { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; }
+        .btn-start:disabled { opacity: 0.3; cursor: not-allowed; }
+        .error-msg { color: #f87171; font-size: 0.85rem; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-title">Instructions</div>
-        <div class="user-profile">
-            <div class="avatar" id="headerInitials">U</div>
-            <span id="headerEmail">Student</span>
-        </div>
+        <div class="header-title">IIN<span>.edu</span> // Examination Portal</div>
+        <div class="login-btn"></div> 
     </div>
 
     <div class="container">
         <div class="left-panel">
-            <h2>Please Read Instructions Carefully</h2>
-            
-            <p><strong>General Instructions:</strong></p>
+            <h2>Examination Instructions</h2>
             <ol class="instruction-list">
                 <li>Total duration of examination is <strong>180 minutes</strong>.</li>
-                <li>The clock will be set at the server. The countdown timer in the top right corner of screen will display the remaining time available for you to complete the examination.</li>
-                <li>The Question Palette displayed on the right side of screen will show the status of each question using one of the following symbols:
-                    <ul style="list-style: none; padding: 10px 0;">
-                        <li>⚪ <strong>Not Visited:</strong> You have not visited the question yet.</li>
-                        <li>🔴 <strong>Not Answered:</strong> You have not answered the question.</li>
-                        <li>🟢 <strong>Answered:</strong> You have answered the question.</li>
-                        <li>🟣 <strong>Marked for Review:</strong> You have NOT answered the question, but have marked the question for review.</li>
-                    </ul>
-                </li>
-                <li>Click on <strong>Save & Next</strong> to save your answer for the current question and then go to the next question.</li>
-                <li><strong>Marking Scheme:</strong> +4 for correct answer, -1 for incorrect answer.</li>
+                <li>The server clock will manage the countdown timer.</li>
+                <li><strong>Marking Scheme:</strong> Correct (+4) | Incorrect (-1).</li>
+                <li>Stable internet is required. The test will auto-submit if time expires.</li>
             </ol>
 
             <div class="confirmation">
                 <input type="checkbox" id="agreeCheck" onchange="toggleButton()">
-                <label for="agreeCheck" style="display:inline; font-weight:normal;">
-                    I have read and understood the instructions. I agree that in case of not adhering to the exam instructions, I shall be liable to be debarred from this Test.
+                <label for="agreeCheck" style="display:inline; font-weight:600; margin-left: 10px; cursor:pointer;">
+                    I have read and understood the conceptual-first test standards.
                 </label>
             </div>
         </div>
 
         <div class="right-panel">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User" width="80" style="margin-bottom:10px;">
-            <div id="studentNameDisplay" style="font-weight:bold; margin-bottom:20px;">Student Login</div>
-
             <div class="login-box">
+                <div id="studentNameDisplay" style="font-weight:800; color:var(--blue); margin-bottom:20px;">CANDIDATE LOGIN</div>
                 <div class="input-group">
-                    <label>Candidate Name</label>
-                    <input type="text" id="candidateName" placeholder="Enter your full name">
+                    <label>Full Name</label>
+                    <input type="text" id="candidateName" placeholder="Enter Full Name">
                 </div>
                 <div class="input-group">
-                    <label>Exam Roll Number</label>
-                    <input type="text" id="rollNumber" placeholder="Enter 8-digit Roll Number">
+                    <label>Exam Token (Roll No)</label>
+                    <input type="text" id="rollNumber" placeholder="8-Digit Token">
                 </div>
             </div>
-
             <div id="errorMsg" class="error-msg"></div>
-
-            <button id="startBtn" class="btn-start" onclick="verifyAndStart()" disabled>I am ready to begin</button>
+            <button id="startBtn" class="btn-start" onclick="verifyAndStart()" disabled>Ready to Begin</button>
         </div>
     </div>
 
     <script>
-        // 1. On Load: Fill Email
+        const API_BASE_URL = "iin-production.up.railway.app";
+
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
-            if(email) {
-                document.getElementById("headerEmail").innerText = email;
-                document.getElementById("studentNameDisplay").innerText = email;
-                document.getElementById("headerInitials").innerText = email.charAt(0).toUpperCase();
-            } else {
-                window.location.href = "signinpage.html";
-            }
+            // If user isn't logged in, redirect to login page
+            if(!email) { window.location.href = "signinpage.html"; }
         };
 
-        // 2. Enable Button only if Checkbox is checked
         function toggleButton() {
-            const isChecked = document.getElementById("agreeCheck").checked;
-            const btn = document.getElementById("startBtn");
-            if (isChecked) {
-                btn.disabled = false;
-            } else {
-                btn.disabled = true;
-            }
+            document.getElementById("startBtn").disabled = !document.getElementById("agreeCheck").checked;
         }
 
-        // 3. Verify Roll Number with Backend
         async function verifyAndStart() {
-            const name = document.getElementById("candidateName").value;
             const roll = document.getElementById("rollNumber").value;
             const email = localStorage.getItem("userEmail");
-            const errorMsg = document.getElementById("errorMsg");
             const btn = document.getElementById("startBtn");
+            const errorMsg = document.getElementById("errorMsg");
 
-            // Basic Validation
-            if(!name || !roll) {
-                errorMsg.innerText = "Please fill in all details.";
-                errorMsg.style.display = "block";
-                return;
-            }
+            if(!roll) { errorMsg.innerText = "Token required."; errorMsg.style.display = "block"; return; }
 
-            btn.innerText = "Verifying...";
+            btn.innerText = "AUTHORIZING...";
             btn.disabled = true;
 
             try {
-                // Call the API we already made (api/start-test checks roll+email)
-                const res = await axios.post("http://127.0.0.1:4000/api/start-test", {
+                // Pointing to your LIVE Render backend
+                const res = await axios.post(`${API_BASE_URL}/api/start-test`, {
                     rollNumber: roll,
                     email: email
                 });
 
                 if (res.data.success) {
-                    // SUCCESS!
-                    // Get the test ID from the URL (passed from dashboard)
                     const params = new URLSearchParams(window.location.search);
-                    const testId = params.get("testId") || "iat"; // Default to iat if missing
-                    
-                    // Redirect to the Real Exam
-                    window.location.href = `exam.html?test=${testId}`;
+                    window.location.href = `exam.html?test=${params.get("testId") || "iat"}`;
                 }
-
             } catch (error) {
-                btn.innerText = "I am ready to begin";
+                btn.innerText = "READY TO BEGIN";
                 btn.disabled = false;
                 errorMsg.style.display = "block";
-                
-                if (error.response) {
-                    errorMsg.innerText = error.response.data.message; // "Invalid Token" or "Already Used"
-                } else {
-                    errorMsg.innerText = "Connection Error. Is server running?";
-                }
+                // Show specific error from backend if available
+                errorMsg.innerText = error.response?.data?.message || "Auth Failed. Is server active?";
             }
         }
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

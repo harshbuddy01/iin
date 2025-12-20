@@ -90,6 +90,38 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        /* Styling for the User Profile & Logout on the Archives Page */
+.user-auth-panel {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.user-greeting {
+    color: #c4b5fd; /* Light violet to match year badges */
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.logout-btn-archives {
+    background: rgba(244, 63, 94, 0.1); /* Subtle rose-red */
+    color: #f43f5e; /* Rose-red from your title gradient */
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.logout-btn-archives:hover {
+    background: #f43f5e;
+    color: white;
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+    transform: translateY(-1px);
+}
     </style>
 </head>
 <body>
@@ -195,5 +227,6 @@
 
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>

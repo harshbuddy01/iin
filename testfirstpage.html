@@ -12,7 +12,7 @@
 
     <script>
         // Centralized API configuration for Render deployment
-        const API_BASE_URL = "https://iin-backend.onrender.com";
+        const API_BASE_URL = "iin-production.up.railway.app";
     </script>
 
     <style>
@@ -30,7 +30,6 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Fixed Grid Background */
         .grid-bg {
             position: fixed;
             inset: 0;
@@ -55,6 +54,22 @@
             color: white;
             font-size: 0.875rem;
         }
+
+        /* NEW: Logout & User Profile UI Styles */
+        .user-auth-panel { display: flex; align-items: center; gap: 1rem; }
+        .user-greeting-text { color: #94a3b8; font-size: 0.875rem; font-weight: 700; }
+        .logout-btn-universal {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-btn-universal:hover { background: #3b82f6; color: white; }
 
         .glass-panel { 
             background: rgba(15, 23, 42, 0.8); 
@@ -92,7 +107,7 @@
             transform: scale(1.02);
         }
 
-        /* Modern Email Modal Styles */
+        /* Modal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -126,8 +141,6 @@
             outline: none;
         }
 
-        .modal-input:focus { border-color: #007bff; box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); }
-
         .modal-btn {
             width: 100%;
             padding: 15px;
@@ -139,8 +152,6 @@
             cursor: pointer;
             transition: 0.3s;
         }
-
-        .modal-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); }
 
         .hero-title {
             font-size: clamp(3rem, 8vw, 7rem);
@@ -156,9 +167,7 @@
         <div class="modal-content">
             <h2 style="color: white; margin: 0; font-weight: 800;">UNLOCK ACCESS</h2>
             <p style="color: #888; font-size: 14px; margin-top: 10px;">Enter your email to receive your unique Exam Token.</p>
-            
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@university.edu" required>
-            
             <button onclick="handleModalSubmit()" class="modal-btn">PROCEED TO SECURE PAYMENT</button>
             <button onclick="closeModal()" style="background:none; border:none; color:#555; margin-top:15px; cursor:pointer; font-size: 12px; font-weight: bold;">CANCEL TRANSACTION</button>
         </div>
@@ -183,9 +192,7 @@
     <main class="max-w-7xl mx-auto px-6 pt-48 pb-32">
         <header class="mb-32 reveal">
             <div class="hud-text mb-4">Strategic Assessment // v2025.04</div>
-            <h1 class="hero-title mb-8">
-                PREMIUM <br><span class="text-blue-500">TEST SERIES.</span>
-            </h1>
+            <h1 class="hero-title mb-8">PREMIUM <br><span class="text-blue-500">TEST SERIES.</span></h1>
             <p class="text-slate-400 text-lg max-w-2xl leading-relaxed border-l-2 border-blue-500 pl-8">
                 Unlocking India's premier research ecosystem. Comprehensive preparation sequences designed by researchers for IAT, NEST, and ISI aspirants.
             </p>
@@ -195,23 +202,12 @@
     </main>
 
     <script>
-        // Data for Test Series
         const testSeries = [
-            {
-                id: 'iat', name: 'IAT TEST SERIES', fullName: 'Indian Aptitude Test', price: 199,
-                features: ['3-day unlock sequence', 'IISER standard modules', 'Detailed logic solutions', 'Glow-Matrix analytics']
-            },
-            {
-                id: 'nest', name: 'NEST TEST SERIES', fullName: 'National Entrance Screening Test', price: 199,
-                features: ['Topic-wise precision', 'Expert research curation', 'Real-time tracking', 'Scientific strategy sessions']
-            },
-            {
-                id: 'isi', name: 'ISI TEST SERIES', fullName: 'Indian Statistical Institute', price: 199,
-                features: ['Statistical reasoning', 'Math problem matrices', 'Exam pattern simulation', 'Rigorous logic testing']
-            }
+            { id: 'iat', name: 'IAT TEST SERIES', fullName: 'Indian Aptitude Test', price: 199, features: ['3-day unlock sequence', 'IISER standard modules', 'Detailed logic solutions'] },
+            { id: 'nest', name: 'NEST TEST SERIES', fullName: 'National Entrance Screening Test', price: 199, features: ['Topic-wise precision', 'Expert research curation', 'Real-time tracking'] },
+            { id: 'isi', name: 'ISI TEST SERIES', fullName: 'Indian Statistical Institute', price: 199, features: ['Statistical reasoning', 'Math problem matrices', 'Exam pattern simulation'] }
         ];
 
-        // 1. Render Cards
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
             const card = document.createElement('div');
@@ -225,10 +221,7 @@
                     <h3 class="text-2xl font-extrabold text-white uppercase tracking-tight mb-1">${test.name}</h3>
                     <p class="text-slate-500 text-xs font-bold uppercase mb-8">${test.fullName}</p>
                     <ul class="space-y-3 mb-10">
-                        ${test.features.map(feature => `
-                            <li class="flex items-center text-sm text-slate-400">
-                                <span class="text-blue-500 mr-2">✓</span>${feature}
-                            </li>`).join('')}
+                        ${test.features.map(f => `<li class="text-sm text-slate-400"><span class="text-blue-500 mr-2">✓</span>${f}</li>`).join('')}
                     </ul>
                 </div>
                 <button onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn w-full py-4 rounded-xl text-white text-xs" id="btn-${test.id}">
@@ -238,88 +231,68 @@
             cardsContainer.appendChild(card);
         });
 
-        // 2. Modern Modal & Purchase Logic
         let currentPurchase = {};
 
         function executePurchase(testId, amount) {
-            const savedEmail = localStorage.getItem("userEmail");
-            if (savedEmail) {
-                // Professional Step: Skip prompt if already recognized
-                startPayment(savedEmail, testId, amount);
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+            const userEmail = localStorage.getItem("userEmail");
+            if (isLoggedIn === "true" && userEmail) {
+                startPayment(userEmail, testId, amount);
             } else {
                 currentPurchase = { testId, amount };
                 document.getElementById("emailModal").style.display = "flex";
             }
         }
 
-        function closeModal() {
-            document.getElementById("emailModal").style.display = "none";
-        }
+        function closeModal() { document.getElementById("emailModal").style.display = "none"; }
 
         async function handleModalSubmit() {
             const email = document.getElementById("modalUserEmail").value;
-            if (!email || !email.includes("@")) {
-                alert("Please enter a valid academic email.");
-                return;
-            }
-            localStorage.setItem("userEmail", email); // Save for repeat purchases
+            if (!email || !email.includes("@")) { alert("Please enter a valid email."); return; }
+            
+            // SAVE LOCAL MEMORY FOR AUTH
+            localStorage.setItem("userEmail", email); 
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userName", email.split('@')[0].toUpperCase());
+            
             closeModal();
-            startPayment(email, currentPurchase.testId, currentPurchase.amount);
+            location.reload(); // Refresh to let auth.js update the UI
         }
 
-        // 3. Razorpay Integration
         async function startPayment(userEmail, testId, amount) {
             try {
                 const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
                 const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
-
                 const options = {
-                    key,
-                    amount: order.amount,
-                    currency: "INR",
-                    name: "IIN Education",
-                    description: `${testId.toUpperCase()} Research Sequence`,
-                    order_id: order.id,
-                    callback_url: `${API_BASE_URL}/api/paymentverification`, // Pointing to Render
-                    prefill: { email: userEmail },
-                    theme: { "color": "#3b82f6" }
+                    key, amount: order.amount, currency: "INR", name: "IIN Education",
+                    order_id: order.id, callback_url: `${API_BASE_URL}/api/paymentverification`,
+                    prefill: { email: userEmail }, theme: { "color": "#3b82f6" }
                 };
                 const razor = new window.Razorpay(options);
                 razor.open();
-            } catch (error) {
-                console.error("Payment error:", error);
-                alert("The server is currently waking up. Please wait 30 seconds and try again.");
-            }
+            } catch (error) { alert("Server is initializing. Please try again in 30s."); }
         }
 
-        // 4. Page Initialization & UI State
         window.onload = function() {
-            const userEmail = localStorage.getItem("userEmail");
+            // Clean logic: auth.js handles Navbar
             const purchasedData = localStorage.getItem("purchasedTests");
             const myTests = purchasedData ? JSON.parse(purchasedData) : [];
 
-            if (userEmail) {
-                const loginBtn = document.getElementById("loginBtn");
-                loginBtn.innerText = userEmail.split('@')[0].toUpperCase();
-                loginBtn.style.background = "rgba(59, 130, 246, 0.1)";
-                loginBtn.style.border = "1px solid #3b82f6";
+            ['iat', 'nest', 'isi'].forEach(id => {
+                const btn = document.getElementById(`btn-${id}`);
+                if (btn && myTests.includes(id)) {
+                    btn.innerHTML = "★ START SEQUENCE";
+                    btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                    btn.onclick = () => window.location.href = `instructions.html?testId=${id}`;
+                }
+            });
 
-                ['iat', 'nest', 'isi'].forEach(id => {
-                    const btn = document.getElementById(`btn-${id}`);
-                    if (myTests.includes(id)) {
-                        btn.innerHTML = "★ START SEQUENCE";
-                        btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-                        btn.onclick = () => window.location.href = `instructions.html?testId=${id}`;
-                    }
-                });
-            }
-
-            // Scroll Reveal Animations
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
             }, { threshold: 0.1 });
             document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
         };
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>
