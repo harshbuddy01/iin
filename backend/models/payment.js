@@ -4,19 +4,11 @@ const paymentSchema = new mongoose.Schema({
   razorpay_order_id: { type: String, required: true },
   razorpay_payment_id: { type: String, required: true },
   razorpay_signature: { type: String, required: true },
-  // Adding the field for your new automatic 8-digit token
-  examToken: { 
-    type: String, 
-    index: true 
-  }, 
-  email: { 
-    type: String, 
-    index: true 
-  },      
-  isUsed: { type: Boolean, default: false },
-  testId: { type: String },
+  email: { type: String, required: true, index: true },      
+  examToken: { type: String, required: true, index: true }, // Added for automatic 8-digit token
+  status: { type: String, default: "pending" },
   createdAt: { type: Date, default: Date.now }
 });
 
-// FIXED: Using a named export to match the controller
+// IMPORTANT: Use a NAMED EXPORT
 export const Payment = mongoose.model("Payment", paymentSchema);
