@@ -30,8 +30,10 @@ export const paymentVerification = async (req, res) => {
     .digest("hex");
 
   if (expectedSignature === razorpay_signature) {
+    // 1. Generate the 8-digit token
     const examToken = Math.floor(10000000 + Math.random() * 90000000).toString();
 
+    // 2. Save to MongoDB first (Ensures data is safe even if email fails)
     await Payment.create({
       razorpay_order_id,
       razorpay_payment_id,
@@ -41,14 +43,20 @@ export const paymentVerification = async (req, res) => {
       status: "paid",
     });
 
+    // 3. Send Email with IPv4 Force-Connection
     try {
       const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465, // SSL Port for better stability
+        host: "smtp.gmail.com",
+        port: 465, // Secure SSL port
         secure: true,
         auth: {
           user: process.env.GMAIL_USER,
-          pass: process.env.GMAIL_PASS
+          pass: process.env.GMAIL_PASS // 16-character App Password
+        },
+        // Bypasses timeouts on cloud servers like Railway
+        tls: {
+          rejectUnauthorized: false,
+          family: 4 
         }
       });
 
@@ -56,12 +64,15 @@ export const paymentVerification = async (req, res) => {
         from: process.env.GMAIL_USER,
         to: email,
         subject: 'Your IIN Exam Token',
-        text: `Success! Your payment is confirmed. Your 8-digit Exam Token is: ${examToken}. Login at iin-theta.vercel.app`
+        text: `Success! Your 8-digit Exam Token is: ${examToken}. Login at iin-theta.vercel.app`
       });
+      
+      console.log(`✅ Email sent to ${email}`);
     } catch (err) {
-      console.error("Email failed but token saved in DB:", err);
+      console.error("❌ Email timeout/error, but token saved in DB:", err);
     }
 
+    // 4. Send response to frontend
     res.status(200).json({ success: true, token: examToken });
   } else {
     res.status(400).json({ success: false, message: "Invalid Signature" });
