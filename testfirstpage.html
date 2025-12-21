@@ -5,108 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | IIN.edu</title>
     
-    <!-- External Libraries -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/pages.css">
-
-    <style>
-        :root { --blue: #3b82f6; --navy-dark: #020617; }
-        html, body { background-color: var(--navy-dark); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
-        .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; z-index: -1; }
-    </style>
+    <link rel="stylesheet" href="frontend/css/global.css">
+    <link rel="stylesheet" href="frontend/css/navbar.css">
+    <link rel="stylesheet" href="frontend/css/pages.css">
+    <link rel="stylesheet" href="frontend/css/testfirstpage.css">
 </head>
 <body>
 
-    <!-- Email Modal -->
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="text-white font-black text-2xl uppercase">Student Identification</h2>
-            <p class="text-gray-400 text-sm mt-2">Enter your email to link your Roll Number.</p>
+            <p class="text-gray-400 text-sm mt-2">Enter your email to link your Exam Token.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
             <button onclick="window.PAYMENT.handleModalSubmit()" class="buy-btn" style="margin-top:0">Proceed to Payment</button>
             <button onclick="document.getElementById('emailModal').style.display='none'" class="text-gray-500 text-xs mt-4 font-bold uppercase hover:text-white">Cancel</button>
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div id="successModal" class="modal-overlay">
         <div class="modal-content">
             <div class="text-green-500 text-5xl mb-4">★</div>
             <h2 class="text-white font-black text-2xl uppercase">Access Granted</h2>
-            <p class="text-gray-400 text-sm mt-2">Payment Verified. Here is your Roll Number:</p>
+            <p class="text-gray-400 text-sm mt-2">Payment Verified. Here is your Exam Token:</p>
             
             <div id="finalTokenDisplay" class="token-display">--------</div>
             
-            <p class="text-gray-500 text-xs mb-4">Please copy this number. It has also been emailed to you.</p>
+            <p class="text-gray-500 text-xs mb-4">Please copy this token. It has also been emailed to you.</p>
             <button onclick="window.location.href='signinpage.html'" class="success-btn">ENTER EXAM HALL</button>
         </div>
     </div>
 
     <div class="grid-bg"></div>
 
-    <!-- Navbar -->
     <nav class="navbar" id="navbar">
         <div class="logo">IIN<span class="text-blue-500">.edu</span></div>
         <div class="nav-links">
             <a href="index.html">Home</a>
+            <a href="aboutpage.html">About</a>
+            <a href="subtittlepyq.html">PYQ</a>
             <a href="testfirstpage.html" class="text-white">Tests</a>
-            <!-- User panel or Login button injected here -->
+            <a href="future.html">Future Career</a>
+            
+            <a href="signinpage.html" class="btn-login">Login</a>
         </div>
     </nav>
 
     <main class="max-w-6xl mx-auto pt-48 pb-20 px-6">
         <h1 class="text-6xl font-black mb-12 uppercase leading-none">Premium <br><span class="text-blue-500">Test Series.</span></h1>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer">
+            </div>
     </main>
 
-    <!-- JavaScript Files -->
-    <script src="js/config.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/user-panel.js"></script>
-    <script src="js/payment.js"></script>
+    <script src="frontend/js/config.js"></script>
+    <script src="frontend/js/auth.js"></script>
+    
+    <script src="frontend/js/user-panel.js"></script>
+    
+    <script src="frontend/js/payment.js"></script>
+    
+    <script src="frontend/js/testfirstpage.js"></script>
 
-   <script>
-        // Load test series cards
-        const cardsContainer = document.getElementById('cardsContainer');
-        window.APP_CONFIG.TEST_SERIES.forEach(test => {
-            const card = document.createElement('div');
-            card.className = 'glass-panel flex flex-col justify-between';
-            card.innerHTML = `
-                <div>
-                    <div class="flex justify-between font-bold text-blue-500 mb-4 uppercase tracking-widest text-xs">
-                        <span>${test.id}</span>
-                        <span>₹${test.price}</span>
-                    </div>
-                    <h3 class="text-2xl font-black text-white mb-6 uppercase">${test.name}</h3>
-                    <ul class="text-gray-400 text-sm space-y-2 mb-8">
-                        <li>✓ IISER Standard Modules</li>
-                        <li>✓ Research Based Logic</li>
-                        <li>✓ Instant Token Delivery</li>
-                    </ul>
-                </div>
-                <button id="btn-${test.id}" onclick="window.PAYMENT.executePurchase('${test.id}', ${test.price})" class="buy-btn">
-                    Execute Purchase
-                </button>
-            `;
-            cardsContainer.appendChild(card);
-        });
-
-        // Check if tests are already purchased
-        window.addEventListener('load', function() {
-            if (window.AUTH.isLoggedIn()) {
-                const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-                purchased.forEach(testId => {
-                    window.PAYMENT.markAsPurchased(testId);
-                });
-            }
-        });
-    </script>
 </body>
 </html>
