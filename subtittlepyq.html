@@ -6,26 +6,24 @@
     <title>Resource Archives | IIN.edu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/pages.css">
+    
     <style>
         :root { 
             --blue: #3b82f6; 
-            --navy-dark: #0B021D; /* Richer Deep Indigo */
+            --navy-dark: #0B021D;
             --violet: #8b5cf6;
         }
         
         html, body {
             background-color: var(--navy-dark) !important;
-            color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            overflow-x: hidden;
-            overflow-y: auto; 
-            scroll-behavior: smooth;
-            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Fixed Grid Background with subtle violet glow */
         .grid-bg {
             position: fixed;
             inset: 0;
@@ -35,22 +33,12 @@
             pointer-events: none;
         }
 
-        /* Header Style matched to screenshot */
         nav {
             background: rgba(11, 2, 29, 0.95);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .login-btn {
-            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            padding: 10px 28px;
-            border-radius: 50px;
-            font-weight: 700;
-            transition: all 0.3s ease;
-        }
-
-        /* High-fidelity glass cards with violet hover */
         .glass-panel { 
             background: rgba(20, 10, 40, 0.8); 
             backdrop-filter: blur(20px); 
@@ -83,61 +71,26 @@
             color: #c4b5fd;
         }
 
-        /* Gradient for the Title */
         .text-gradient {
             background: linear-gradient(to right, #8b5cf6, #d946ef, #f43f5e);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        /* Styling for the User Profile & Logout on the Archives Page */
-.user-auth-panel {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.user-greeting {
-    color: #c4b5fd; /* Light violet to match year badges */
-    font-size: 0.875rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    font-family: 'Space Grotesk', sans-serif;
-}
-
-.logout-btn-archives {
-    background: rgba(244, 63, 94, 0.1); /* Subtle rose-red */
-    color: #f43f5e; /* Rose-red from your title gradient */
-    border: 1px solid rgba(244, 63, 94, 0.2);
-    padding: 0.6rem 1.5rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    transition: all 0.3s ease;
-}
-
-.logout-btn-archives:hover {
-    background: #f43f5e;
-    color: white;
-    box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
-    transform: translateY(-1px);
-}
     </style>
 </head>
 <body>
     <div class="grid-bg"></div>
 
-    <nav class="fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center">
-        <div class="text-2xl font-extrabold tracking-tighter text-white">IIN<span class="text-[#8b8dfc]">.edu</span></div>
-        <div class="hidden lg:flex items-center space-x-12">
-            <div class="flex space-x-8 text-sm font-semibold text-gray-300">
-                <a href="index.html" class="hover:text-white transition">Home</a>
-                <a href="aboutpage.html" class="hover:text-white transition">About</a>
-                <a href="subtittlepyq.html" class="text-white underline underline-offset-8">PYQ</a>
-                <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
-                <a href="future.html" class="hover:text-white transition">Future Career</a>
-            </div>
-            <a href="signinpage.html" class="login-btn text-white text-sm">Login</a>
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center" id="navbar">
+        <div class="logo">IIN<span class="text-[#8b8dfc]">.edu</span></div>
+        <div class="nav-links hidden lg:flex items-center space-x-8">
+            <a href="index.html" class="hover:text-white transition">Home</a>
+            <a href="aboutpage.html" class="hover:text-white transition">About</a>
+            <a href="subtittlepyq.html" class="text-white underline underline-offset-8">PYQ</a>
+            <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
+            <a href="future.html" class="hover:text-white transition">Future Career</a>
+            <!-- User panel will be injected here -->
         </div>
     </nav>
 
@@ -158,7 +111,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             
-            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='iiserpyqhome.html'">
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between cursor-pointer" onclick="window.location.href='iiserpyqhome.html'">
                 <div>
                     <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 font-bold mb-8 italic text-xl">II</div>
                     <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">IISER PYQ</h3>
@@ -176,7 +129,7 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='isipyqhome.html'">
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between cursor-pointer" onclick="window.location.href='isipyqhome.html'">
                 <div>
                     <div class="w-12 h-12 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-400 font-bold mb-8 italic text-xl">IS</div>
                     <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">ISI PYQ</h3>
@@ -194,7 +147,7 @@
                 </div>
             </div>
 
-            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between" onclick="window.location.href='/niser-pyq.html'">
+            <div class="glass-panel p-10 rounded-[2.5rem] reveal flex flex-col justify-between cursor-pointer" onclick="window.location.href='/niser-pyq.html'">
                 <div>
                     <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold mb-8 italic text-xl">NI</div>
                     <h3 class="text-3xl font-bold mb-2 uppercase text-white tracking-tight">NISER PYQ</h3>
@@ -215,8 +168,12 @@
         </div>
     </main>
 
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/user-panel.js"></script>
+
     <script>
-        // Simple, native Reveal Logic that doesn't break scrolling
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -227,6 +184,5 @@
 
         document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
-    <script src="auth.js"></script>
 </body>
 </html>

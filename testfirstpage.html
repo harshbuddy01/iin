@@ -5,67 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | IIN.edu</title>
     
+    <!-- External Libraries -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <script>
-        const API_BASE_URL = "https://iin-production.up.railway.app";
-    </script>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/pages.css">
 
     <style>
         :root { --blue: #3b82f6; --navy-dark: #020617; }
         html, body { background-color: var(--navy-dark); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; }
         .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; z-index: -1; }
-        
-        .glass-panel { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 2rem; padding: 2rem; transition: 0.4s; }
-        .glass-panel:hover { border-color: var(--blue); transform: translateY(-10px); }
-        
-        .buy-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 100%; py: 1rem; border-radius: 0.75rem; color: white; font-weight: 800; padding: 1rem; margin-top: 2rem; text-transform: uppercase; letter-spacing: 1px; }
-        
-        /* Modal Styles */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-content { background: #0f172a; padding: 3rem; border-radius: 2rem; border: 1px solid rgba(59, 130, 246, 0.5); text-align: center; max-width: 450px; width: 90%; box-shadow: 0 0 50px rgba(59, 130, 246, 0.2); }
-        .modal-input { width: 100%; padding: 1rem; margin: 1.5rem 0; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; text-align: center; font-size: 1.1rem; }
-        
-        .token-display { font-size: 2.5rem; font-weight: 900; color: #3b82f6; letter-spacing: 4px; margin: 1rem 0; text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); font-family: monospace; }
-        .success-btn { background: #10b981; color: white; width: 100%; padding: 1rem; border-radius: 0.75rem; font-weight: 800; margin-top: 1rem; }
     </style>
 </head>
 <body>
 
+    <!-- Email Modal -->
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="text-white font-black text-2xl uppercase">Student Identification</h2>
-            <p class="text-gray-400 text-sm mt-2">Enter your email to link your Exam Token.</p>
+            <p class="text-gray-400 text-sm mt-2">Enter your email to link your Roll Number.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
-            <button onclick="handleModalSubmit()" class="buy-btn" style="margin-top:0">Proceed to Payment</button>
+            <button onclick="window.PAYMENT.handleModalSubmit()" class="buy-btn" style="margin-top:0">Proceed to Payment</button>
             <button onclick="document.getElementById('emailModal').style.display='none'" class="text-gray-500 text-xs mt-4 font-bold uppercase hover:text-white">Cancel</button>
         </div>
     </div>
 
+    <!-- Success Modal -->
     <div id="successModal" class="modal-overlay">
         <div class="modal-content">
             <div class="text-green-500 text-5xl mb-4">★</div>
             <h2 class="text-white font-black text-2xl uppercase">Access Granted</h2>
-            <p class="text-gray-400 text-sm mt-2">Payment Verified. Here is your Exam Token:</p>
+            <p class="text-gray-400 text-sm mt-2">Payment Verified. Here is your Roll Number:</p>
             
             <div id="finalTokenDisplay" class="token-display">--------</div>
             
-            <p class="text-gray-500 text-xs mb-4">Please copy this token. It has also been emailed to you.</p>
+            <p class="text-gray-500 text-xs mb-4">Please copy this number. It has also been emailed to you.</p>
             <button onclick="window.location.href='signinpage.html'" class="success-btn">ENTER EXAM HALL</button>
         </div>
     </div>
 
     <div class="grid-bg"></div>
 
-    <nav class="fixed top-0 w-full z-50 px-12 py-6 flex justify-between items-center bg-navy-dark/90 backdrop-blur-md border-b border-white/5">
-        <div class="text-2xl font-black text-white">IIN<span class="text-blue-500">.edu</span></div>
-        <div class="hidden lg:flex space-x-8 text-sm font-bold text-gray-400">
-            <a href="index.html" class="hover:text-white">Home</a>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">IIN<span class="text-blue-500">.edu</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
             <a href="testfirstpage.html" class="text-white">Tests</a>
-            <button onclick="window.location.href='signinpage.html'" class="bg-blue-600 px-6 py-2 rounded-full text-white">Login</button>
+            <!-- User panel or Login button injected here -->
         </div>
     </nav>
 
@@ -74,132 +66,47 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer"></div>
     </main>
 
-   <script>
-        const testSeries = [
-            { id: 'iat', name: 'IAT SERIES', price: 199 },
-            { id: 'nest', name: 'NEST SERIES', price: 199 },
-            { id: 'isi', name: 'ISI SERIES', price: 199 }
-        ];
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/user-panel.js"></script>
+    <script src="js/payment.js"></script>
 
-        // Load Cards
+   <script>
+        // Load test series cards
         const cardsContainer = document.getElementById('cardsContainer');
-        testSeries.forEach(test => {
+        window.APP_CONFIG.TEST_SERIES.forEach(test => {
             const card = document.createElement('div');
             card.className = 'glass-panel flex flex-col justify-between';
             card.innerHTML = `
                 <div>
-                    <div class="flex justify-between font-bold text-blue-500 mb-4 uppercase tracking-widest text-xs"><span>${test.id}</span><span>₹${test.price}</span></div>
+                    <div class="flex justify-between font-bold text-blue-500 mb-4 uppercase tracking-widest text-xs">
+                        <span>${test.id}</span>
+                        <span>₹${test.price}</span>
+                    </div>
                     <h3 class="text-2xl font-black text-white mb-6 uppercase">${test.name}</h3>
-                    <ul class="text-gray-400 text-sm space-y-2 mb-8"><li>✓ IISER Standard Modules</li><li>✓ Research Based Logic</li><li>✓ Instant Token Delivery</li></ul>
+                    <ul class="text-gray-400 text-sm space-y-2 mb-8">
+                        <li>✓ IISER Standard Modules</li>
+                        <li>✓ Research Based Logic</li>
+                        <li>✓ Instant Token Delivery</li>
+                    </ul>
                 </div>
-                <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn">Execute Purchase</button>
+                <button id="btn-${test.id}" onclick="window.PAYMENT.executePurchase('${test.id}', ${test.price})" class="buy-btn">
+                    Execute Purchase
+                </button>
             `;
             cardsContainer.appendChild(card);
         });
 
-        // Check Local Storage
-        window.onload = function() {
-            const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-            testSeries.forEach(test => {
-                if (purchased.includes(test.id)) markAsPurchased(test.id);
-            });
-        };
-
-        function markAsPurchased(testId) {
-            const btn = document.getElementById(`btn-${testId}`);
-            if (btn) {
-                btn.innerHTML = "★ START SEQUENCE";
-                btn.style.background = "#10b981";
-                btn.onclick = () => window.location.href = `instructions.html?testId=${testId}`;
-            }
-        }
-
-        function executePurchase(testId, amount) {
-            let userEmail = localStorage.getItem("userEmail");
-            // Strict check: if email is missing or empty, force modal
-            if (userEmail && userEmail.includes("@")) {
-                startPayment(userEmail, testId, amount);
-            } else {
-                localStorage.setItem("tempTestId", testId);
-                localStorage.setItem("tempAmount", amount);
-                document.getElementById("emailModal").style.display = "flex";
-            }
-        }
-
-        function handleModalSubmit() {
-            const emailInput = document.getElementById("modalUserEmail").value;
-            const cleanEmail = emailInput.trim().toLowerCase(); 
-
-            if (!cleanEmail || !cleanEmail.includes("@")) return alert("Please enter a valid email address.");
-            
-            localStorage.setItem("userEmail", cleanEmail);
-            document.getElementById("emailModal").style.display = "none";
-            
-            const testId = localStorage.getItem("tempTestId");
-            const amount = localStorage.getItem("tempAmount");
-            if (testId && amount) startPayment(cleanEmail, testId, amount);
-        }
-
-        async function startPayment(userEmail, testId, amount) {
-            try {
-                // Double check email before sending
-                if(!userEmail) { alert("Email error. Please refresh."); return; }
-
-                const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
-                const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
-                
-                const options = {
-                    key,
-                    amount: order.amount,
-                    currency: "INR",
-                    name: "IIN Education",
-                    description: `Unlock ${testId.toUpperCase()}`,
-                    order_id: order.id,
-                    prefill: { email: userEmail },
-                    theme: { color: "#3b82f6" },
-                    
-                    handler: async function (response) {
-                        try {
-                            // Call verification
-                            const verifyRes = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
-                                email: userEmail 
-                            });
-
-                            if (verifyRes.data.success) {
-                                // Save purchase locally
-                                const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-                                if (!purchased.includes(testId)) {
-                                    purchased.push(testId);
-                                    localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-                                }
-                                markAsPurchased(testId);
-
-                                // Show Token Modal
-                                document.getElementById("finalTokenDisplay").innerText = verifyRes.data.token;
-                                document.getElementById("successModal").style.display = "flex";
-                            } else {
-                                alert("Verification Failed: " + verifyRes.data.message);
-                            }
-                        } catch (err) {
-                            console.error(err);
-                            // Fallback if server doesn't respond quickly
-                            alert("Payment recorded! Please check your email ("+userEmail+") for the token.");
-                        }
-                    }
-                };
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function (response){
-                    alert("Payment Failed: " + response.error.description);
+        // Check if tests are already purchased
+        window.addEventListener('load', function() {
+            if (window.AUTH.isLoggedIn()) {
+                const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+                purchased.forEach(testId => {
+                    window.PAYMENT.markAsPurchased(testId);
                 });
-                rzp.open();
-            } catch (error) {
-                console.error(error);
-                alert("Server connection issue. Please try again in 10 seconds.");
             }
-        }
+        });
     </script>
 </body>
 </html>
