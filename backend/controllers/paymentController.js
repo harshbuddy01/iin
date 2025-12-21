@@ -4,14 +4,14 @@ import { instance } from "../server.js";
 import { Payment } from "../models/payment.js";
 
 // ---------------------------------------------------------
-// 1. GET API KEY (Required for Frontend to start Razorpay)
+// 1. GET API KEY (Required for Frontend)
 // ---------------------------------------------------------
 export const getApiKey = (req, res) => {
   res.status(200).json({ key: process.env.RAZORPAY_API_KEY });
 };
 
 // ---------------------------------------------------------
-// 2. CHECKOUT (Creates the order on Razorpay Server)
+// 2. CHECKOUT (Creates Order)
 // ---------------------------------------------------------
 export const checkout = async (req, res) => {
   try {
@@ -27,9 +27,10 @@ export const checkout = async (req, res) => {
 };
 
 // ---------------------------------------------------------
-// 3. PAYMENT VERIFICATION (Saves to DB & Sends Email)
+// 3. PAYMENT VERIFICATION (Saves to DB + Sends Email)
 // ---------------------------------------------------------
 export const paymentVerification = async (req, res) => {
+  console.log("🔹 Verification Started..."); 
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email } = req.body;
 
@@ -43,7 +44,7 @@ export const paymentVerification = async (req, res) => {
       // A. Generate Token
       const examToken = Math.floor(10000000 + Math.random() * 90000000).toString();
 
-      // B. Save to DB (Wrapped in Try/Catch so server won't crash if DB is slow)
+      // B. Save to DB first
       try {
         await Payment.create({
           razorpay_order_id,
@@ -53,46 +54,46 @@ export const paymentVerification = async (req, res) => {
           examToken,
           status: "paid",
         });
-        console.log("✅ Payment saved to MongoDB");
+        console.log("✅ Payment saved to DB");
       } catch (dbError) {
-        console.error("⚠️ Database Save Warning:", dbError.message);
+        console.error("⚠️ DB Save Error:", dbError.message);
       }
 
-      // C. Send Email (With IPv4 Fix for Railway Timeouts)
+      // C. Send Email using PORT 587 (Fixes Timeout)
       try {
         const transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
-          port: 465, // Secure SSL Port
-          secure: true,
+          port: 587,            // Standard Port for Cloud Servers
+          secure: false,        // Must be false for 587
           auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS
           },
           tls: {
-            rejectUnauthorized: false,
-            family: 4 // FORCE IPv4 (Critical Fix)
+            rejectUnauthorized: false
           }
         });
 
         await transporter.sendMail({
-          from: process.env.GMAIL_USER,
+          from: `"IIN Exams" <${process.env.GMAIL_USER}>`,
           to: email,
           subject: 'Your IIN Exam Token',
           text: `Success! Your 8-digit Exam Token is: ${examToken}. Login at iin-theta.vercel.app`
         });
+        
         console.log(`✅ Email sent to ${email}`);
       } catch (emailError) {
-        console.error("❌ Email Failed:", emailError.message);
+        console.error("❌ Email FAILED:", emailError);
       }
 
-      // D. Respond to Frontend (User sees token on screen)
+      // D. Return Success
       res.status(200).json({ success: true, token: examToken });
 
     } else {
       res.status(400).json({ success: false, message: "Invalid Signature" });
     }
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error("❌ Server Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
