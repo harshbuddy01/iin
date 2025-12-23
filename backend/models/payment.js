@@ -41,9 +41,9 @@ const paymentSchema = new mongoose.Schema({
 });
 
 // Update timestamp on every save
-paymentSchema.pre('save', function(next) {
+paymentSchema.pre('save', function () {
   this.updatedAt = Date.now();
-  next();
 });
+
 
 export const Payment = mongoose.model("Payment", paymentSchema);
