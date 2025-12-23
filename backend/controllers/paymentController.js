@@ -39,16 +39,23 @@ export const checkout = async (req, res) => {
 // 3. PAYMENT VERIFICATION (USING GMAIL SMTP)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
+  console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
   
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, testId, amount } = req.body;
     
+    console.log(`🔹 Email: ${email}`);
+    console.log(`🔹 TestId: ${testId}`);
+    console.log(`🔹 Amount: ${amount}`);
+    
     // Validate required fields
     if (!email) {
+      console.log("❌ Email is missing!");
       return res.status(400).json({ success: false, message: "Email is required" });
     }
 
     if (!testId) {
+      console.log("❌ TestId is missing!");
       return res.status(400).json({ success: false, message: "TestId is required" });
     }
 
@@ -60,8 +67,11 @@ export const paymentVerification = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
+      console.log("❌ Invalid payment signature!");
       return res.status(400).json({ success: false, message: "Invalid Payment Signature" });
     }
+
+    console.log("✅ Payment signature verified!");
 
     // Payment verified! Now handle roll number logic
     const normalizedEmail = email.toLowerCase().trim();
@@ -76,8 +86,11 @@ export const paymentVerification = async (req, res) => {
       // EXISTING STUDENT - Use their existing roll number
       rollNumber = student.rollNumber;
       
+      console.log(`👤 Existing student found: ${normalizedEmail}`);
+      
       // Check if they already purchased this test
       if (student.purchasedTests.includes(testId)) {
+        console.log(`⚠️ Student already purchased ${testId}`);
         return res.status(400).json({ 
           success: false, 
           message: "You have already purchased this test" 
@@ -105,7 +118,7 @@ export const paymentVerification = async (req, res) => {
       rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
       isNewStudent = true;
       
-      console.log(`🔹 New Student. Generated Token: ${rollNumber}`);
+      console.log(`🆕 New Student. Generated Roll Number: ${rollNumber}`);
       
       // Create new student record
       student = await Payment.create({
@@ -126,6 +139,7 @@ export const paymentVerification = async (req, res) => {
     }
 
     // Send email using Gmail SMTP
+    console.log("📧 Attempting to send email...");
     try {
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
@@ -195,9 +209,11 @@ export const paymentVerification = async (req, res) => {
       
     } catch (emailError) {
       console.error("❌ Email Error:", emailError.message);
+      console.error("❌ Email Error Stack:", emailError.stack);
       // Don't fail the payment if email fails
     }
 
+    console.log("✅ Sending success response to frontend...");
     // Return success with roll number and purchased tests
     res.status(200).json({ 
       success: true, 
@@ -210,7 +226,8 @@ export const paymentVerification = async (req, res) => {
     });
     
   } catch (error) {
-    console.error("❌ Payment Verification Error:", error);
+    console.error("❌ Payment Verification Error:", error.message);
+    console.error("❌ Error Stack:", error.stack);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
