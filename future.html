@@ -27,12 +27,137 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="frontend/css/global.css">
-    <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     
     <style>
         :root { --accent: #3b82f6; --purple: #8b5cf6; --pink: #ec4899; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        
+        /* Override Navbar Styles - Make it fully visible */
+        .navbar {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 1.25rem 3rem !important;
+            background: rgba(2, 6, 23, 0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .navbar.scrolled {
+            background: rgba(2, 6, 23, 0.98) !important;
+            padding: 1rem 3rem !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        .logo {
+            font-size: 1.5rem !important;
+            font-weight: 900 !important;
+            color: white !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            letter-spacing: -0.5px !important;
+            z-index: 10000 !important;
+        }
+        
+        .logo span {
+            color: #3b82f6 !important;
+        }
+        
+        .nav-links {
+            display: flex !important;
+            align-items: center !important;
+            gap: 2rem !important;
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
+            z-index: 10000 !important;
+        }
+        
+        .nav-links a {
+            color: #94a3b8 !important;
+            text-decoration: none !important;
+            transition: color 0.3s ease !important;
+            position: relative !important;
+        }
+        
+        .nav-links a:hover {
+            color: white !important;
+        }
+        
+        .nav-links a.active {
+            color: white !important;
+            text-decoration: underline !important;
+            text-decoration-color: #3b82f6 !important;
+            text-decoration-thickness: 2px !important;
+            text-underline-offset: 8px !important;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+            color: white !important;
+            padding: 0.5rem 1.5rem !important;
+            border-radius: 9999px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s ease !important;
+            border: none !important;
+            cursor: pointer !important;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4) !important;
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10001;
+        }
+        
+        @media (max-width: 1024px) {
+            .nav-links {
+                display: none !important;
+                position: fixed;
+                top: 0;
+                right: 0;
+                width: 300px;
+                height: 100vh;
+                background: rgba(2, 6, 23, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 2rem;
+                padding: 2rem;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .nav-links.active {
+                display: flex !important;
+                transform: translateX(0);
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .navbar {
+                padding: 1rem 1.5rem !important;
+            }
+        }
         
         .grid-bg { 
             position: fixed;
@@ -49,7 +174,7 @@
             left: 0; 
             height: 3px; 
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); 
-            z-index: 9999; 
+            z-index: 10001; 
             width: 0; 
             transition: width 0.1s ease;
         }
@@ -287,18 +412,22 @@
 <body class="grid-bg">
     <div class="scroll-progress" id="scrollProgress"></div>
 
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-filter blur-md border-b border-white/5" id="navbar">
-        <div class="logo text-2xl font-black text-white">IIN<span class="text-blue-500">.edu</span></div>
+    <nav class="navbar" id="navbar">
+        <div class="logo">IIN<span>.edu</span></div>
         
-        <div class="nav-links hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-400">
-            <a href="index.html" class="hover:text-white transition">Home</a>
-            <a href="aboutpage.html" class="hover:text-white transition">About</a>
-            <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-            <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
-            <a href="future.html" class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Future Career</a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="aboutpage.html">About</a>
+            <a href="subtittlepyq.html">PYQ</a>
+            <a href="testfirstpage.html">Tests</a>
+            <a href="future.html" class="active">Future Career</a>
             
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition">
+                <a href="signinpage.html" class="btn-login">
                     Login
                 </a>
             </div>
@@ -533,6 +662,41 @@
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             const scrolled = (winScroll / height) * 100;
             document.getElementById('scrollProgress').style.width = scrolled + '%';
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // Close mobile menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+            });
         });
         
         // Rating stars functionality
