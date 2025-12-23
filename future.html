@@ -31,7 +31,9 @@
     
     <style>
         :root { --accent: #3b82f6; --purple: #8b5cf6; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        * { scroll-behavior: smooth !important; }
+        html, body { scroll-behavior: smooth !important; overflow-x: hidden; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
         
         /* Navbar - Fully Visible */
         .navbar {
@@ -358,13 +360,15 @@
     <script src="frontend/js/user-panel.js"></script>
     
     <script>
-        // Initialize AOS
+        // Initialize AOS with proper settings for smooth scrolling
         AOS.init({
-            duration: 1000,
+            duration: 800,
             easing: 'ease-out-cubic',
-            once: false,
-            mirror: true,
-            offset: 100
+            once: true,
+            mirror: false,
+            offset: 50,
+            anchorPlacement: 'top-bottom',
+            disable: false
         });
         
         // Scroll progress bar
