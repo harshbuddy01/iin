@@ -4,26 +4,41 @@ const API_BASE_URL = "https://iin-production.up.railway.app";
 // Global variables
 let base64Image = "";
 let cachedResultsData = [];
+let authCheckDone = false;
 
 // ===== AUTHENTICATION =====
 function checkAuth() {
-    if (localStorage.getItem("adminKey") !== "secret_unlocked") {
-        window.location.href = "adminlogin.html";
+    // Prevent multiple auth checks
+    if (authCheckDone) return;
+    authCheckDone = true;
+    
+    const adminKey = localStorage.getItem("adminKey");
+    if (adminKey !== "secret_unlocked") {
+        // Prevent reload loop by checking current page
+        if (!window.location.href.includes('adminlogin.html')) {
+            window.location.replace("adminlogin.html");
+        }
     }
 }
 
 function logout() {
     if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem("adminKey");
-        window.location.href = "adminlogin.html";
+        authCheckDone = false;
+        window.location.replace("adminlogin.html");
     }
 }
 
 // ===== TIME DISPLAY =====
 function updateTime() {
+    const timeEl = document.getElementById('currentTime');
+    const dateEl = document.getElementById('currentDate');
+    
+    if (!timeEl || !dateEl) return;
+    
     const now = new Date();
-    document.getElementById('currentTime').innerText = now.toLocaleTimeString();
-    document.getElementById('currentDate').innerText = now.toLocaleDateString('en-US', { 
+    timeEl.innerText = now.toLocaleTimeString();
+    dateEl.innerText = now.toLocaleDateString('en-US', { 
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
     });
 }
@@ -32,8 +47,15 @@ function updateTime() {
 function switchTab(tabName) {
     document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    event.currentTarget.classList.add('active');
+    
+    const tabElement = document.getElementById(`tab-${tabName}`);
+    if (tabElement) {
+        tabElement.classList.add('active');
+    }
+    
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
     
     if(tabName === 'manage') loadAllQuestions();
     if(tabName === 'students') loadStudents();
@@ -96,6 +118,8 @@ function resetForm() {
 // ===== LOAD QUESTIONS =====
 async function loadAllQuestions() {
     const tbody = document.getElementById("questionsTable");
+    if (!tbody) return;
+    
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
     
     try {
@@ -162,6 +186,8 @@ function filterQuestions() {
 // ===== LOAD STUDENTS =====
 async function loadStudents() {
     const tbody = document.getElementById("studentsTable");
+    if (!tbody) return;
+    
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
     
     try {
@@ -195,7 +221,8 @@ async function loadStudents() {
                 `;
             });
             
-            document.getElementById('statStudents').innerText = students.length;
+            const statEl = document.getElementById('statStudents');
+            if (statEl) statEl.innerText = students.length;
         }
     } catch(e) {
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load students</td></tr>";
@@ -219,6 +246,8 @@ function viewStudentDetails(id) {
 // ===== LOAD RESULTS =====
 async function loadResults() {
     const tbody = document.getElementById("resultsTable");
+    if (!tbody) return;
+    
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
     
     try {
@@ -250,7 +279,8 @@ async function loadResults() {
                 `;
             });
             
-            document.getElementById('statResults').innerText = results.length;
+            const statEl = document.getElementById('statResults');
+            if (statEl) statEl.innerText = results.length;
         }
     } catch(e) {
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load results</td></tr>";
@@ -336,6 +366,8 @@ function viewResponseSheet(idx) {
 // ===== LOAD FEEDBACKS =====
 async function loadFeedbacks() {
     const tbody = document.getElementById("feedbackTable");
+    if (!tbody) return;
+    
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
     
     try {
@@ -367,7 +399,8 @@ async function loadFeedbacks() {
                 `;
             });
             
-            document.getElementById('statFeedbacks').innerText = feedbacks.length;
+            const statEl = document.getElementById('statFeedbacks');
+            if (statEl) statEl.innerText = feedbacks.length;
         }
     } catch(e) {
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load feedbacks</td></tr>";
@@ -386,23 +419,31 @@ async function updateStats() {
         
         if(qRes.data.success) {
             const questions = qRes.data.questions;
-            document.getElementById('statTotal').innerText = questions.length;
-            document.getElementById('statPhy').innerText = questions.filter(q => q.subject === 'Physics').length;
-            document.getElementById('statChem').innerText = questions.filter(q => q.subject === 'Chemistry').length;
-            document.getElementById('statMath').innerText = questions.filter(q => q.subject === 'Mathematics').length;
-            document.getElementById('statBio').innerText = questions.filter(q => q.subject === 'Biology').length;
+            const setStatSafe = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = value;
+            };
+            
+            setStatSafe('statTotal', questions.length);
+            setStatSafe('statPhy', questions.filter(q => q.subject === 'Physics').length);
+            setStatSafe('statChem', questions.filter(q => q.subject === 'Chemistry').length);
+            setStatSafe('statMath', questions.filter(q => q.subject === 'Mathematics').length);
+            setStatSafe('statBio', questions.filter(q => q.subject === 'Biology').length);
         }
         
         if(sRes.data.success) {
-            document.getElementById('statStudents').innerText = sRes.data.students.length;
+            const el = document.getElementById('statStudents');
+            if (el) el.innerText = sRes.data.students.length;
         }
         
         if(rRes.data.success) {
-            document.getElementById('statResults').innerText = rRes.data.results.length;
+            const el = document.getElementById('statResults');
+            if (el) el.innerText = rRes.data.results.length;
         }
         
         if(fRes.data.success) {
-            document.getElementById('statFeedbacks').innerText = fRes.data.feedbacks.length;
+            const el = document.getElementById('statFeedbacks');
+            if (el) el.innerText = fRes.data.feedbacks.length;
         }
     } catch(e) {
         console.error('Failed to update stats:', e);
@@ -411,11 +452,13 @@ async function updateStats() {
 
 // ===== MODAL CONTROLS =====
 function closeModal() {
-    document.getElementById('responseModal').style.display = 'none';
+    const modal = document.getElementById('responseModal');
+    if (modal) modal.style.display = 'none';
 }
 
 // ===== INITIALIZATION =====
 function initializeAdmin() {
+    console.log('Initializing admin panel...');
     checkAuth();
     updateStats();
     loadAllQuestions();
