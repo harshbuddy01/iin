@@ -39,6 +39,7 @@
     </style>
 </head>
 <body>
+    <div id="userDashboardContainer" class="fixed top-24 right-8 z-50"></div>
 
     <div class="grid-bg"></div>
 
@@ -75,7 +76,7 @@
                 </p>
             </div>
             
-            <button onclick="window.location.href='signinpage.html'" class="buy-btn" style="background:#10b981; margin-top:0">Access Your Tests 🚀</button>
+            <button onclick="window.location.href='exam.html'" class="buy-btn" style="background:#10b981; margin-top:0">Start Your Test 🚀</button>
         </div>
     </div>
 
@@ -165,9 +166,12 @@
         function markAsPurchased(testId) {
             const btn = document.getElementById(`btn-${testId}`);
             if (btn) {
-                btn.innerHTML = "★ ACCESS GRANTED";
+                btn.innerHTML = "★ ACCESS GRANTED - START TEST";
                 btn.style.background = "#10b981";
-                btn.onclick = () => window.location.href = "signinpage.html";
+                btn.onclick = () => {
+                    localStorage.setItem("currentTestId", testId);
+                    window.location.href = "exam.html";
+                };
             }
         }
 
