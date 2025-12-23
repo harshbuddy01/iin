@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Pipeline | IIN.edu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <script>
+        const API_BASE_URL = "https://iin-production.up.railway.app";
+        window.API_BASE_URL = API_BASE_URL;
+    </script>
     
     <script>
         window.MathJax = {
@@ -37,6 +43,7 @@
     </style>
 </head>
 <body class="grid-bg">
+    <div id="userDashboardContainer" class="fixed top-24 right-8 z-50"></div>
 
     <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
         <div class="logo text-2xl font-black text-white">IIN<span class="text-blue-500">.edu</span></div>
@@ -121,6 +128,11 @@
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
     <script>
+        // Initialize user panel on page load
+        window.onload = function() {
+            if (window.refreshUserDashboard) window.refreshUserDashboard();
+        };
+        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) { entry.target.classList.add('active'); }
