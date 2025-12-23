@@ -1,6 +1,8 @@
 import Question from "../models/question.js";
 import ExamResult from "../models/results.js";
-import { Payment } from "../models/payment.js"; // This matches the new named export
+import { Payment } from "../models/payment.js";
+import User from "../models/user.js";
+import Feedback from "../models/feedback.js";
 
 // Login Logic
 export const adminLogin = (req, res) => {
@@ -31,11 +33,42 @@ export const deleteQuestion = async (req, res) => {
   }
 };
 
-// Data Viewing
+// Get all questions (for admin panel analytics and manage)
+export const getAllQuestions = async (req, res) => {
+  try {
+    const questions = await Question.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, questions });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Get all students
+export const getAllStudents = async (req, res) => {
+  try {
+    const students = await User.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, students });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Get all feedbacks
+export const getFeedbacks = async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, feedbacks });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Data Viewing - Results with Questions
 export const getResults = async (req, res) => {
   try {
     const results = await ExamResult.find().sort({ submissionTime: -1 });
-    res.status(200).json({ success: true, results });
+    const questions = await Question.find();
+    res.status(200).json({ success: true, results, questions });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
