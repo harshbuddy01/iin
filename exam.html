@@ -204,15 +204,25 @@
 
         async function fetchQuestions(testId) {
             try {
+                console.log('Fetching questions for:', testId);
                 const res = await axios.get(`${API_BASE_URL}/api/get-questions?testId=${testId}`);
-                if(res.data.success) {
+                console.log('Questions response:', res.data);
+                
+                if(res.data.success && res.data.questions) {
                     res.data.questions.forEach(q => { 
-                        if(questionsBySubject[q.subject]) questionsBySubject[q.subject].push(q); 
+                        if(questionsBySubject[q.subject]) {
+                            questionsBySubject[q.subject].push(q);
+                        }
                     });
+                    
+                    console.log('Questions organized by subject:', questionsBySubject);
                     switchSubject("Physics");
+                } else {
+                    document.getElementById("questionText").innerText = "No questions found for this test.";
                 }
             } catch(e) { 
-                document.getElementById("questionText").innerText = "Connection Error: Please check your internet connection."; 
+                console.error('Error fetching questions:', e);
+                document.getElementById("questionText").innerText = "Connection Error: " + (e.message || "Please check your internet connection.");
             }
         }
 
@@ -255,12 +265,14 @@
             const questions = questionsBySubject[currentSubject];
             if (!questions || questions.length === 0) {
                 document.getElementById('questionText').innerText = "No questions available for this subject.";
+                document.getElementById('optionsContainer').innerHTML = '';
+                document.getElementById('questionImageContainer').innerHTML = '';
                 return;
             }
             
             const q = questions[currentQIndex];
             document.getElementById('qNumDisplay').innerText = `Question No. ${currentQIndex + 1}`;
-            document.getElementById('questionText').innerHTML = q.question;
+            document.getElementById('questionText').innerHTML = q.questionText; // Changed from q.question
             
             if (q.image) {
                 document.getElementById('questionImageContainer').innerHTML = `<img src="${q.image}" class="q-img">`;
@@ -271,17 +283,18 @@
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
-            ['A', 'B', 'C', 'D'].forEach(opt => {
+            // Changed to use options array instead of optionA, optionB, etc.
+            q.options.forEach((optionText, index) => {
                 const card = document.createElement('div');
                 card.className = 'option-card';
-                card.onclick = () => selectOption(opt);
+                card.onclick = () => selectOption(index);
                 
                 const qKey = `${currentSubject}-${currentQIndex}`;
-                if (userResponses[qKey] === opt) card.classList.add('selected');
+                if (userResponses[qKey] === index) card.classList.add('selected');
                 
                 card.innerHTML = `
-                    <input type="radio" name="answer" value="${opt}" class="option-radio" ${userResponses[qKey] === opt ? 'checked' : ''}>
-                    <div style="flex:1;">${q['option' + opt]}</div>
+                    <input type="radio" name="answer" value="${index}" class="option-radio" ${userResponses[qKey] === index ? 'checked' : ''}>
+                    <div style="flex:1;">${optionText}</div>
                 `;
                 
                 optionsContainer.appendChild(card);
@@ -295,9 +308,9 @@
             renderPalette();
         }
 
-        function selectOption(opt) {
+        function selectOption(optionIndex) {
             const qKey = `${currentSubject}-${currentQIndex}`;
-            userResponses[qKey] = opt;
+            userResponses[qKey] = optionIndex;
             questionStatus[qKey] = 'answered';
             loadQuestion();
         }
@@ -311,7 +324,7 @@
 
         function saveNext() {
             const qKey = `${currentSubject}-${currentQIndex}`;
-            if (userResponses[qKey]) {
+            if (userResponses[qKey] !== undefined) {
                 questionStatus[qKey] = 'answered';
             } else {
                 questionStatus[qKey] = 'not-answered';
@@ -376,17 +389,20 @@
 
         async function finalSubmit() {
             const email = localStorage.getItem("userEmail");
+            const rollNumber = localStorage.getItem("userRollNumber");
             const testId = new URLSearchParams(window.location.search).get("test") || "iat";
             
             try {
                 await axios.post(`${API_BASE_URL}/api/submit-exam`, { 
                     email, 
+                    rollNumber,
                     testId, 
                     userResponses 
                 });
                 alert("✅ Test Submitted Successfully! Results will be emailed to you.");
                 window.location.href = "testfirstpage.html";
             } catch (error) {
+                console.error('Submission error:', error);
                 alert("❌ Submission failed. Please try again.");
             }
         }
