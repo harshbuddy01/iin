@@ -63,21 +63,21 @@
                     </label>
                 </div>
 
-                <button class="begin-test-btn" id="beginTestBtn">I am ready to begin the test</button>
+                <button class="begin-test-btn" id="beginTestBtn" disabled>I am ready to begin the test</button>
             </div>
         </div>
     </div>
-     <!-- Main Exam Interface -->
+
+    <!-- Main Exam Interface -->
     <div id="examInterface" class="exam-interface" style="display: none;">
         <!-- Header -->
         <header class="exam-header">
             <div class="header-left">
                 <span class="exam-title-header" id="examTitleHeader">IIN Aptitude Test Series 2025</span>
             </div>
-         <div class="header-right">
-                <button class="calculator-tab active" data-section="Calculator">
-                    Calculator <span class="calculator-icon" id="Calculatorfun"></span>
-                   
+            <div class="header-right">
+                <button class="calculator-tab" data-section="Calculator">
+                    🔢 Calculator
                 </button>
             </div>
         </header>
@@ -86,7 +86,7 @@
         <div class="sub-header">
             <div class="sub-header-left">
                 <button class="test-name-btn" id="testNameBtn">
-                    <span class="info-icon-small"></span> <span id="testNameDisplay">IIN Aptitude Test Series 2025</span>
+                    <span id="testNameDisplay">IIN Aptitude Test Series 2025</span>
                 </button>
                 
                 <div class="sections-tabs">
@@ -109,9 +109,9 @@
             <div class="sub-header-right">
                 <div class="user-info">
                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%234a5568'/%3E%3Ccircle cx='50' cy='35' r='15' fill='white'/%3E%3Cpath d='M50 55 C30 55 20 70 20 85 L80 85 C80 70 70 55 50 55' fill='white'/%3E%3C/svg%3E" alt="User" class="user-avatar">
-                    <span class="user-name" id="userName">John Smith</span>
+                    <span class="user-name" id="userName">Candidate</span>
                 </div>
-                <div class="timer-display" id="timerDisplay">Time Left : 179:43</div>
+                <div class="timer-display" id="timerDisplay">Time Left : 03:00:00</div>
             </div>
         </div>
 
@@ -121,13 +121,13 @@
             <div class="question-area">
                 <div class="question-header-bar">
                     <div class="question-info">
-                        <span class="question-type">Question Type: MCQ</span>
-                        <span class="marks-info" id="marksInfo">Marks for correct answer: 4 | Negative Marks: 1</span>
+                        <span class="question-type">Question Type: MCQ (Single Correct)</span>
+                        <span class="marks-info" id="marksInfo">Marks for correct answer: +4 | Negative Marks: -1</span>
                     </div>
                     <div class="language-selector">
                         <label for="viewLanguage">View in:</label>
                         <select id="viewLanguage">
-                            <option value="English">English</option>
+                            <option value="English" selected>English</option>
                             <option value="Hindi">Hindi</option>
                         </select>
                     </div>
@@ -153,18 +153,18 @@
             <!-- Right: Sidebar -->
             <div class="sidebar">
                 <div class="sidebar-header">
-                    <button class="status-legend-btn" id="statusLegendBtn">
+                    <div class="status-legend-btn" id="statusLegendBtn">
                         <div class="legend-counts">
                             <div class="legend-item">
                                 <span class="legend-circle answered-circle">0</span>
                                 <span class="legend-text">Answered</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-circle not-answered-circle">1</span>
+                                <span class="legend-circle not-answered-circle">0</span>
                                 <span class="legend-text">Not Answered</span>
                             </div>
                             <div class="legend-item">
-                                <span class="legend-circle not-visited-circle">14</span>
+                                <span class="legend-circle not-visited-circle">60</span>
                                 <span class="legend-text">Not Visited</span>
                             </div>
                             <div class="legend-item">
@@ -173,10 +173,10 @@
                             </div>
                             <div class="legend-item">
                                 <span class="legend-circle answered-marked-circle">0</span>
-                                <span class="legend-text">Answered & Marked for Review (will not be considered for evaluation)</span>
+                                <span class="legend-text">Answered & Marked for Review</span>
                             </div>
                         </div>
-                    </button>
+                    </div>
                 </div>
 
                 <div class="section-title" id="sectionTitle">Biology</div>
@@ -191,7 +191,7 @@
         </div>
 
         <!-- Version Footer -->
-        <div class="version-footer">Version : 17.07.00</div>
+        <div class="version-footer">Version : 2025.12.24</div>
     </div>
 
     <!-- Calculator Modal -->
@@ -200,88 +200,14 @@
             <div class="calculator-header">
                 <span class="calculator-title">Scientific Calculator</span>
                 <div class="calculator-controls">
-                    <button class="calc-control-btn" id="copyResultBtn">Copy Result</button>
-                    <button class="calc-control-btn" id="helpBtn">Help</button>
-                    <button class="calc-control-btn minimize-btn" id="minimizeCalcBtn">─</button>
                     <button class="calc-control-btn close-btn" id="closeCalcBtn">✕</button>
                 </div>
             </div>
             <div class="calculator-body">
                 <input type="text" class="calc-display" id="calcDisplay" value="0" readonly>
-                
-                <div class="calc-buttons">
-                    <!-- Row 1 -->
-                    <button class="calc-btn mode-btn" data-action="mode">mod</button>
-                    <button class="calc-btn mode-btn deg active" data-action="deg">Deg</button>
-                    <button class="calc-btn mode-btn" data-action="rad">Rad</button>
-                    <button class="calc-btn memory-btn" data-action="mc">MC</button>
-                    <button class="calc-btn memory-btn" data-action="mr">MR</button>
-                    <button class="calc-btn memory-btn" data-action="ms">MS</button>
-                    <button class="calc-btn memory-btn" data-action="m+">M+</button>
-                    <button class="calc-btn memory-btn" data-action="m-">M-</button>
-                    
-                    <!-- Row 2 -->
-                    <button class="calc-btn func-btn" data-action="sinh">sinh</button>
-                    <button class="calc-btn func-btn" data-action="cosh">cosh</button>
-                    <button class="calc-btn func-btn" data-action="tanh">tanh</button>
-                    <button class="calc-btn func-btn" data-action="Exp">Exp</button>
-                    <button class="calc-btn operator-btn" data-action="(">(</button>
-                    <button class="calc-btn operator-btn" data-action=")">)</button>
-                    <button class="calc-btn backspace-btn" data-action="backspace">⌫</button>
-                    <button class="calc-btn clear-btn-calc" data-action="clear">C</button>
-                    <button class="calc-btn func-btn" data-action="+/-">+/-</button>
-                    <button class="calc-btn func-btn" data-action="sqrt">√</button>
-                    
-                    <!-- Row 3 -->
-                    <button class="calc-btn func-btn" data-action="sinh-1">sinh⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="cosh-1">cosh⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="tanh-1">tanh⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="log">log<sub>x</sub></button>
-                    <button class="calc-btn func-btn" data-action="ln">ln</button>
-                    <button class="calc-btn func-btn" data-action="log">log</button>
-                    <button class="calc-btn number-btn" data-action="7">7</button>
-                    <button class="calc-btn number-btn" data-action="8">8</button>
-                    <button class="calc-btn number-btn" data-action="9">9</button>
-                    <button class="calc-btn operator-btn" data-action="/">/</button>
-                    <button class="calc-btn func-btn" data-action="%">%</button>
-                    
-                    <!-- Row 4 -->
-                    <button class="calc-btn func-btn" data-action="pi">π</button>
-                    <button class="calc-btn func-btn" data-action="e">e</button>
-                    <button class="calc-btn func-btn" data-action="n!">n!</button>
-                    <button class="calc-btn func-btn" data-action="log-x">log<sub>y</sub>x</button>
-                    <button class="calc-btn func-btn" data-action="e^">e<sup>x</sup></button>
-                    <button class="calc-btn func-btn" data-action="10^">10<sup>x</sup></button>
-                    <button class="calc-btn number-btn" data-action="4">4</button>
-                    <button class="calc-btn number-btn" data-action="5">5</button>
-                    <button class="calc-btn number-btn" data-action="6">6</button>
-                    <button class="calc-btn operator-btn" data-action="*">*</button>
-                    <button class="calc-btn func-btn" data-action="1/x">1/x</button>
-                    
-                    <!-- Row 5 -->
-                    <button class="calc-btn func-btn" data-action="sin">sin</button>
-                    <button class="calc-btn func-btn" data-action="cos">cos</button>
-                    <button class="calc-btn func-btn" data-action="tan">tan</button>
-                    <button class="calc-btn func-btn" data-action="x^y">x<sup>y</sup></button>
-                    <button class="calc-btn func-btn" data-action="x^3">x³</button>
-                    <button class="calc-btn func-btn" data-action="x^2">x²</button>
-                    <button class="calc-btn number-btn" data-action="1">1</button>
-                    <button class="calc-btn number-btn" data-action="2">2</button>
-                    <button class="calc-btn number-btn" data-action="3">3</button>
-                    <button class="calc-btn operator-btn" data-action="-">-</button>
-                    <button class="calc-btn func-btn" data-action="=">=</button>
-                    
-                    <!-- Row 6 -->
-                    <button class="calc-btn func-btn" data-action="sin-1">sin⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="cos-1">cos⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="tan-1">tan⁻¹</button>
-                    <button class="calc-btn func-btn" data-action="y-root-x">ʸ√x</button>
-                    <button class="calc-btn func-btn" data-action="cbrt">³√</button>
-                    <button class="calc-btn func-btn" data-action="|x|">|x|</button>
-                    <button class="calc-btn number-btn zero-btn" data-action="0">0</button>
-                    <button class="calc-btn number-btn" data-action=".">.</button>
-                    <button class="calc-btn operator-btn" data-action="+">+</button>
-                    <button class="calc-btn equals-btn" data-action="=">=</button>
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    <p>Basic calculator interface</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px;">Use system calculator for complex operations</p>
                 </div>
             </div>
         </div>
@@ -302,135 +228,7 @@
         </div>
     </div>
 
-    <!-- Final Review Modal -->
-    <div id="reviewModal" class="modal">
-        <div class="modal-content review-modal">
-            <h2 class="modal-title">Final Review</h2>
-            <div class="review-summary" id="reviewSummary">
-                <!-- Will be populated by JavaScript -->
-            </div>
-            <div class="modal-actions">
-                <button class="modal-btn back-btn" id="backToExamBtn">Back to Exam</button>
-                <button class="modal-btn confirm-btn" id="finalSubmitBtn">Submit Exam</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Legend Dropdown -->
-    <div id="statusDropdown" class="status-dropdown" style="display: none;">
-        <div class="dropdown-header">
-            <span class="dropdown-title" id="statusDropdownTitle">IIN Aptitude Test Series 2025</span>
-        </div>
-        <div class="dropdown-content">
-            <div class="status-item">
-                <span class="status-badge answered-badge">0</span>
-                <span class="status-label">Answered</span>
-            </div>
-            <div class="status-item">
-                <span class="status-badge not-answered-badge">5</span>
-                <span class="status-label">Not Answered</span>
-            </div>
-            <div class="status-item">
-                <span class="status-badge not-visited-badge">55</span>
-                <span class="status-label">Not Visited</span>
-            </div>
-            <div class="status-item">
-                <span class="status-badge marked-badge">0</span>
-                <span class="status-label">Marked for Review</span>
-            </div>
-            <div class="status-item">
-                <span class="status-badge answered-marked-badge">0</span>
-                <span class="status-label">Answered & Marked for Review (will not be considered for evaluation)</span>
-            </div>
-        </div>
-    </div>
-
-  <!-- Dynamic Exam Loader Script -->
-  <script>
-    // Store selected year globally
-    let selectedYear = '2025';
-    
-    // Before loading exam, capture year selection
-    document.addEventListener('DOMContentLoaded', function() {
-        // Check URL parameter for year
-        const urlParams = new URLSearchParams(window.location.search);
-        const yearFromURL = urlParams.get('year');
-        
-        const yearSelect = document.getElementById('examYear');
-        const beginBtn = document.getElementById('beginTestBtn');
-        const agreeTerms = document.getElementById('agreeTerms');
-        
-        // Auto-select year from URL if provided
-        if (yearFromURL) {
-            selectedYear = yearFromURL;
-            yearSelect.value = yearFromURL;
-            
-            // Update title displays immediately
-            document.getElementById('examTitleHeader').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
-            document.getElementById('testNameDisplay').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
-            document.getElementById('statusDropdownTitle').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
-        }
-        
-        // Update begin button state
-        function updateBeginButton() {
-            const hasName = document.getElementById('candidateName').value.trim() !== '';
-            const hasYear = yearSelect.value !== '';
-            const agreedTerms = agreeTerms.checked;
-            beginBtn.disabled = !(hasName && hasYear && agreedTerms);
-        }
-        
-        yearSelect.addEventListener('change', function() {
-            selectedYear = this.value;
-            updateBeginButton();
-            
-            // Update title displays
-            document.getElementById('examTitleHeader').textContent = `IIN Aptitude Test Series ${selectedYear}`;
-            document.getElementById('testNameDisplay').textContent = `IIN Aptitude Test Series ${selectedYear}`;
-            document.getElementById('statusDropdownTitle').textContent = `IIN Aptitude Test Series ${selectedYear}`;
-        });
-        
-        document.getElementById('candidateName').addEventListener('input', updateBeginButton);
-        agreeTerms.addEventListener('change', updateBeginButton);
-        
-        // Load exam script dynamically
-        beginBtn.addEventListener('click', function() {
-            if (!selectedYear) {
-                alert('Please select an exam year!');
-                return;
-            }
-            
-            const candidateName = document.getElementById('candidateName').value.trim();
-            if (!candidateName) {
-                alert('Please enter your name!');
-                return;
-            }
-            
-            // Update user name in exam interface
-            document.getElementById('userName').textContent = candidateName;
-            
-            // Hide instruction page and show exam interface
-            document.getElementById('instructionPage').style.display = 'none';
-            document.getElementById('examInterface').style.display = 'block';
-            
-            // Load the selected year's exam script
-            const script = document.createElement('script');
-            script.src = `../js-exam/exam_${selectedYear}.js`;
-            script.onload = function() {
-                console.log(`Exam ${selectedYear} loaded successfully`);
-                // The exam_YEAR.js file should initialize questions here
-            };
-            script.onerror = function() {
-                alert(`Error: Exam data for year ${selectedYear} is not available yet. Please try another year.`);
-                // Show instruction page again
-                document.getElementById('instructionPage').style.display = 'flex';
-                document.getElementById('examInterface').style.display = 'none';
-            };
-            document.body.appendChild(script);
-        });
-        
-        // Initial state
-        updateBeginButton();
-    });
-  </script>
+    <!-- Load Professional Exam Application -->
+    <script src="exam-app.js"></script>
 </body>
 </html>
