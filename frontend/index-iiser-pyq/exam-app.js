@@ -1,5 +1,8 @@
 // Professional Exam Application - Official IISER/JEE Style
+// Version: 2025.12.24.2 with Debug Logging
 'use strict';
+
+console.log('[ExamApp] Script loaded successfully');
 
 // Global State
 window.ExamApp = {
@@ -17,6 +20,7 @@ window.ExamApp = {
 
 // Load exam data dynamically based on year
 function loadExamData(year) {
+    console.log('[ExamApp] Loading exam data for year:', year);
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = `../js-exam/exam_${year}.js`;
@@ -24,6 +28,7 @@ function loadExamData(year) {
         script.onload = function() {
             if (typeof questionBank !== 'undefined') {
                 window.ExamApp.questionBank = questionBank;
+                console.log('[ExamApp] Question bank loaded successfully:', questionBank);
                 resolve(questionBank);
             } else {
                 reject(new Error('Question bank not found in exam script'));
@@ -40,11 +45,13 @@ function loadExamData(year) {
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('[ExamApp] DOM Content Loaded');
     setupInstructionPage();
 });
 
 // Setup Instruction Page
 function setupInstructionPage() {
+    console.log('[ExamApp] Setting up instruction page');
     const urlParams = new URLSearchParams(window.location.search);
     const yearFromURL = urlParams.get('year');
     
@@ -103,6 +110,7 @@ function updateExamTitles(year) {
 }
 
 async function startExamProcess() {
+    console.log('[ExamApp] Starting exam process');
     const candidateInput = document.getElementById('candidateName');
     const yearSelect = document.getElementById('examYear');
     
@@ -137,9 +145,10 @@ async function startExamProcess() {
         const userNameEl = document.getElementById('userName');
         if (userNameEl) userNameEl.textContent = candidateName;
         
+        console.log('[ExamApp] Initializing exam interface');
         initializeExam();
     } catch (error) {
-        console.error('Failed to start exam:', error);
+        console.error('[ExamApp] Failed to start exam:', error);
         alert(`Error: ${error.message}`);
         if (beginBtn) {
             beginBtn.textContent = 'I am ready to begin the test';
@@ -149,6 +158,7 @@ async function startExamProcess() {
 }
 
 function initializeExam() {
+    console.log('[ExamApp] Initializing exam');
     setupExamEventListeners();
     loadQuestion();
     updateQuestionPalette();
@@ -158,24 +168,67 @@ function initializeExam() {
     
     const questionKey = `${window.ExamApp.currentSection}-${window.ExamApp.currentQuestionIndex}`;
     window.ExamApp.visited[questionKey] = true;
+    console.log('[ExamApp] Exam initialized successfully');
 }
 
 function setupExamEventListeners() {
+    console.log('[ExamApp] Setting up event listeners');
+    
+    // Section tabs
     document.querySelectorAll('.section-tab').forEach(tab => {
         tab.addEventListener('click', function() {
-            switchSection(this.getAttribute('data-section'));
+            const section = this.getAttribute('data-section');
+            console.log('[ExamApp] Section tab clicked:', section);
+            switchSection(section);
         });
     });
     
+    // Action buttons
     const markReviewBtn = document.getElementById('markReviewBtn');
     const clearBtn = document.getElementById('clearBtn');
     const saveNextBtn = document.getElementById('saveNextBtn');
     const submitExamBtn = document.getElementById('submitExamBtn');
     
-    if (markReviewBtn) markReviewBtn.addEventListener('click', markForReviewAndNext);
-    if (clearBtn) clearBtn.addEventListener('click', clearResponse);
-    if (saveNextBtn) saveNextBtn.addEventListener('click', saveAndNext);
-    if (submitExamBtn) submitExamBtn.addEventListener('click', showSubmitConfirmation);
+    if (markReviewBtn) {
+        console.log('[ExamApp] Mark Review button found, attaching listener');
+        markReviewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[ExamApp] Mark for Review clicked!');
+            markForReviewAndNext();
+        });
+    } else {
+        console.error('[ExamApp] Mark Review button NOT found!');
+    }
+    
+    if (clearBtn) {
+        console.log('[ExamApp] Clear button found, attaching listener');
+        clearBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[ExamApp] Clear Response clicked!');
+            clearResponse();
+        });
+    } else {
+        console.error('[ExamApp] Clear button NOT found!');
+    }
+    
+    if (saveNextBtn) {
+        console.log('[ExamApp] Save & Next button found, attaching listener');
+        saveNextBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[ExamApp] Save & Next clicked!');
+            saveAndNext();
+        });
+    } else {
+        console.error('[ExamApp] Save & Next button NOT found!');
+    }
+    
+    if (submitExamBtn) {
+        submitExamBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('[ExamApp] Submit Exam clicked!');
+            showSubmitConfirmation();
+        });
+    }
 }
 
 function startTimer() {
@@ -208,6 +261,7 @@ function updateTimerDisplay() {
 }
 
 function loadQuestion() {
+    console.log('[ExamApp] Loading question:', window.ExamApp.currentQuestionIndex);
     if (!window.ExamApp.questionBank) return;
     
     const questions = window.ExamApp.questionBank[window.ExamApp.currentSection];
@@ -238,6 +292,7 @@ function loadQuestion() {
             
             optionBtn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${option}`;
             optionBtn.addEventListener('click', function() {
+                console.log('[ExamApp] Option selected:', index);
                 selectAnswer(index);
             });
             
@@ -255,6 +310,8 @@ function loadQuestion() {
 function selectAnswer(optionIndex) {
     const questionKey = `${window.ExamApp.currentSection}-${window.ExamApp.currentQuestionIndex}`;
     window.ExamApp.answers[questionKey] = optionIndex;
+    console.log('[ExamApp] Answer saved:', questionKey, '=', optionIndex);
+    console.log('[ExamApp] All answers:', window.ExamApp.answers);
     
     document.querySelectorAll('.option-btn').forEach((btn, index) => {
         if (index === optionIndex) {
@@ -270,6 +327,7 @@ function selectAnswer(optionIndex) {
 }
 
 function switchSection(section) {
+    console.log('[ExamApp] Switching to section:', section);
     window.ExamApp.currentSection = section;
     window.ExamApp.currentQuestionIndex = 0;
     
@@ -285,17 +343,21 @@ function switchSection(section) {
 }
 
 function markForReviewAndNext() {
+    console.log('[ExamApp] Marking for review');
     const questionKey = `${window.ExamApp.currentSection}-${window.ExamApp.currentQuestionIndex}`;
     window.ExamApp.markedForReview[questionKey] = true;
+    console.log('[ExamApp] Marked for review:', questionKey);
     updateQuestionPalette();
     updateLegendCounts();
     saveAndNext();
 }
 
 function clearResponse() {
+    console.log('[ExamApp] Clearing response');
     const questionKey = `${window.ExamApp.currentSection}-${window.ExamApp.currentQuestionIndex}`;
     delete window.ExamApp.answers[questionKey];
     delete window.ExamApp.markedForReview[questionKey];
+    console.log('[ExamApp] Cleared question:', questionKey);
     
     document.querySelectorAll('.option-btn').forEach(btn => {
         btn.classList.remove('selected');
@@ -307,6 +369,7 @@ function clearResponse() {
 }
 
 function saveAndNext() {
+    console.log('[ExamApp] Save and next');
     const questions = window.ExamApp.questionBank[window.ExamApp.currentSection];
     
     if (window.ExamApp.currentQuestionIndex < questions.length - 1) {
@@ -359,6 +422,7 @@ function updateQuestionPalette() {
         }
         
         btn.addEventListener('click', () => {
+            console.log('[ExamApp] Palette button clicked:', index);
             window.ExamApp.currentQuestionIndex = index;
             loadQuestion();
         });
@@ -384,7 +448,7 @@ function updateSectionCounts() {
         });
         
         const countEl = document.getElementById(`${section.toLowerCase()}Count`);
-        if (countEl) countEl.textContent = `(${answered})`;
+        if (countEl) countEl.textContent = `${answered}`;
     });
 }
 
@@ -436,6 +500,7 @@ function setupCalculator() {
     
     if (calcBtn) {
         calcBtn.addEventListener('click', function() {
+            console.log('[ExamApp] Calculator button clicked');
             if (modal) {
                 modal.classList.add('show');
                 if (typeof initializeCalculator === 'function') {
@@ -465,6 +530,7 @@ function setupCalculator() {
 
 // Submit Functions
 function showSubmitConfirmation() {
+    console.log('[ExamApp] Showing submit confirmation');
     const modal = document.getElementById('submitModal');
     if (!modal) return;
     
@@ -526,11 +592,15 @@ function calculateSubmissionSummary() {
 }
 
 function finalSubmitExam() {
+    console.log('[ExamApp] Final submit - calculating results');
+    console.log('[ExamApp] Final answers:', window.ExamApp.answers);
+    
     if (window.ExamApp.timerInterval) {
         clearInterval(window.ExamApp.timerInterval);
     }
     
     const results = calculateResults();
+    console.log('[ExamApp] Results calculated:', results);
     showResultsPage(results);
 }
 
@@ -664,7 +734,7 @@ function showResultsPage(results) {
                                     <td style="padding: 18px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; color: #64748b;">${s.max}</td>
                                     <td style="padding: 18px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; color: #64748b;">${s.attempted} / ${s.totalQuestions}</td>
                                     <td style="padding: 18px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; color: #4caf50; font-weight: 500;">${s.correct}</td>
-                                    <td style="padding: 18px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: ${sectionPercent >= 50 ? '#4caf50' : '#d32f2f'};">${sectionPercent}%</td>
+                                    <td style="padding: 18px 20px; text-align: center; border-bottom: 1px solid #e2e8f0; font-weight: 600; color: ${sectionPercent >= 50 ? '#4caf50' : '#d32f2f'};}">${sectionPercent}%</td>
                                 </tr>
                             `;
                         }).join('')}
@@ -680,3 +750,5 @@ function showResultsPage(results) {
         </div>
     `;
 }
+
+console.log('[ExamApp] All functions defined successfully');
