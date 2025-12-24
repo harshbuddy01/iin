@@ -292,90 +292,56 @@
             color: #3b82f6;
         }
         
-        /* PARTICLE WAVE ANIMATION - RIGHT CARD */
-        .wave-container {
+        /* NEON PULSE RINGS - RIGHT CARD */
+        .rings-container {
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
             min-height: 200px;
             position: relative;
-            overflow: hidden;
         }
         
-        .particle-wave {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-        }
-        
-        .wave-particle {
-            width: 100%;
-            aspect-ratio: 1;
+        .pulse-ring {
+            position: absolute;
             border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            animation: particleWave 3s ease-in-out infinite;
+            border: 3px solid;
+            animation: pulse-expand 3s ease-out infinite;
         }
         
-        @keyframes particleWave {
-            0%, 100% {
-                transform: translateY(0) scale(1);
-                opacity: 0.6;
-            }
-            50% {
-                transform: translateY(-30px) scale(1.2);
+        @keyframes pulse-expand {
+            0% {
+                transform: scale(0.5);
                 opacity: 1;
             }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
         }
         
-        /* Staggered delays for wave effect */
-        .wave-particle:nth-child(1) { animation-delay: 0s; }
-        .wave-particle:nth-child(2) { animation-delay: 0.1s; }
-        .wave-particle:nth-child(3) { animation-delay: 0.2s; }
-        .wave-particle:nth-child(4) { animation-delay: 0.3s; }
-        .wave-particle:nth-child(5) { animation-delay: 0.4s; }
-        .wave-particle:nth-child(6) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(7) { animation-delay: 0.1s; }
-        .wave-particle:nth-child(8) { animation-delay: 0.2s; }
-        .wave-particle:nth-child(9) { animation-delay: 0.3s; }
-        .wave-particle:nth-child(10) { animation-delay: 0.4s; }
-        .wave-particle:nth-child(11) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(12) { animation-delay: 0.6s; }
-        .wave-particle:nth-child(13) { animation-delay: 0.2s; }
-        .wave-particle:nth-child(14) { animation-delay: 0.3s; }
-        .wave-particle:nth-child(15) { animation-delay: 0.4s; }
-        .wave-particle:nth-child(16) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(17) { animation-delay: 0.6s; }
-        .wave-particle:nth-child(18) { animation-delay: 0.7s; }
-        .wave-particle:nth-child(19) { animation-delay: 0.3s; }
-        .wave-particle:nth-child(20) { animation-delay: 0.4s; }
-        .wave-particle:nth-child(21) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(22) { animation-delay: 0.6s; }
-        .wave-particle:nth-child(23) { animation-delay: 0.7s; }
-        .wave-particle:nth-child(24) { animation-delay: 0.8s; }
-        .wave-particle:nth-child(25) { animation-delay: 0.4s; }
-        .wave-particle:nth-child(26) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(27) { animation-delay: 0.6s; }
-        .wave-particle:nth-child(28) { animation-delay: 0.7s; }
-        .wave-particle:nth-child(29) { animation-delay: 0.8s; }
-        .wave-particle:nth-child(30) { animation-delay: 0.9s; }
-        .wave-particle:nth-child(31) { animation-delay: 0.5s; }
-        .wave-particle:nth-child(32) { animation-delay: 0.6s; }
-        .wave-particle:nth-child(33) { animation-delay: 0.7s; }
-        .wave-particle:nth-child(34) { animation-delay: 0.8s; }
-        .wave-particle:nth-child(35) { animation-delay: 0.9s; }
-        .wave-particle:nth-child(36) { animation-delay: 1s; }
-        
-        /* Color variations */
-        .wave-particle:nth-child(3n) {
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+        .pulse-ring:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            border-color: #3b82f6;
+            box-shadow: 0 0 30px #3b82f6;
+            animation-delay: 0s;
         }
-        .wave-particle:nth-child(3n+1) {
-            background: linear-gradient(135deg, #ec4899, #f59e0b);
+        
+        .pulse-ring:nth-child(2) {
+            width: 80px;
+            height: 80px;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 30px #8b5cf6;
+            animation-delay: 1s;
+        }
+        
+        .pulse-ring:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            border-color: #ec4899;
+            box-shadow: 0 0 30px #ec4899;
+            animation-delay: 2s;
         }
         
         /* PARTICLES */
@@ -494,7 +460,6 @@
             .clay-card {
                 padding: 25px;
             }
-            
             .clay-card:last-child {
                 grid-column: 1;
             }
@@ -523,10 +488,9 @@
                 gap: 12px;
             }
             
-            .particle-wave {
-                width: 140px;
-                height: 140px;
-                gap: 6px;
+            .pulse-ring {
+                width: 60px !important;
+                height: 60px !important;
             }
         }
     </style>
@@ -809,47 +773,12 @@
                     </div>
                 </div>
                 
-                <!-- RIGHT: PARTICLE WAVE -->
+                <!-- RIGHT: NEON PULSE RINGS -->
                 <div class="clay-card">
-                    <div class="wave-container">
-                        <div class="particle-wave">
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                            <div class="wave-particle"></div>
-                        </div>
+                    <div class="rings-container">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring"></div>
                     </div>
                 </div>
                 
