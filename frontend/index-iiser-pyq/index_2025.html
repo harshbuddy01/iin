@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Aptitude Test Series - Assessment Examination Center</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="calculator.css">
 </head>
 <body>
     <!-- Instruction Page -->
@@ -76,7 +77,7 @@
                 <span class="exam-title-header" id="examTitleHeader">IIN Aptitude Test Series 2025</span>
             </div>
             <div class="header-right">
-                <button class="calculator-tab" data-section="Calculator">
+                <button class="calculator-tab" id="calculatorBtn">
                     🔢 Calculator
                 </button>
             </div>
@@ -98,7 +99,7 @@
                         Chemistry <span class="section-count" id="chemistryCount"></span>
                     </button>
                     <button class="section-tab" data-section="Mathematics">
-                        Mathematics <span class="section-count" id="mathCount"></span>
+                        Mathematics <span class="section-count" id="mathematicsCount"></span>
                     </button>
                     <button class="section-tab" data-section="Physics">
                         Physics <span class="section-count" id="physicsCount"></span>
@@ -194,20 +195,63 @@
         <div class="version-footer">Version : 2025.12.24</div>
     </div>
 
-    <!-- Calculator Modal -->
-    <div id="calculatorModal" class="modal">
-        <div class="calculator-window">
+    <!-- Scientific Calculator Modal -->
+    <div id="calculatorModal" class="calculator-modal">
+        <div class="calculator-container">
             <div class="calculator-header">
                 <span class="calculator-title">Scientific Calculator</span>
-                <div class="calculator-controls">
-                    <button class="calc-control-btn close-btn" id="closeCalcBtn">✕</button>
-                </div>
+                <button class="calculator-close" id="closeCalculator">×</button>
             </div>
             <div class="calculator-body">
-                <input type="text" class="calc-display" id="calcDisplay" value="0" readonly>
-                <div style="text-align: center; padding: 20px; color: #666;">
-                    <p>Basic calculator interface</p>
-                    <p style="font-size: 0.9rem; margin-top: 10px;">Use system calculator for complex operations</p>
+                <input type="text" id="calc-display" value="0" readonly>
+                
+                <div class="calculator-buttons">
+                    <!-- Row 1: Functions -->
+                    <button class="calc-btn function" data-action="sin">sin</button>
+                    <button class="calc-btn function" data-action="cos">cos</button>
+                    <button class="calc-btn function" data-action="tan">tan</button>
+                    <button class="calc-btn function" data-action="log">log</button>
+                    <button class="calc-btn function" data-action="ln">ln</button>
+                    
+                    <!-- Row 2: Functions -->
+                    <button class="calc-btn function" data-action="sqrt">√</button>
+                    <button class="calc-btn function" data-action="square">x²</button>
+                    <button class="calc-btn function" data-action="power">xʸ</button>
+                    <button class="calc-btn function" data-action="factorial">n!</button>
+                    <button class="calc-btn function" data-action="inverse">1/x</button>
+                    
+                    <!-- Row 3: Constants -->
+                    <button class="calc-btn function" data-action="pi">π</button>
+                    <button class="calc-btn function" data-action="e">e</button>
+                    <button class="calc-btn function" data-action="exp">eˣ</button>
+                    <button class="calc-btn clear" data-action="clear">C</button>
+                    <button class="calc-btn clear" data-action="delete">⌫</button>
+                    
+                    <!-- Row 4: Numbers -->
+                    <button class="calc-btn" data-value="7">7</button>
+                    <button class="calc-btn" data-value="8">8</button>
+                    <button class="calc-btn" data-value="9">9</button>
+                    <button class="calc-btn operator" data-action="divide">÷</button>
+                    <button class="calc-btn operator" data-action="percent">%</button>
+                    
+                    <!-- Row 5: Numbers -->
+                    <button class="calc-btn" data-value="4">4</button>
+                    <button class="calc-btn" data-value="5">5</button>
+                    <button class="calc-btn" data-value="6">6</button>
+                    <button class="calc-btn operator" data-action="multiply">×</button>
+                    <button class="calc-btn operator" data-action="negate">+/-</button>
+                    
+                    <!-- Row 6: Numbers -->
+                    <button class="calc-btn" data-value="1">1</button>
+                    <button class="calc-btn" data-value="2">2</button>
+                    <button class="calc-btn" data-value="3">3</button>
+                    <button class="calc-btn operator" data-action="subtract">−</button>
+                    <button class="calc-btn equals tall" data-action="equals">=</button>
+                    
+                    <!-- Row 7: Zero and decimal -->
+                    <button class="calc-btn wide" data-value="0">0</button>
+                    <button class="calc-btn" data-value=".">.</button>
+                    <button class="calc-btn operator" data-action="add">+</button>
                 </div>
             </div>
         </div>
@@ -228,7 +272,8 @@
         </div>
     </div>
 
-    <!-- Load Professional Exam Application -->
+    <!-- Load Scripts -->
+    <script src="calculator.js"></script>
     <script src="exam-app.js"></script>
 </body>
 </html>
