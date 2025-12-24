@@ -3,272 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>IIN Aptitude Test Series - Assessment Examination Center</title>
-    <!-- Official IISER Colors Already Applied -->
+    <title>IIN Aptitude Test 2025 - Assessment Center</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="calculator.css">
 </head>
 <body>
-    <!-- Instruction Page -->
     <div id="instructionPage" class="instruction-container">
         <div class="instruction-card">
-            <h1 class="instruction-title">IIN Aptitude Test Series</h1>
-            <h2 class="instruction-subtitle">Welcome to Assessment Examination Center</h2>
-            
+            <h1 class="instruction-title">IIN Aptitude Test Series 2025</h1>
             <div class="instruction-form">
                 <div class="form-group">
-                    <label for="candidateName">Candidate Name *</label>
-                    <input type="text" id="candidateName" placeholder="Enter your full name" required>
+                    <label>Candidate Name</label>
+                    <input type="text" id="candidateName" value="Student" placeholder="Enter Name">
                 </div>
-
                 <div class="form-group">
-                    <label for="examYear">Select Exam Year *</label>
-                    <select id="examYear" required>
-                        <option value="">Choose Year</option>
-                        <option value="2025">2025 (Latest)</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                        <option value="2020">2020</option>
-                        <option value="2019">2019</option>
-                        <option value="2018">2018</option>
+                    <label>Language</label>
+                    <select id="examLanguage">
+                        <option value="English">English</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-                    <label for="examLanguage">Select Language *</label>
-                    <select id="examLanguage" required>
-                        <option value="">Choose Language</option>
-                        <option value="English" selected>English</option>
-                        <option value="Hindi">Hindi</option>
-                    </select>
-                </div>
-
-                <div class="instructions-content">
-                    <h3>General Instructions:</h3>
-                    <ul>
-                        <li>Total Duration: <strong>3 Hours (180 minutes)</strong></li>
-                        <li>Total Questions: <strong>60 Questions</strong> (15 each from Biology, Chemistry, Mathematics, Physics)</li>
-                        <li>Marking Scheme: <strong>+4</strong> for correct answer, <strong>-1</strong> for incorrect answer</li>
-                        <li>The test will auto-submit when the timer reaches 00:00</li>
-                        <li>You can navigate between questions and sections anytime</li>
-                        <li>Do NOT switch tabs or minimize the browser</li>
-                        <li>Scientific calculator will be provided during the exam</li>
-                    </ul>
-                </div>
-
                 <div class="terms-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" id="agreeTerms" required>
-                        <span>I have read and agree to the terms and conditions. I understand that any violation will result in disqualification.</span>
+                        <input type="checkbox" id="agreeTerms" checked>
+                        <span>I have read and agree to the instructions.</span>
                     </label>
                 </div>
-
-                <button class="begin-test-btn" id="beginTestBtn" disabled>I am ready to begin the test</button>
+                <button class="begin-test-btn" id="beginTestBtn">I am ready to begin</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Exam Interface -->
     <div id="examInterface" class="exam-interface" style="display: none;">
-        <!-- Header -->
         <header class="exam-header">
             <div class="header-left">
-                <span class="exam-title-header" id="examTitleHeader">IIN Aptitude Test Series 2025</span>
+                <span class="exam-title-header">IIN Aptitude Test 2025</span>
             </div>
             <div class="header-right">
-                <button class="calculator-tab" id="calculatorBtn">
-                    🔢 Calculator
-                </button>
+                <button class="calculator-tab" id="calculatorBtn">🔢 Calculator</button>
             </div>
         </header>
 
-        <!-- Sub Header -->
         <div class="sub-header">
             <div class="sub-header-left">
-                <button class="test-name-btn" id="testNameBtn">
-                    <span id="testNameDisplay">IIN Aptitude Test Series 2025</span>
-                </button>
-                
                 <div class="sections-tabs">
-                    <span class="sections-label">Sections</span>
-                    <button class="section-tab active" data-section="Biology">
-                        Biology <span class="section-count" id="biologyCount"></span>
-                    </button>
-                    <button class="section-tab" data-section="Chemistry">
-                        Chemistry <span class="section-count" id="chemistryCount"></span>
-                    </button>
-                    <button class="section-tab" data-section="Mathematics">
-                        Mathematics <span class="section-count" id="mathematicsCount"></span>
-                    </button>
-                    <button class="section-tab" data-section="Physics">
-                        Physics <span class="section-count" id="physicsCount"></span>
-                    </button>
+                    <button class="section-tab active" data-section="Biology">Biology <span id="biologyCount">0</span></button>
+                    <button class="section-tab" data-section="Chemistry">Chemistry <span id="chemistryCount">0</span></button>
+                    <button class="section-tab" data-section="Mathematics">Mathematics <span id="mathematicsCount">0</span></button>
+                    <button class="section-tab" data-section="Physics">Physics <span id="physicsCount">0</span></button>
                 </div>
             </div>
-
             <div class="sub-header-right">
                 <div class="user-info">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%234a5568'/%3E%3Ccircle cx='50' cy='35' r='15' fill='white'/%3E%3Cpath d='M50 55 C30 55 20 70 20 85 L80 85 C80 70 70 55 50 55' fill='white'/%3E%3C/svg%3E" alt="User" class="user-avatar">
-                    <span class="user-name" id="userName">Candidate</span>
+                    <span class="user-name" id="userNameDisplay">Student</span>
                 </div>
                 <div class="timer-display" id="timerDisplay">Time Left : 03:00:00</div>
             </div>
         </div>
 
-        <!-- Main Content Area -->
         <div class="main-content">
-            <!-- Left: Question Area -->
             <div class="question-area">
                 <div class="question-header-bar">
                     <div class="question-info">
-                        <span class="question-type">Question Type: MCQ (Single Correct)</span>
-                        <span class="marks-info" id="marksInfo">Marks for correct answer: +4 | Negative Marks: -1</span>
-                    </div>
-                    <div class="language-selector">
-                        <label for="viewLanguage">View in:</label>
-                        <select id="viewLanguage">
-                            <option value="English" selected>English</option>
-                            <option value="Hindi">Hindi</option>
-                        </select>
+                        <span>Question No. <span id="questionNumberDisplay">1</span></span>
+                        <span class="marks-info">Marks: +4, -1</span>
                     </div>
                 </div>
 
-                <div class="question-number-display" id="questionNumberDisplay">Question No. 1</div>
-
                 <div class="question-content" id="questionContent">
-                    <p class="question-text">Loading question...</p>
+                    Loading...
                 </div>
 
                 <div class="options-container" id="optionsContainer">
-                    <!-- Options will be populated by JavaScript -->
-                </div>
+                    </div>
 
                 <div class="question-actions">
                     <button class="action-btn mark-review-btn" id="markReviewBtn">Mark for Review & Next</button>
                     <button class="action-btn clear-btn" id="clearBtn">Clear Response</button>
                     <button class="action-btn save-next-btn" id="saveNextBtn">Save & Next</button>
                 </div>
+                
+                <div class="nav-buttons" style="margin-top:15px; display:flex; justify-content:space-between;">
+                     <button class="btn" onclick="prevQuestion()" style="background:#ddd;">&lt; Back</button>
+                     <button class="btn" onclick="nextQuestion()" style="background:#ddd;">Next &gt;</button>
+                </div>
             </div>
 
-            <!-- Right: Sidebar -->
             <div class="sidebar">
                 <div class="sidebar-header">
-                    <div class="status-legend-btn" id="statusLegendBtn">
-                        <div class="legend-counts">
-                            <div class="legend-item">
-                                <span class="legend-circle answered-circle">0</span>
-                                <span class="legend-text">Answered</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-circle not-answered-circle">0</span>
-                                <span class="legend-text">Not Answered</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-circle not-visited-circle">60</span>
-                                <span class="legend-text">Not Visited</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-circle marked-circle">0</span>
-                                <span class="legend-text">Marked for Review</span>
-                            </div>
-                            <div class="legend-item">
-                                <span class="legend-circle answered-marked-circle">0</span>
-                                <span class="legend-text">Answered & Marked for Review</span>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="legend-item"><span class="legend-circle answered-circle" id="legendAnswered">0</span> Answered</div>
+                    <div class="legend-item"><span class="legend-circle not-answered-circle" id="legendNotAnswered">0</span> Not Answered</div>
+                    <div class="legend-item"><span class="legend-circle not-visited-circle" id="legendNotVisited">0</span> Not Visited</div>
+                    <div class="legend-item"><span class="legend-circle marked-circle" id="legendMarked">0</span> Marked</div>
+                    <div class="legend-item"><span class="legend-circle answered-marked-circle" id="legendAnsMarked">0</span> Ans & Marked</div>
                 </div>
 
                 <div class="section-title" id="sectionTitle">Biology</div>
-                <div class="choose-question-label">Choose a Question</div>
-
-                <div class="question-palette" id="questionPalette">
-                    <!-- Question numbers will be populated by JavaScript -->
-                </div>
-
+                <div class="question-palette" id="questionPalette"></div>
                 <button class="submit-exam-btn" id="submitExamBtn">Submit Exam</button>
             </div>
         </div>
-
-        <!-- Version Footer -->
-        <div class="version-footer">Version : 2025.12.24-V4</div>
     </div>
 
-    <!-- Scientific Calculator Modal -->
-    <div id="calculatorModal" class="calculator-modal">
-        <div class="calculator-container">
-            <div class="calculator-header">
-                <span class="calculator-title">Scientific Calculator</span>
-                <button class="calculator-close" id="closeCalculator">×</button>
-            </div>
-            <div class="calculator-body">
-                <input type="text" id="calc-display" value="0" readonly>
-                
-                <div class="calculator-buttons">
-                    <!-- Row 1: Functions -->
-                    <button class="calc-btn function" data-action="sin">sin</button>
-                    <button class="calc-btn function" data-action="cos">cos</button>
-                    <button class="calc-btn function" data-action="tan">tan</button>
-                    <button class="calc-btn function" data-action="log">log</button>
-                    <button class="calc-btn function" data-action="ln">ln</button>
-                    
-                    <!-- Row 2: Functions -->
-                    <button class="calc-btn function" data-action="sqrt">√</button>
-                    <button class="calc-btn function" data-action="square">x²</button>
-                    <button class="calc-btn function" data-action="power">xʸ</button>
-                    <button class="calc-btn function" data-action="factorial">n!</button>
-                    <button class="calc-btn function" data-action="inverse">1/x</button>
-                    
-                    <!-- Row 3: Constants -->
-                    <button class="calc-btn function" data-action="pi">π</button>
-                    <button class="calc-btn function" data-action="e">e</button>
-                    <button class="calc-btn function" data-action="exp">eˣ</button>
-                    <button class="calc-btn clear" data-action="clear">C</button>
-                    <button class="calc-btn clear" data-action="delete">⌫</button>
-                    
-                    <!-- Row 4: Numbers -->
-                    <button class="calc-btn" data-value="7">7</button>
-                    <button class="calc-btn" data-value="8">8</button>
-                    <button class="calc-btn" data-value="9">9</button>
-                    <button class="calc-btn operator" data-action="divide">÷</button>
-                    <button class="calc-btn operator" data-action="percent">%</button>
-                    
-                    <!-- Row 5: Numbers -->
-                    <button class="calc-btn" data-value="4">4</button>
-                    <button class="calc-btn" data-value="5">5</button>
-                    <button class="calc-btn" data-value="6">6</button>
-                    <button class="calc-btn operator" data-action="multiply">×</button>
-                    <button class="calc-btn operator" data-action="negate">+/-</button>
-                    
-                    <!-- Row 6: Numbers -->
-                    <button class="calc-btn" data-value="1">1</button>
-                    <button class="calc-btn" data-value="2">2</button>
-                    <button class="calc-btn" data-value="3">3</button>
-                    <button class="calc-btn operator" data-action="subtract">−</button>
-                    <button class="calc-btn equals tall" data-action="equals">=</button>
-                    
-                    <!-- Row 7: Zero and decimal -->
-                    <button class="calc-btn wide" data-value="0">0</button>
-                    <button class="calc-btn" data-value=".">.</button>
-                    <button class="calc-btn operator" data-action="add">+</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Submit Confirmation Modal -->
     <div id="submitModal" class="modal">
         <div class="modal-content">
-            <h2 class="modal-title">Confirm Submission</h2>
-            <div class="submission-summary" id="submissionSummary">
-                <!-- Will be populated by JavaScript -->
-            </div>
-            <p class="warning-text">⚠️ Once submitted, you cannot change your answers. Are you sure you want to submit?</p>
+            <h2>Confirm Submission</h2>
+            <div id="submissionSummary"></div>
             <div class="modal-actions">
                 <button class="modal-btn cancel-btn" id="cancelSubmitBtn">Cancel</button>
                 <button class="modal-btn confirm-btn" id="confirmSubmitBtn">Yes, Submit</button>
@@ -276,8 +115,7 @@
         </div>
     </div>
 
-    <!-- CRITICAL: Load NEW JavaScript file to bypass ALL cache -->
     <script src="calculator.js"></script>
-    <script src="exam-app-v4.js"></script>
+    <script src="../js-exam/exam_2025.js"></script>
 </body>
 </html>
