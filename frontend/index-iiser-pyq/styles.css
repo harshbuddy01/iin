@@ -1,790 +1,478 @@
-/* EXACT Official JEE Main/IISER Exam Interface */
-/* Based on Official NTA Guidelines 2025 */
+/* OFFICIAL IISER / JEE EXAM INTERFACE STYLING */
+/* Matches NTA/TCS iON Color Scheme */
+
+:root {
+    --header-blue: #2d6187;      /* The official dark blue header */
+    --header-text: #ffffff;
+    --bg-grey: #f0f0f0;
+    --sidebar-bg: #eef3f7;
+    
+    /* STATUS COLORS (The ones you wanted) */
+    --c-answered: #28a745;       /* Green */
+    --c-not-answered: #d9534f;   /* Red */
+    --c-marked: #6f42c1;         /* Purple */
+    --c-not-visited: #e9ecef;    /* Light Grey */
+    --c-ans-marked: #6f42c1;     /* Purple (often same base, with icon) */
+}
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f0f0f0;
-    overflow-x: hidden;
-}
-
-/* ==== INSTRUCTION PAGE ==== */
-.instruction-container {
-    min-height: 100vh;
-    background: #e8e8e8;
-    padding: 30px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.instruction-card {
-    background: white;
-    max-width: 900px;
-    width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 40px;
-}
-
-.instruction-title {
-    color: #1565c0;
-    font-size: 28px;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.instruction-subtitle {
-    color: #555;
-    font-size: 18px;
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.instruction-form {
-    margin-top: 30px;
-}
-
-.form-group {
-    margin-bottom: 25px;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: #333;
-    font-size: 15px;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    font-size: 15px;
-    transition: border-color 0.3s;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #1976d2;
-}
-
-.instructions-content {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 6px;
-    margin: 25px 0;
-    border-left: 4px solid #1976d2;
-}
-
-.instructions-content h3 {
-    color: #1565c0;
-    margin-bottom: 15px;
-    font-size: 18px;
-}
-
-.instructions-content ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.instructions-content li {
-    padding: 8px 0;
-    color: #444;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.instructions-content li::before {
-    content: '✓';
-    color: #4caf50;
-    font-weight: bold;
-    margin-right: 10px;
-}
-
-.terms-group {
-    margin: 25px 0;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    cursor: pointer;
-}
-
-.checkbox-label input[type="checkbox"] {
-    margin-top: 3px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.checkbox-label span {
-    color: #555;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.begin-test-btn {
-    width: 100%;
-    padding: 16px;
-    background: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.begin-test-btn:hover:not(:disabled) {
-    background: #1565c0;
-}
-
-.begin-test-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-/* ==== EXAM INTERFACE ==== */
-.exam-interface {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--bg-grey);
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #fff;
+    overflow: hidden; /* Prevents full page scroll */
 }
 
-/* Header */
+/* --- 1. HEADER --- */
 .exam-header {
-    background: #1976d2;
-    color: white;
-    padding: 12px 20px;
+    background-color: var(--header-blue);
+    color: var(--header-text);
+    height: 50px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    padding: 0 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.header-left .exam-title-header {
-    font-size: 18px;
-    font-weight: 600;
+.exam-title-header {
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .calculator-tab {
-    background: white;
-    color: #1976d2;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 14px;
-    font-weight: 600;
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.2s;
+    font-size: 0.9rem;
 }
-
 .calculator-tab:hover {
-    background: #f0f0f0;
+    background: rgba(255,255,255,0.1);
 }
 
-/* Sub Header */
+/* --- 2. SUB-HEADER (Info & Tabs) --- */
 .sub-header {
-    background: #f5f5f5;
-    border-bottom: 2px solid #ddd;
-    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+    height: 50px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
+    padding: 0 15px;
 }
 
 .sub-header-left {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.test-name-btn {
-    background: white;
-    border: 2px solid #ddd;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    color: #333;
+    height: 100%;
+    align-items: flex-end; /* Align tabs to bottom */
 }
 
 .sections-tabs {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.sections-label {
-    font-weight: 600;
-    color: #555;
-    margin-right: 5px;
+    gap: 4px;
 }
 
 .section-tab {
-    background: white;
-    border: 2px solid #ddd;
-    padding: 8px 16px;
-    border-radius: 5px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    padding: 8px 15px;
     cursor: pointer;
+    font-weight: bold;
+    color: #495057;
+    border-radius: 4px 4px 0 0;
     transition: all 0.2s;
-    font-size: 14px;
-    color: #333;
 }
 
 .section-tab:hover {
-    background: #e3f2fd;
-    border-color: #1976d2;
+    background: #e2e6ea;
 }
 
 .section-tab.active {
-    background: #1976d2;
+    background: var(--header-blue);
     color: white;
-    border-color: #1976d2;
-}
-
-.section-count {
-    font-size: 12px;
-    opacity: 0.8;
-    margin-left: 4px;
+    border-color: var(--header-blue);
 }
 
 .sub-header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #ddd;
-}
-
-.user-name {
-    font-weight: 600;
+    font-weight: bold;
+    font-size: 0.9rem;
     color: #333;
 }
 
 .timer-display {
-    background: #d32f2f;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: 700;
-    font-size: 16px;
-    font-family: 'Courier New', monospace;
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
 }
 
-/* Main Content */
+/* --- 3. MAIN LAYOUT --- */
 .main-content {
     display: flex;
-    flex: 1;
+    flex: 1; /* Takes remaining height */
     overflow: hidden;
 }
 
-/* Question Area */
+/* LEFT: Question Area */
 .question-area {
     flex: 1;
+    background: #fff;
     padding: 20px;
     overflow-y: auto;
-    background: white;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
 }
 
 .question-header-bar {
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: var(--header-blue);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border: 1px solid #e0e0e0;
+}
+
+.marks-info {
+    color: #666;
+    font-size: 0.9rem;
+    margin-left: 10px;
+}
+
+.question-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.option-item:hover {
+    background: #f8f9fa;
+}
+
+.option-item.selected {
+    background: #e8f0fe;
+    border-color: var(--header-blue);
+}
+
+.option-item input {
+    margin-top: 4px;
+    margin-right: 10px;
+    transform: scale(1.2);
+}
+
+/* Bottom Actions */
+.question-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-.question-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.question-type {
-    font-weight: 600;
-    color: #333;
-    font-size: 14px;
-}
-
-.marks-info {
-    font-size: 13px;
-    color: #666;
-}
-
-.language-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.language-selector label {
-    font-weight: 600;
-    color: #555;
-}
-
-.language-selector select {
-    padding: 6px 12px;
-    border: 2px solid #ddd;
+.action-btn, .btn {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
-}
-
-.question-number-display {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1565c0;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.question-content {
-    margin-bottom: 25px;
-}
-
-.question-text {
-    font-size: 16px;
-    line-height: 1.7;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-/* Options */
-.options-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 30px;
-}
-
-.option-btn {
-    background: white;
-    border: 2px solid #ddd;
-    padding: 15px;
-    border-radius: 6px;
-    text-align: left;
+    font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s;
-    font-size: 15px;
-    color: #333;
-    display: flex;
-    align-items: center;
-}
-
-.option-btn:hover {
-    background: #f5f5f5;
-    border-color: #1976d2;
-}
-
-.option-btn.selected {
-    background: #e8f5e9;
-    border-color: #4caf50;
-    font-weight: 600;
-}
-
-.option-btn strong {
-    margin-right: 10px;
-    color: #1976d2;
-}
-
-/* Action Buttons - OFFICIAL JEE MAIN COLORS */
-.question-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 6px;
-    border: 1px solid #e0e0e0;
-}
-
-.action-btn {
-    flex: 1;
-    min-width: 140px;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.action-btn:active {
-    transform: translateY(0);
-}
-
-/* Official JEE Main Button Colors */
-.mark-review-btn {
-    background: #ff9800; /* Official Orange */
-    color: white;
-}
-
-.mark-review-btn:hover {
-    background: #f57c00;
-}
-
-.clear-btn {
-    background: #f44336; /* Official Red */
-    color: white;
-}
-
-.clear-btn:hover {
-    background: #d32f2f;
+    font-size: 0.9rem;
 }
 
 .save-next-btn {
-    background: #4caf50; /* Official Green */
+    background: var(--c-answered);
     color: white;
+    border: none;
 }
+.save-next-btn:hover { background: #218838; }
 
-.save-next-btn:hover {
-    background: #388e3c;
+.clear-btn {
+    background: #fff;
+    color: #333;
 }
+.clear-btn:hover { background: #f8f9fa; }
 
-/* Sidebar */
+.mark-review-btn {
+    background: var(--c-marked);
+    color: white;
+    border: none;
+}
+.mark-review-btn:hover { background: #5a32a3; }
+
+
+/* RIGHT: Sidebar */
 .sidebar {
-    width: 350px;
-    background: #fafafa;
-    border-left: 2px solid #ddd;
-    padding: 20px;
-    overflow-y: auto;
+    width: 340px;
+    background: var(--sidebar-bg);
+    border-left: 1px solid #ccc;
     display: flex;
     flex-direction: column;
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .sidebar-header {
-    margin-bottom: 20px;
-}
-
-.status-legend-btn {
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 15px;
-}
-
-.legend-counts {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    gap: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+    color: #333;
 }
 
 .legend-circle {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* Circle shape like NTA */
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    font-weight: 700;
-    font-size: 14px;
-    flex-shrink: 0;
-}
-
-/* Official JEE Main Palette Colors */
-.answered-circle {
-    background: #4caf50; /* Green - Answered */
+    font-size: 0.8rem;
+    font-weight: bold;
     color: white;
 }
 
-.not-answered-circle {
-    background: #ff9800; /* Orange - Visited but not answered */
-    color: white;
+/* Legend Colors */
+.answered-circle { background: var(--c-answered); }
+.not-answered-circle { background: var(--c-not-answered); }
+.marked-circle { background: var(--c-marked); }
+.not-visited-circle { 
+    background: white; 
+    color: black; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; /* Sometimes squares for not visited */
 }
-
-.not-visited-circle {
-    background: #e0e0e0; /* White/Gray - Not visited */
-    color: #333;
-}
-
-.marked-circle {
-    background: #9c27b0; /* Purple - Marked for review */
-    color: white;
-}
-
 .answered-marked-circle {
-    background: #673ab7; /* Deep purple - Answered & Marked */
-    color: white;
+    background: var(--c-ans-marked);
+    position: relative;
 }
-
-.legend-text {
-    color: #555;
-    font-weight: 500;
+.answered-marked-circle::after {
+    content: '✓';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 8px;
+    background: green;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1565c0;
-    margin: 20px 0 10px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
+    background: var(--header-blue);
+    color: white;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 4px 4px 0 0;
+    margin-bottom: 5px;
 }
 
-.choose-question-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #666;
-    margin-bottom: 15px;
-}
-
-/* Question Palette - OFFICIAL JEE MAIN COLORS */
+/* Palette Grid */
 .question-palette {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 25px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    max-height: 350px;
+    overflow-y: auto;
 }
 
 .palette-btn {
-    width: 100%;
-    aspect-ratio: 1;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 700;
+    height: 35px;
+    width: 35px; /* Square-ish or Circle */
+    border-radius: 50%; /* Make them circles */
+    border: 1px solid #ccc;
+    background: white;
     cursor: pointer;
-    transition: all 0.2s;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    position: relative;
+}
+
+/* Palette Button States */
+.palette-btn.answered { background: var(--c-answered); color: white; border-color: var(--c-answered); }
+.palette-btn.not-answered { background: var(--c-not-answered); color: white; border-color: var(--c-not-answered); }
+.palette-btn.marked { background: var(--c-marked); color: white; border-color: var(--c-marked); }
+.palette-btn.not-visited { background: white; color: black; }
+.palette-btn.answered-marked { background: var(--c-ans-marked); color: white; }
+.palette-btn.answered-marked::after {
+    content: '✓';
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    font-size: 8px;
+    background: green;
+    border-radius: 50%;
     color: white;
-}
-
-/* Official JEE Main Palette Colors */
-.palette-btn.not-visited {
-    background: #e0e0e0; /* White/Gray - Not Visited */
-    color: #333;
-}
-
-.palette-btn.not-answered {
-    background: #ff9800; /* Orange - Visited but Not Answered */
-}
-
-.palette-btn.answered {
-    background: #4caf50; /* Green - Answered */
-}
-
-.palette-btn.marked {
-    background: #9c27b0; /* Purple - Marked for Review */
-}
-
-.palette-btn.answered-marked {
-    background: #673ab7; /* Deep Purple - Answered & Marked */
-}
-
-.palette-btn.current {
-    box-shadow: 0 0 0 3px #ff9800;
-    transform: scale(1.1);
-}
-
-.palette-btn:hover {
-    transform: scale(1.05);
-    opacity: 0.9;
-}
-
-/* Submit Button */
-.submit-exam-btn {
-    width: 100%;
-    padding: 16px;
-    background: #d32f2f;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.3s;
-    margin-top: auto;
-}
-
-.submit-exam-btn:hover {
-    background: #c62828;
-}
-
-/* Version Footer */
-.version-footer {
+    width: 12px;
+    height: 12px;
     text-align: center;
-    padding: 10px;
-    background: #f5f5f5;
-    border-top: 1px solid #ddd;
-    font-size: 12px;
-    color: #777;
+    line-height: 12px;
 }
 
-/* Modal */
+.submit-exam-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.submit-exam-btn:hover { background: #0056b3; }
+
+
+/* --- 4. MODALS --- */
 .modal {
+    display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    display: none;
-    justify-content: center;
+    background-color: rgba(0,0,0,0.5);
     align-items: center;
-    z-index: 9999;
-}
-
-.modal.show {
-    display: flex;
+    justify-content: center;
 }
 
 .modal-content {
-    background: white;
-    padding: 30px;
+    background-color: #fff;
+    padding: 25px;
     border-radius: 8px;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.modal-title {
-    font-size: 24px;
-    color: #1565c0;
-    margin-bottom: 20px;
+    width: 400px;
     text-align: center;
-}
-
-.submission-summary {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 6px;
-    margin: 20px 0;
-    border: 1px solid #e0e0e0;
-}
-
-.submission-summary p {
-    margin: 10px 0;
-    color: #333;
-    font-size: 15px;
-}
-
-.warning-text {
-    color: #d32f2f;
-    font-size: 14px;
-    text-align: center;
-    margin: 20px 0;
-    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .modal-actions {
+    margin-top: 20px;
     display: flex;
-    gap: 15px;
     justify-content: center;
+    gap: 15px;
 }
 
 .modal-btn {
-    padding: 12px 30px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    font-weight: 600;
+    border-radius: 4px;
     cursor: pointer;
-    transition: all 0.2s;
+    font-weight: bold;
+}
+.confirm-btn { background: var(--c-answered); color: white; }
+.cancel-btn { background: #6c757d; color: white; }
+
+
+/* --- 5. INSTRUCTION PAGE --- */
+.instruction-container {
+    height: 100vh;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.cancel-btn {
-    background: #757575;
+.instruction-card {
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    width: 500px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.instruction-form .form-group {
+    margin-bottom: 15px;
+}
+.instruction-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.instruction-form input, .instruction-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.begin-test-btn {
+    width: 100%;
+    background: var(--header-blue);
     color: white;
+    padding: 12px;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+.begin-test-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 
-.cancel-btn:hover {
-    background: #616161;
-}
-
-.confirm-btn {
-    background: #4caf50;
-    color: white;
-}
-
-.confirm-btn:hover {
-    background: #388e3c;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .main-content {
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        width: 100%;
-        border-left: none;
-        border-top: 2px solid #ddd;
-        max-height: 400px;
-    }
-    
-    .question-palette {
-        grid-template-columns: repeat(10, 1fr);
-    }
-}
-
+/* RESPONSIVE */
 @media (max-width: 768px) {
-    .sections-tabs {
-        width: 100%;
-    }
-    
-    .section-tab {
-        font-size: 12px;
-        padding: 6px 10px;
-    }
-    
-    .question-palette {
-        grid-template-columns: repeat(8, 1fr);
-    }
-    
-    .question-actions {
-        flex-direction: column;
-    }
-    
-    .action-btn {
-        width: 100%;
-    }
+    .main-content { flex-direction: column; }
+    .sidebar { width: 100%; height: 300px; border-left: none; border-top: 1px solid #ccc; }
+    .question-area { border-right: none; }
+    .exam-header .exam-title-header { font-size: 1rem; }
 }
