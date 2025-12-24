@@ -4,6 +4,7 @@ import Razorpay from "razorpay";
 import cors from "cors";
 import mongoose from "mongoose";
 import connectDB from "./config/db.js";
+import { sendFeedbackEmail, sendUserConfirmation } from "./config/email.js";
 
 // Route & Middleware Imports
 import paymentRoutes from "./routes/paymentRoutes.js";
@@ -84,7 +85,7 @@ app.get("/api/user-status", async (req, res) => {
 
 /**
  * Feedback Submission Endpoint
- * Stores user feedback with ratings for admin panel review
+ * Stores user feedback with ratings AND sends email notifications
  */
 app.post("/api/feedback", async (req, res) => {
   try {
@@ -123,9 +124,34 @@ app.post("/api/feedback", async (req, res) => {
 
     await feedback.save();
 
+    // Send email notifications (async - don't block response)
+    const feedbackData = {
+      email: email.toLowerCase(),
+      rollNumber,
+      testId: testId.toLowerCase(),
+      ratings: {
+        login,
+        interface: interfaceRating,
+        quality,
+        server
+      },
+      comment,
+      feedbackId: feedback._id
+    };
+
+    // Send admin notification
+    sendFeedbackEmail(feedbackData).catch(err => {
+      console.error('Failed to send admin email:', err);
+    });
+
+    // Send user confirmation
+    sendUserConfirmation(email.toLowerCase()).catch(err => {
+      console.error('Failed to send user confirmation:', err);
+    });
+
     res.json({ 
       success: true, 
-      message: "Feedback submitted successfully",
+      message: "Feedback submitted successfully. You'll receive a confirmation email shortly.",
       feedbackId: feedback._id
     });
 
