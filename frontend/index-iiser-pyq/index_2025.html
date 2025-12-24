@@ -23,7 +23,7 @@
                     <label for="examYear">Select Exam Year *</label>
                     <select id="examYear" required>
                         <option value="">Choose Year</option>
-                        <option value="2025" selected>2025 (Latest)</option>
+                        <option value="2025">2025 (Latest)</option>
                         <option value="2024">2024</option>
                         <option value="2023">2023</option>
                         <option value="2022">2022</option>
@@ -352,9 +352,24 @@
     
     // Before loading exam, capture year selection
     document.addEventListener('DOMContentLoaded', function() {
+        // Check URL parameter for year
+        const urlParams = new URLSearchParams(window.location.search);
+        const yearFromURL = urlParams.get('year');
+        
         const yearSelect = document.getElementById('examYear');
         const beginBtn = document.getElementById('beginTestBtn');
         const agreeTerms = document.getElementById('agreeTerms');
+        
+        // Auto-select year from URL if provided
+        if (yearFromURL) {
+            selectedYear = yearFromURL;
+            yearSelect.value = yearFromURL;
+            
+            // Update title displays immediately
+            document.getElementById('examTitleHeader').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
+            document.getElementById('testNameDisplay').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
+            document.getElementById('statusDropdownTitle').textContent = `IIN Aptitude Test Series ${yearFromURL}`;
+        }
         
         // Update begin button state
         function updateBeginButton() {
