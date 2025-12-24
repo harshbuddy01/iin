@@ -10,6 +10,359 @@
     
     <link rel="stylesheet" href="frontend/css/index.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
+    
+    <style>
+        /* FOOTER STYLES */
+        .footer {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: white;
+            padding: 80px 0 30px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 100px;
+        }
+        
+        /* Animated gradient background */
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(59, 130, 246, 0.1), 
+                transparent);
+            animation: shimmer 8s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 60px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* LEFT: Logo & Tagline */
+        .footer-left {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .footer-logo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+        }
+        
+        .footer-logo span {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .footer-tagline {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+        
+        .social-icon.instagram:hover {
+            background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af);
+            border-color: #dd2a7b;
+        }
+        
+        .social-icon.twitter:hover {
+            background: #1DA1F2;
+            border-color: #1DA1F2;
+        }
+        
+        .social-icon.facebook:hover {
+            background: #1877F2;
+            border-color: #1877F2;
+        }
+        
+        .social-icon.whatsapp:hover {
+            background: #25D366;
+            border-color: #25D366;
+        }
+        
+        .social-icon.linkedin:hover {
+            background: #0A66C2;
+            border-color: #0A66C2;
+        }
+        
+        /* CENTER: Contact Info */
+        .footer-center {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .footer-section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 3px solid #3b82f6;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .contact-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .contact-value {
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+        
+        .contact-value a {
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .contact-value a:hover {
+            color: #3b82f6;
+        }
+        
+        /* RIGHT: Unique Animation */
+        .footer-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .animated-sphere {
+            width: 250px;
+            height: 250px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sphere-ring {
+            position: absolute;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .sphere-ring:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            border-color: rgba(59, 130, 246, 0.4);
+            animation-duration: 8s;
+        }
+        
+        .sphere-ring:nth-child(2) {
+            width: 170px;
+            height: 170px;
+            border-color: rgba(139, 92, 246, 0.4);
+            animation-duration: 12s;
+            animation-direction: reverse;
+        }
+        
+        .sphere-ring:nth-child(3) {
+            width: 140px;
+            height: 140px;
+            border-color: rgba(236, 72, 153, 0.4);
+            animation-duration: 15s;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .sphere-core {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 900;
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
+            animation: pulse 2s ease-in-out infinite;
+            z-index: 10;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(59, 130, 246, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(139, 92, 246, 0.8); }
+        }
+        
+        .sphere-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { top: 30%; right: 10%; animation-delay: 1s; background: #8b5cf6; }
+        .particle:nth-child(3) { bottom: 20%; left: 15%; animation-delay: 2s; background: #ec4899; }
+        .particle:nth-child(4) { bottom: 30%; right: 20%; animation-delay: 3s; }
+        .particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 1.5s; background: #8b5cf6; }
+        .particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 2.5s; background: #ec4899; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+        }
+        
+        /* Bottom Footer */
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 60px auto 0;
+            padding: 30px 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #3b82f6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .footer-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+            }
+            
+            .footer-right {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .footer-right {
+                grid-column: 1;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="userDashboardContainer" class="fixed top-24 right-8 z-50"></div>
@@ -184,6 +537,107 @@
             </div>
         </div>
     </section>
+
+    <!-- PROFESSIONAL FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            
+            <!-- LEFT: Logo & Social Media -->
+            <div class="footer-left">
+                <div class="footer-logo">IIN<span>.edu</span></div>
+                <p class="footer-tagline">
+                    Empowering students to unlock premier research institutes of India through comprehensive test preparation and guidance.
+                </p>
+                
+                <div class="footer-social">
+                    <a href="https://instagram.com/iin.edu" target="_blank" class="social-icon instagram" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/iin_edu" target="_blank" class="social-icon twitter" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://facebook.com/iin.edu" target="_blank" class="social-icon facebook" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://wa.me/919876543210" target="_blank" class="social-icon whatsapp" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/iin-edu" target="_blank" class="social-icon linkedin" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- CENTER: Contact Information -->
+            <div class="footer-center">
+                <h3 class="footer-section-title">Contact Us</h3>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-label">Phone</span>
+                        <span class="contact-value">
+                            <a href="tel:+919876543210">+91 98765 43210</a>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-label">Email</span>
+                        <span class="contact-value">
+                            <a href="mailto:contact@iin.edu">contact@iin.edu</a>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-label">Location</span>
+                        <span class="contact-value">India</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RIGHT: Unique Animation -->
+            <div class="footer-right">
+                <div class="animated-sphere">
+                    <div class="sphere-particles">
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                        <div class="particle"></div>
+                    </div>
+                    <div class="sphere-ring"></div>
+                    <div class="sphere-ring"></div>
+                    <div class="sphere-ring"></div>
+                    <div class="sphere-core">IIN</div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Bottom Footer -->
+        <div class="footer-bottom">
+            <div>&copy; 2025 IIN.edu. All rights reserved.</div>
+            <div class="footer-links">
+                <a href="aboutpage.html">About</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="future.html">Careers</a>
+            </div>
+        </div>
+    </footer>
 
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/index.js"></script>
