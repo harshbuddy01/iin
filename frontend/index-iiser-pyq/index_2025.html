@@ -399,11 +399,31 @@
                 return;
             }
             
+            const candidateName = document.getElementById('candidateName').value.trim();
+            if (!candidateName) {
+                alert('Please enter your name!');
+                return;
+            }
+            
+            // Update user name in exam interface
+            document.getElementById('userName').textContent = candidateName;
+            
+            // Hide instruction page and show exam interface
+            document.getElementById('instructionPage').style.display = 'none';
+            document.getElementById('examInterface').style.display = 'block';
+            
             // Load the selected year's exam script
             const script = document.createElement('script');
             script.src = `../js-exam/exam_${selectedYear}.js`;
+            script.onload = function() {
+                console.log(`Exam ${selectedYear} loaded successfully`);
+                // The exam_YEAR.js file should initialize questions here
+            };
             script.onerror = function() {
                 alert(`Error: Exam data for year ${selectedYear} is not available yet. Please try another year.`);
+                // Show instruction page again
+                document.getElementById('instructionPage').style.display = 'flex';
+                document.getElementById('examInterface').style.display = 'none';
             };
             document.body.appendChild(script);
         });
