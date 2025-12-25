@@ -90,537 +90,273 @@
             transform: translateX(-50%) rotate(45deg);
         }
         
-        /* ============================================
-           ULTRA-MODERN 3D FOOTER WITH WAVES & NEON GRID
-           ============================================ */
+        /* ===============================================
+           MINIMAL ELEGANT FOOTER - CLEAN & COMPACT
+           =============================================== */
         
-        .modern-footer {
+        .minimal-footer {
             position: relative;
-            background: linear-gradient(180deg, #000000 0%, #0a0a0f 50%, #000000 100%);
+            background: linear-gradient(180deg, #000000 0%, #0a0a15 100%);
             overflow: hidden;
             margin-top: 100px;
         }
         
-        /* ANIMATED WAVE SEPARATOR */
-        .wave-separator {
+        /* Subtle Wave Separator */
+        .wave-divider {
             position: absolute;
-            top: -1px;
+            top: 0;
             left: 0;
             width: 100%;
             overflow: hidden;
             line-height: 0;
-            transform: rotate(180deg);
         }
         
-        .wave-separator svg {
+        .wave-divider svg {
             position: relative;
             display: block;
-            width: calc(150% + 1.3px);
-            height: 120px;
+            width: calc(100% + 1.3px);
+            height: 60px;
         }
         
-        .wave-separator .shape-fill {
+        .wave-divider .wave-shape {
             fill: #000000;
-            animation: wave-animation 15s ease-in-out infinite;
+            opacity: 0.5;
         }
         
-        @keyframes wave-animation {
-            0%, 100% { d: path("M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"); }
-            50% { d: path("M321.39,80c58-10.79,114.16-10,172-20,82.39-16.72,168.19-30,250.45-20C823.78,50,906.67,60,985.66,70c70.05,10,146.53,15,214.34,5V0H0V50A600.21,600.21,0,0,0,321.39,80Z"); }
-        }
-        
-        /* NEON GRID BACKGROUND */
-        .neon-grid {
+        /* Gentle Grid Background */
+        .subtle-grid {
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: grid-glow 8s ease-in-out infinite;
+                linear-gradient(rgba(59, 130, 246, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.5;
         }
         
-        @keyframes grid-glow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
-        }
-        
-        /* LIGHTNING BOLTS */
-        .lightning-container {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .lightning-bolt {
-            position: absolute;
-            width: 2px;
-            height: 100px;
-            background: linear-gradient(180deg, transparent, #3b82f6, transparent);
-            box-shadow: 0 0 20px #3b82f6, 0 0 40px #3b82f6;
-            opacity: 0;
-            animation: lightning-strike 8s ease-in-out infinite;
-        }
-        
-        @keyframes lightning-strike {
-            0%, 90%, 100% { opacity: 0; transform: translateY(0) scaleY(0); }
-            92% { opacity: 1; transform: translateY(50px) scaleY(1); }
-            94% { opacity: 0; transform: translateY(100px) scaleY(0.5); }
-        }
-        
-        .lightning-bolt:nth-child(1) { left: 15%; animation-delay: 0s; }
-        .lightning-bolt:nth-child(2) { left: 45%; animation-delay: 2.5s; }
-        .lightning-bolt:nth-child(3) { left: 75%; animation-delay: 5s; }
-        .lightning-bolt:nth-child(4) { left: 30%; animation-delay: 7s; }
-        .lightning-bolt:nth-child(5) { left: 60%; animation-delay: 4s; }
-        
-        /* MAIN CONTAINER */
-        .footer-wrapper {
+        /* Main Container */
+        .footer-content {
             position: relative;
             z-index: 10;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 100px 40px 40px;
+            padding: 50px 40px 30px;
         }
         
-        /* FLOATING 3D CARDS GRID */
-        .cards-3d-grid {
+        /* Top Section: Logo + Social + Contact */
+        .footer-main {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            margin-bottom: 60px;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 25px;
         }
         
-        .card-3d {
-            background: linear-gradient(135deg, rgba(20, 20, 30, 0.8), rgba(10, 10, 15, 0.9));
-            backdrop-filter: blur(30px);
-            border-radius: 24px;
-            padding: 40px;
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        /* Logo Section */
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
-        .card-3d::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
-            border-radius: 24px;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-            z-index: -1;
-        }
-        
-        .card-3d:hover {
-            transform: translateY(-15px) rotateX(5deg) rotateY(5deg);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 30px 80px rgba(59, 130, 246, 0.4);
-        }
-        
-        .card-3d:hover::before {
-            opacity: 0.2;
-        }
-        
-        /* GLOWING ORB BACKGROUND */
-        .card-orb {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.15;
-            transition: all 0.6s ease;
-        }
-        
-        .card-3d:hover .card-orb {
-            opacity: 0.4;
-            transform: scale(1.3);
-        }
-        
-        /* BRAND SECTION */
-        .brand-section {
-            margin-bottom: 35px;
-        }
-        
-        .mega-logo {
-            font-size: 3.5rem;
+        .footer-logo {
+            font-size: 2rem;
             font-weight: 900;
-            letter-spacing: -3px;
-            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #8b5cf6 100%);
+            letter-spacing: -1.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-size: 200%;
-            animation: logo-shimmer 5s ease infinite;
-            display: inline-block;
-            margin-bottom: 15px;
             cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-        
-        @keyframes logo-shimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-        
-        .mega-logo:hover {
-            transform: scale(1.08) translateY(-3px);
-        }
-        
-        .brand-tagline {
-            color: #94a3b8;
-            font-size: 0.95rem;
-            line-height: 1.7;
-            max-width: 380px;
-            margin-bottom: 30px;
-        }
-        
-        /* MAGNETIC SOCIAL ICONS */
-        .magnetic-socials {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .magnetic-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.08);
-            color: white;
-            font-size: 1.3rem;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .magnetic-icon::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .magnetic-icon:hover {
-            transform: translateY(-8px) scale(1.15);
-            box-shadow: 0 15px 40px currentColor;
-            border-color: currentColor;
-        }
-        
-        .magnetic-icon:hover::before {
-            opacity: 0.15;
-        }
-        
-        .magnetic-icon i {
-            position: relative;
-            z-index: 1;
-            transition: transform 0.5s ease;
-        }
-        
-        .magnetic-icon:hover i {
-            transform: rotateY(360deg);
-        }
-        
-        .magnetic-icon.instagram { color: #e1306c; }
-        .magnetic-icon.twitter { color: #1da1f2; }
-        .magnetic-icon.facebook { color: #1877f2; }
-        .magnetic-icon.whatsapp { color: #25d366; }
-        .magnetic-icon.linkedin { color: #0a66c2; }
-        .magnetic-icon.youtube { color: #ff0000; }
-        
-        /* QUICK LINKS */
-        .links-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .links-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6, transparent);
-            border-radius: 3px;
-        }
-        
-        .links-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .link-item {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 10px 0;
             transition: all 0.3s ease;
-            position: relative;
-            padding-left: 20px;
+            display: inline-block;
+            width: fit-content;
         }
         
-        .link-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            transition: width 0.4s ease;
+        .footer-logo:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4));
         }
         
-        .link-item:hover {
-            color: #3b82f6;
-            transform: translateX(8px);
+        .footer-tagline {
+            color: #64748b;
+            font-size: 0.8rem;
+            max-width: 280px;
         }
         
-        .link-item:hover::before {
-            width: 12px;
-        }
-        
-        /* CONTACT CARDS */
-        .contact-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .contact-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #8b5cf6, transparent);
-            border-radius: 3px;
-        }
-        
-        .contact-boxes {
+        /* Social Icons */
+        .social-icons {
             display: flex;
-            flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            justify-content: center;
         }
         
-        .contact-box {
-            background: rgba(59, 130, 246, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            border-radius: 16px;
-            padding: 18px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.4s ease;
-            cursor: pointer;
-        }
-        
-        .contact-box:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3);
-            transform: translateX(8px);
-        }
-        
-        .contact-icon-box {
-            width: 48px;
-            height: 48px;
-            min-width: 48px;
+        .social-link {
+            width: 44px;
+            height: 44px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #94a3b8;
             font-size: 1.1rem;
-            color: white;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-            transition: transform 0.4s ease;
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
-        .contact-box:hover .contact-icon-box {
-            transform: rotateY(180deg);
+        .social-link:hover {
+            transform: translateY(-5px);
+            border-color: currentColor;
+            box-shadow: 0 8px 20px currentColor;
+            background: rgba(255, 255, 255, 0.05);
         }
         
-        .contact-info {
-            flex: 1;
+        .social-link.instagram { color: #e1306c; }
+        .social-link.twitter { color: #1da1f2; }
+        .social-link.facebook { color: #1877f2; }
+        .social-link.whatsapp { color: #25d366; }
+        .social-link.linkedin { color: #0a66c2; }
+        
+        /* Contact Section */
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
         }
         
-        .contact-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #64748b;
-            font-weight: 700;
-            margin-bottom: 4px;
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
         }
         
-        .contact-value {
-            font-size: 0.95rem;
-            color: #e2e8f0;
-            font-weight: 600;
+        .contact-item:hover {
+            color: #3b82f6;
+            transform: translateX(-5px);
         }
         
-        .contact-value a {
+        .contact-item i {
+            width: 18px;
+            text-align: center;
+            color: #3b82f6;
+        }
+        
+        .contact-item a {
             color: inherit;
             text-decoration: none;
-            transition: color 0.3s;
         }
         
-        .contact-value a:hover {
-            color: #3b82f6;
-        }
-        
-        /* GLOWING DIVIDER */
-        .glowing-divider {
-            height: 2px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(59, 130, 246, 0.5), 
-                rgba(139, 92, 246, 0.5), 
-                rgba(236, 72, 153, 0.5), 
-                transparent
-            );
-            margin: 50px 0 35px;
-            position: relative;
-            animation: divider-glow 3s ease-in-out infinite;
-        }
-        
-        @keyframes divider-glow {
-            0%, 100% { opacity: 0.5; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-            50% { opacity: 1; box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
-        }
-        
-        /* BOTTOM BAR */
-        .bottom-bar {
+        /* Bottom Section: Copyright + Legal Links */
+        .footer-bottom {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #64748b;
         }
         
         .copyright {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         
-        .heart {
+        .heart-icon {
             color: #ec4899;
-            animation: heart-beat 1.5s ease-in-out infinite;
-            font-size: 1rem;
+            animation: heartbeat 1.5s ease-in-out infinite;
         }
         
-        @keyframes heart-beat {
+        @keyframes heartbeat {
             0%, 100% { transform: scale(1); }
-            10%, 30% { transform: scale(1.2); }
+            10%, 30% { transform: scale(1.15); }
             20%, 40% { transform: scale(1); }
         }
         
-        .bottom-links {
+        .legal-links {
             display: flex;
-            gap: 25px;
+            gap: 20px;
         }
         
-        .bottom-link {
+        .legal-link {
             color: #94a3b8;
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
         }
         
-        .bottom-link::after {
+        .legal-link::after {
             content: '';
             position: absolute;
-            bottom: -4px;
+            bottom: -3px;
             left: 0;
             width: 0;
-            height: 2px;
+            height: 1px;
             background: linear-gradient(90deg, #3b82f6, #8b5cf6);
             transition: width 0.3s ease;
         }
         
-        .bottom-link:hover {
+        .legal-link:hover {
             color: #3b82f6;
         }
         
-        .bottom-link:hover::after {
+        .legal-link:hover::after {
             width: 100%;
         }
         
-        /* RESPONSIVE */
+        /* Responsive Design */
         @media (max-width: 1024px) {
-            .cards-3d-grid {
+            .footer-main {
                 grid-template-columns: 1fr;
-                gap: 25px;
+                text-align: center;
+                gap: 30px;
             }
             
-            .mega-logo {
-                font-size: 3rem;
+            .footer-brand {
+                align-items: center;
             }
             
-            .footer-wrapper {
-                padding: 80px 30px 30px;
+            .footer-contact {
+                align-items: center;
+            }
+            
+            .footer-tagline {
+                max-width: 100%;
             }
         }
         
         @media (max-width: 768px) {
-            .wave-separator svg {
-                height: 80px;
+            .footer-content {
+                padding: 40px 20px 25px;
             }
             
-            .mega-logo {
-                font-size: 2.5rem;
+            .footer-logo {
+                font-size: 1.8rem;
             }
             
-            .magnetic-socials {
-                justify-content: center;
+            .wave-divider svg {
+                height: 40px;
             }
             
-            .bottom-bar {
+            .footer-bottom {
                 flex-direction: column;
-                gap: 20px;
+                gap: 15px;
                 text-align: center;
             }
             
-            .bottom-links {
+            .legal-links {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
             }
             
-            .footer-wrapper {
-                padding: 60px 20px 30px;
-            }
-            
-            .card-3d {
-                padding: 30px;
+            .social-icons {
+                flex-wrap: wrap;
             }
         }
     </style>
@@ -804,139 +540,70 @@
         </div>
     </section>
 
-    <!-- =============================================
-         ULTRA-MODERN 3D FOOTER WITH WAVES & ANIMATIONS
-         ============================================= -->
-    <footer class="modern-footer">
-        <!-- Animated Wave Separator -->
-        <div class="wave-separator">
-            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+    <!-- ================================================
+         MINIMAL ELEGANT FOOTER - CLEAN & ESSENTIAL ONLY
+         ================================================ -->
+    <footer class="minimal-footer">
+        <!-- Subtle Wave Divider -->
+        <div class="wave-divider">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" class="wave-shape"></path>
             </svg>
         </div>
         
-        <!-- Neon Grid Background -->
-        <div class="neon-grid"></div>
+        <!-- Subtle Grid Background -->
+        <div class="subtle-grid"></div>
         
-        <!-- Lightning Bolts -->
-        <div class="lightning-container">
-            <div class="lightning-bolt"></div>
-            <div class="lightning-bolt"></div>
-            <div class="lightning-bolt"></div>
-            <div class="lightning-bolt"></div>
-            <div class="lightning-bolt"></div>
-        </div>
-        
-        <div class="footer-wrapper">
-            <!-- 3D Cards Grid -->
-            <div class="cards-3d-grid">
-                
-                <!-- Brand Card -->
-                <div class="card-3d">
-                    <div class="card-orb" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); top: -50%; right: -50%;"></div>
-                    
-                    <div class="brand-section">
-                        <div class="mega-logo">IIN.edu</div>
-                        <p class="brand-tagline">
-                            Empowering students through innovative test preparation and expert guidance for India's premier research institutes.
-                        </p>
-                    </div>
-                    
-                    <div class="magnetic-socials">
-                        <a href="https://instagram.com/iin.edu" target="_blank" class="magnetic-icon instagram" title="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="https://twitter.com/iin_edu" target="_blank" class="magnetic-icon twitter" title="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="https://facebook.com/iin.edu" target="_blank" class="magnetic-icon facebook" title="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://wa.me/919876543210" target="_blank" class="magnetic-icon whatsapp" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                        <a href="https://linkedin.com/company/iin-edu" target="_blank" class="magnetic-icon linkedin" title="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                        <a href="https://youtube.com/@iin_edu" target="_blank" class="magnetic-icon youtube" title="YouTube">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    </div>
+        <div class="footer-content">
+            <!-- Main Section: Logo + Social + Contact -->
+            <div class="footer-main">
+                <!-- Logo -->
+                <div class="footer-brand">
+                    <div class="footer-logo">IIN.edu</div>
+                    <p class="footer-tagline">Empowering future researchers</p>
                 </div>
                 
-                <!-- Quick Links Card -->
-                <div class="card-3d">
-                    <div class="card-orb" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); top: -50%; left: -50%;"></div>
-                    
-                    <h3 class="links-title">Quick Links</h3>
-                    <div class="links-stack">
-                        <a href="index.html" class="link-item">Home</a>
-                        <a href="aboutpage.html" class="link-item">About Us</a>
-                        <a href="testfirstpage.html" class="link-item">Test Series</a>
-                        <a href="subtittlepyq.html" class="link-item">PYQ Bank</a>
-                        <a href="future.html" class="link-item">Career Guidance</a>
-                        <a href="sciencenews.html" class="link-item">Science News</a>
-                        <a href="frontend/footer/refund.html" class="link-item">Refund Policy</a>
-                    </div>
+                <!-- Social Icons -->
+                <div class="social-icons">
+                    <a href="https://instagram.com/iin.edu" target="_blank" class="social-link instagram" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://twitter.com/iin_edu" target="_blank" class="social-link twitter" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://facebook.com/iin.edu" target="_blank" class="social-link facebook" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://wa.me/919876543210" target="_blank" class="social-link whatsapp" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://linkedin.com/company/iin-edu" target="_blank" class="social-link linkedin" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
                 
-                <!-- Contact Card -->
-                <div class="card-3d">
-                    <div class="card-orb" style="background: linear-gradient(135deg, #ec4899, #3b82f6); bottom: -50%; right: -50%;"></div>
-                    
-                    <h3 class="contact-title">Get In Touch</h3>
-                    <div class="contact-boxes">
-                        <div class="contact-box">
-                            <div class="contact-icon-box">
-                                <i class="fas fa-phone-alt"></i>
-                            </div>
-                            <div class="contact-info">
-                                <div class="contact-label">Call Us</div>
-                                <div class="contact-value">
-                                    <a href="tel:+919876543210">+91 98765 43210</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-box">
-                            <div class="contact-icon-box">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="contact-info">
-                                <div class="contact-label">Email</div>
-                                <div class="contact-value">
-                                    <a href="mailto:contact@iin.edu">contact@iin.edu</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="contact-box">
-                            <div class="contact-icon-box">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="contact-info">
-                                <div class="contact-label">Location</div>
-                                <div class="contact-value">India</div>
-                            </div>
-                        </div>
+                <!-- Contact -->
+                <div class="footer-contact">
+                    <div class="contact-item">
+                        <i class="fas fa-phone-alt"></i>
+                        <a href="tel:+919876543210">+91 98765 43210</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:contact@iin.edu">contact@iin.edu</a>
                     </div>
                 </div>
-                
             </div>
             
-            <!-- Glowing Divider -->
-            <div class="glowing-divider"></div>
-            
-            <!-- Bottom Bar -->
-            <div class="bottom-bar">
+            <!-- Bottom Section: Copyright + Legal -->
+            <div class="footer-bottom">
                 <div class="copyright">
-                    © 2025 IIN.edu • Made with <span class="heart">❤</span> for future researchers
+                    © 2025 IIN.edu • Made with <span class="heart-icon">♥</span> for future researchers
                 </div>
-                <div class="bottom-links">
-                    <a href="frontend/footer/privacy.html" class="bottom-link">Privacy Policy</a>
-                    <a href="frontend/footer/terms.html" class="bottom-link">Terms & Conditions</a>
-                    <a href="aboutpage.html" class="bottom-link">About</a>
-                    <a href="future.html" class="bottom-link">Careers</a>
+                <div class="legal-links">
+                    <a href="frontend/footer/privacy.html" class="legal-link">Privacy</a>
+                    <a href="frontend/footer/terms.html" class="legal-link">Terms</a>
+                    <a href="frontend/footer/refund.html" class="legal-link">Refund</a>
                 </div>
             </div>
         </div>
