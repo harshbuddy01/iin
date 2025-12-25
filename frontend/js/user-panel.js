@@ -98,7 +98,7 @@ window.refreshUserDashboard = async function () {
     const logoutBtn = document.getElementById("logoutBtn");
     if (logoutBtn) {
       logoutBtn.addEventListener("click", () => {
-        console.log('🚪 Logging out...');
+        console.log('🚺 Logging out...');
         localStorage.clear();
         window.location.href = "index.html";
       });
@@ -107,6 +107,20 @@ window.refreshUserDashboard = async function () {
     console.log('✅ User panel rendered successfully');
   } catch (e) {
     console.error('❌ User panel error:', e);
+    
+    // CRITICAL FIX: If user not found in database (404), clear localStorage and force logout
+    if (e.response && e.response.status === 404) {
+      console.log('⚠️ User not found in database. Deleted by admin. Forcing logout...');
+      
+      // Clear all localStorage
+      localStorage.clear();
+      
+      // Show alert to user
+      alert('⚠️ Your account has been removed from the system.\n\nPlease contact support if you believe this is an error.');
+      
+      // Redirect to home page
+      window.location.href = "index.html";
+    }
   }
 };
 
