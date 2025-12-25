@@ -20,6 +20,7 @@
     
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
+    <link rel="stylesheet" href="shared-nav-dropdown.css">
     
     <style>
         :root { --accent: #3b82f6; --purple: #8b5cf6; --pink: #ec4899; --navy: #020617; }
@@ -38,7 +39,7 @@
         .navbar.hidden-nav { transform: translateY(-100%); }
         .logo { font-size: 1.5rem; font-weight: 900; color: white; letter-spacing: -1px; }
         .logo span { color: var(--accent); }
-        .nav-links { display: flex; gap: 2.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-links { display: flex; gap: 2.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; align-items: center; }
         .nav-links a { color: #64748b; text-decoration: none; transition: 0.3s; }
         .nav-links a:hover, .nav-links a.active { color: white; text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
         .btn-login { background: white; color: black; padding: 0.75rem 2rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem; transition: 0.3s; }
@@ -138,7 +139,13 @@
             <a href="aboutpage.html">About</a>
             <a href="subtittlepyq.html">PYQ</a>
             <a href="testfirstpage.html">Tests</a>
-            <a href="future.html" class="active">Future</a>
+            <div class="nav-dropdown">
+                <a href="#" class="dropdown-trigger active">Future Career <i class="fas fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="future.html" style="color:#3b82f6">Future Career</a>
+                    <a href="sciencenews.html">Science News</a>
+                </div>
+            </div>
             <div id="navLoginPlaceholder">
                 <a href="signinpage.html" class="btn-login">LOGIN</a>
             </div>
