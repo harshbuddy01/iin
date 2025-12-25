@@ -3,7 +3,7 @@
 // Documentation: https://gnews.io/docs/v4
 
 const GNEWS_CONFIG = {
-    apiKey: 'b3a2c0d6e4f8a9b1c2d3e4f5a6b7c8d9', // GNews API key (placeholder - get real one from gnews.io)
+    apiKey: 'fdf9900afcdb50ceabca190fb42c19e3', // Your GNews API key
     baseUrl: 'https://gnews.io/api/v4',
     
     // Search parameters
