@@ -5,9 +5,8 @@ config();
 
 /**
  * Email Configuration for IIN Platform using SendGrid
- * Sends roll numbers and notifications to users
- * 
- * Migrated from Brevo to SendGrid for better Railway compatibility
+ * PREMIUM MODERN EMAIL TEMPLATES
+ * Sends roll numbers and notifications with stunning visual design
  */
 
 // Initialize SendGrid with API key
@@ -23,7 +22,7 @@ if (SENDGRID_API_KEY) {
 }
 
 /**
- * Send Roll Number to User
+ * Send Roll Number to User - PREMIUM DESIGN
  * @param {String} userEmail - User's email address
  * @param {String} rollNumber - Generated roll number
  * @param {String} userName - User's name (optional)
@@ -42,7 +41,7 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
         email: SENDER_EMAIL,
         name: 'IIN.edu Platform'
       },
-      subject: `🎓 Your Roll Number - ${testName}`,
+      subject: `🎉 Payment Successful - Your Roll Number Inside!`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -51,104 +50,340 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f4f6f9; padding: 20px; }
-            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden; }
-            .header { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; padding: 40px 20px; text-align: center; }
-            .header h1 { margin: 0; font-size: 32px; font-weight: 700; }
-            .header p { margin: 8px 0 0; opacity: 0.95; font-size: 16px; }
-            .content { padding: 40px 30px; }
-            .greeting { color: #1e293b; font-size: 20px; font-weight: 600; margin-bottom: 16px; }
-            .intro-text { color: #64748b; font-size: 16px; line-height: 1.6; margin-bottom: 30px; }
-            .roll-number-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 3px solid #3b82f6; border-radius: 16px; padding: 40px 20px; margin: 30px 0; text-align: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1); }
-            .roll-label { margin: 0 0 12px 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
-            .roll-number { font-size: 42px; font-weight: 800; color: #1e40af; letter-spacing: 3px; margin: 12px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.05); }
-            .roll-note { margin: 12px 0 0; color: #64748b; font-size: 14px; font-weight: 500; }
-            .info-box { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 24px; margin: 30px 0; border-radius: 8px; }
-            .info-box h3 { color: #1e293b; margin: 0 0 16px 0; font-size: 18px; font-weight: 600; }
-            .info-box ul { margin: 0; padding-left: 20px; }
-            .info-box li { color: #64748b; line-height: 1.8; margin-bottom: 8px; font-size: 15px; }
-            .btn { display: inline-block; background: #3b82f6; color: white !important; padding: 16px 32px; border-radius: 10px; text-decoration: none; margin: 20px 0; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); transition: all 0.3s; }
-            .btn:hover { background: #2563eb; transform: translateY(-2px); }
-            .support-text { color: #94a3b8; margin-top: 30px; font-size: 14px; text-align: center; }
-            .support-text a { color: #3b82f6; text-decoration: none; font-weight: 600; }
-            .footer { text-align: center; padding: 30px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; }
-            .footer-brand { font-weight: 700; color: #1e293b; font-size: 16px; margin-bottom: 8px; }
-            .footer-note { color: #64748b; font-size: 12px; margin-top: 8px; }
+            body { 
+              font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; 
+              background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+              padding: 40px 20px;
+              color: #f8fafc;
+            }
+            .email-container { 
+              max-width: 650px; 
+              margin: 0 auto; 
+              background: #0f172a;
+              border-radius: 24px;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1);
+              overflow: hidden;
+            }
+            
+            /* HERO HEADER */
+            .hero-header {
+              background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+              padding: 50px 40px;
+              text-align: center;
+              position: relative;
+              overflow: hidden;
+            }
+            .hero-header::before {
+              content: '';
+              position: absolute;
+              top: -50%;
+              left: -50%;
+              width: 200%;
+              height: 200%;
+              background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+              animation: pulse 4s ease-in-out infinite;
+            }
+            @keyframes pulse {
+              0%, 100% { transform: scale(1); opacity: 0.5; }
+              50% { transform: scale(1.1); opacity: 0.8; }
+            }
+            .success-icon {
+              font-size: 64px;
+              margin-bottom: 16px;
+              display: inline-block;
+              animation: bounce 0.8s ease;
+            }
+            @keyframes bounce {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-20px); }
+            }
+            .hero-title {
+              font-size: 36px;
+              font-weight: 800;
+              color: white;
+              margin: 0 0 12px 0;
+              text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+              letter-spacing: -0.5px;
+              position: relative;
+            }
+            .hero-subtitle {
+              font-size: 18px;
+              color: rgba(255,255,255,0.95);
+              margin: 0;
+              font-weight: 500;
+              position: relative;
+            }
+            
+            /* CONTENT SECTION */
+            .content-section {
+              padding: 50px 40px;
+            }
+            .greeting {
+              font-size: 24px;
+              font-weight: 700;
+              color: #f8fafc;
+              margin-bottom: 16px;
+            }
+            .intro-text {
+              color: #cbd5e1;
+              font-size: 16px;
+              line-height: 1.8;
+              margin-bottom: 40px;
+            }
+            
+            /* PREMIUM ROLL NUMBER CARD */
+            .roll-number-card {
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              border-radius: 20px;
+              padding: 50px 30px;
+              text-align: center;
+              margin: 40px 0;
+              box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3), 
+                          0 0 0 1px rgba(255,255,255,0.1) inset;
+              position: relative;
+              overflow: hidden;
+            }
+            .roll-number-card::before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+              animation: shimmer 3s infinite;
+            }
+            @keyframes shimmer {
+              0% { transform: translateX(-100%); }
+              100% { transform: translateX(100%); }
+            }
+            .roll-label {
+              color: rgba(255,255,255,0.9);
+              font-size: 14px;
+              text-transform: uppercase;
+              letter-spacing: 3px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              position: relative;
+            }
+            .roll-number {
+              font-size: 56px;
+              font-weight: 900;
+              color: white;
+              letter-spacing: 8px;
+              margin: 20px 0;
+              text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+              font-family: 'Courier New', monospace;
+              position: relative;
+              background: linear-gradient(to right, #ffffff, #e0e7ff);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              background-clip: text;
+            }
+            .roll-warning {
+              display: inline-block;
+              background: rgba(255,255,255,0.15);
+              backdrop-filter: blur(10px);
+              color: white;
+              padding: 12px 24px;
+              border-radius: 12px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-top: 20px;
+              border: 1px solid rgba(255,255,255,0.2);
+              position: relative;
+            }
+            
+            /* INFO BOXES */
+            .info-box {
+              background: rgba(255,255,255,0.05);
+              border: 1px solid rgba(255,255,255,0.1);
+              border-left: 4px solid #3b82f6;
+              padding: 30px;
+              margin: 30px 0;
+              border-radius: 16px;
+              backdrop-filter: blur(10px);
+            }
+            .info-box h3 {
+              color: #f8fafc;
+              font-size: 20px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              display: flex;
+              align-items: center;
+            }
+            .info-box ul {
+              margin: 0;
+              padding-left: 20px;
+            }
+            .info-box li {
+              color: #cbd5e1;
+              line-height: 2;
+              margin-bottom: 12px;
+              font-size: 15px;
+            }
+            .info-box strong {
+              color: #f8fafc;
+              font-weight: 600;
+            }
+            
+            /* PREMIUM BUTTON */
+            .cta-button {
+              display: inline-block;
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              color: white !important;
+              padding: 18px 40px;
+              border-radius: 14px;
+              text-decoration: none;
+              margin: 30px 0;
+              font-weight: 700;
+              font-size: 17px;
+              box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+              transition: all 0.3s ease;
+              text-align: center;
+              border: none;
+              letter-spacing: 0.5px;
+            }
+            .cta-button:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6);
+            }
+            
+            /* FOOTER */
+            .footer {
+              background: rgba(0,0,0,0.3);
+              padding: 40px 40px;
+              text-align: center;
+              border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            .footer-brand {
+              font-size: 20px;
+              font-weight: 800;
+              color: #f8fafc;
+              margin-bottom: 12px;
+            }
+            .footer-brand span {
+              color: #3b82f6;
+            }
+            .footer-text {
+              color: #94a3b8;
+              font-size: 13px;
+              line-height: 1.8;
+              margin: 8px 0;
+            }
+            .footer-link {
+              color: #3b82f6;
+              text-decoration: none;
+              font-weight: 600;
+            }
+            .footer-link:hover {
+              color: #60a5fa;
+            }
+            
+            /* MOBILE RESPONSIVE */
+            @media only screen and (max-width: 600px) {
+              body { padding: 20px 10px; }
+              .hero-header { padding: 40px 20px; }
+              .hero-title { font-size: 28px; }
+              .content-section { padding: 30px 20px; }
+              .roll-number { font-size: 42px; letter-spacing: 4px; }
+              .info-box { padding: 20px; }
+              .footer { padding: 30px 20px; }
+            }
           </style>
         </head>
         <body>
-          <div class="container">
-            <div class="header">
-              <h1>🎓 Registration Successful!</h1>
-              <p>Welcome to ${testName}</p>
+          <div class="email-container">
+            
+            <!-- HERO HEADER -->
+            <div class="hero-header">
+              <div class="success-icon">✅</div>
+              <h1 class="hero-title">Payment Successful!</h1>
+              <p class="hero-subtitle">Welcome to ${testName}</p>
             </div>
             
-            <div class="content">
-              <div class="greeting">Hello ${userName}! 👋</div>
+            <!-- MAIN CONTENT -->
+            <div class="content-section">
+              <div class="greeting">Hello! 👋</div>
               <p class="intro-text">
-                Congratulations! Your registration has been completed successfully. 
-                Below is your unique roll number for accessing the IIN.edu examination platform.
+                Congratulations! Your payment has been processed successfully, and you're all set to begin your examination journey with IIN.edu.
               </p>
               
-              <div class="roll-number-box">
+              <!-- PREMIUM ROLL NUMBER CARD -->
+              <div class="roll-number-card">
                 <p class="roll-label">Your Roll Number</p>
                 <div class="roll-number">${rollNumber}</div>
-                <p class="roll-note">⚠️ Please save this for all future exams</p>
+                <div class="roll-warning">
+                  ⚠️ Save this securely - Required for all exams
+                </div>
               </div>
               
+              <!-- INFO BOX -->
               <div class="info-box">
-                <h3>📋 Important Instructions:</h3>
+                <h3>📄 Important Guidelines</h3>
                 <ul>
-                  <li><strong>Keep it safe</strong> - You'll need this roll number for all examinations</li>
-                  <li><strong>Login access</strong> - Use this to access your personalized test dashboard</li>
-                  <li><strong>Proof of registration</strong> - This email confirms your enrollment</li>
-                  <li><strong>Security</strong> - Do not share your roll number with anyone</li>
-                  <li><strong>Save this email</strong> - Keep it for future reference</li>
+                  <li><strong>Secure Storage:</strong> Keep this roll number safe - you'll need it for every examination</li>
+                  <li><strong>Platform Access:</strong> Use this to access your personalized dashboard</li>
+                  <li><strong>Registration Proof:</strong> This email confirms your successful enrollment</li>
+                  <li><strong>Privacy:</strong> Never share your roll number with unauthorized individuals</li>
+                  <li><strong>Reference:</strong> Bookmark this email for quick access anytime</li>
                 </ul>
               </div>
               
+              <!-- CTA BUTTON -->
               <div style="text-align: center;">
-                <a href="${process.env.PLATFORM_URL || 'https://iin-theta.vercel.app'}/signinpage.html" class="btn">
-                  🚀 Login to Platform
+                <a href="${process.env.PLATFORM_URL || 'https://iin-theta.vercel.app'}/testfirstpage.html" class="cta-button">
+                  🚀 Access Your Tests
                 </a>
               </div>
               
-              <p class="support-text">
-                Need help? Contact our support team at 
-                <a href="mailto:${process.env.SUPPORT_EMAIL || 'support@iin.edu'}">${process.env.SUPPORT_EMAIL || 'support@iin.edu'}</a>
+              <p style="color: #94a3b8; margin-top: 40px; text-align: center; font-size: 14px;">
+                Need assistance? Contact us at 
+                <a href="mailto:${process.env.SUPPORT_EMAIL || 'support@iin.edu'}" class="footer-link">
+                  ${process.env.SUPPORT_EMAIL || 'support@iin.edu'}
+                </a>
               </p>
             </div>
             
+            <!-- FOOTER -->
             <div class="footer">
-              <div class="footer-brand">IIN.edu - Strategic Vanguard</div>
-              <p class="footer-note">This is an automated email notification. Please do not reply directly to this message.</p>
-              <p class="footer-note" style="margin-top: 12px;">© ${new Date().getFullYear()} IIN.edu Platform. All rights reserved.</p>
+              <div class="footer-brand">IIN<span>.edu</span></div>
+              <p class="footer-text">Strategic Vanguard in Excellence</p>
+              <p class="footer-text" style="margin-top: 16px;">
+                This is an automated notification. Please do not reply to this email.
+              </p>
+              <p class="footer-text">
+                © ${new Date().getFullYear()} IIN.edu Platform. All rights reserved.
+              </p>
             </div>
+            
           </div>
         </body>
         </html>
       `,
       text: `
-Hello ${userName}!
+🎉 PAYMENT SUCCESSFUL!
 
-Your registration has been completed successfully.
+Hello!
+
+Your payment has been processed successfully.
 
 YOUR ROLL NUMBER: ${rollNumber}
 
-Please save this roll number - you will need it for all examinations.
+⚠️ IMPORTANT: Save this roll number securely - you will need it for all examinations.
 
-Login to the platform: ${process.env.PLATFORM_URL || 'https://iin-theta.vercel.app'}/signinpage.html
+Access your tests: ${process.env.PLATFORM_URL || 'https://iin-theta.vercel.app'}/testfirstpage.html
 
 Need help? Contact: ${process.env.SUPPORT_EMAIL || 'support@iin.edu'}
 
 ---
-IIN.edu Platform
-This is an automated email. Please do not reply.
+IIN.edu Platform - Strategic Vanguard in Excellence
+© ${new Date().getFullYear()} IIN.edu. All rights reserved.
       `,
     };
 
     await sgMail.send(msg);
-    console.log('✅ Roll number email sent to:', userEmail, '| Roll Number:', rollNumber);
+    console.log('✅ Premium roll number email sent to:', userEmail, '| Roll Number:', rollNumber);
     return { success: true, rollNumber };
 
   } catch (error) {
