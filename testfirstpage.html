@@ -197,16 +197,27 @@
             document.getElementById("modalUserEmail").disabled = false;
         }
 
-        // FIXED: Close success modal and stay on testfirstpage.html
+        // FIXED: Close modal and manually refresh UI (no page reload)
         function closeSuccessModal() {
+            // Hide success modal
             document.getElementById("successModal").style.display = "none";
             
-            // Refresh the page to show updated state
-            // User will see:
-            // 1. Profile icon (data already in localStorage)
-            // 2. GREEN test card (purchased)
-            // 3. Can click card to go to instructions
-            window.location.reload();
+            // Get the test that was just purchased
+            const testId = localStorage.getItem("tempTestId");
+            
+            // Update the test card to GREEN
+            if (testId) {
+                markAsPurchased(testId);
+            }
+            
+            // CRITICAL: Refresh user panel to show profile icon
+            // This replaces "Login" button with user profile dropdown
+            if (window.refreshUserDashboard) {
+                console.log('🔄 Manually refreshing user dashboard after payment...');
+                window.refreshUserDashboard();
+            } else {
+                console.error('❌ refreshUserDashboard function not found!');
+            }
         }
 
         async function handleModalSubmit() {
@@ -264,6 +275,11 @@
                         if (verifyRes.data.success) {
                             const rollNumber = verifyRes.data.rollNumber;
                             
+                            console.log('💾 Saving payment data to localStorage...');
+                            console.log('Email:', userEmail);
+                            console.log('Roll Number:', rollNumber);
+                            console.log('Test ID:', testId);
+                            
                             // Save user data to localStorage (persists across pages)
                             localStorage.setItem("userEmail", userEmail);
                             localStorage.setItem("userRollNumber", rollNumber);
@@ -273,12 +289,13 @@
                             if (!purchased.includes(testId)) purchased.push(testId);
                             localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                             
-                            // Update UI
-                            markAsPurchased(testId);
-                            if (window.refreshUserDashboard) window.refreshUserDashboard();
+                            console.log('✅ Data saved successfully!');
+                            console.log('purchasedTests:', purchased);
+                            
+                            // Close entry modal
                             closeEntryModal();
 
-                            // Show success modal
+                            // Show success modal with roll number
                             document.getElementById("finalTokenDisplay").innerText = rollNumber;
                             document.getElementById("successModal").style.display = "flex";
                         }
