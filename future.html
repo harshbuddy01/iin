@@ -278,7 +278,7 @@
 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase">Select Module</label>
-                    <select id="feedbackTest" class="input-field">
+                    <select id="feedbackTest" class="input-field" required>
                         <option value="">-- Choose Module --</option>
                         <option value="iat">IAT Series</option>
                         <option value="nest">NEST Series</option>
@@ -289,8 +289,23 @@
 
                 <div class="grid grid-cols-2 gap-8 py-4">
                     <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Login Experience</label>
+                        <div class="rating-stars" data-cat="login">
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                        </div>
+                    </div>
+                    <div>
                         <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Interface Rating</label>
                         <div class="rating-stars" data-cat="interface">
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8 py-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Content Quality</label>
+                        <div class="rating-stars" data-cat="quality">
                             <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
                         </div>
                     </div>
@@ -305,7 +320,7 @@
 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase">Log Entry</label>
-                    <textarea id="feedbackComment" class="input-field h-32" placeholder="Enter system analysis..."></textarea>
+                    <textarea id="feedbackComment" class="input-field h-32" placeholder="Enter system analysis..." required></textarea>
                 </div>
 
 
@@ -402,8 +417,8 @@
         });
 
 
-        // 4. STAR RATINGS
-        const ratings = { interface: 0, server: 0 };
+        // 4. STAR RATINGS - NOW WITH ALL 4 CATEGORIES
+        const ratings = { login: 0, interface: 0, quality: 0, server: 0 };
         document.querySelectorAll('.rating-stars').forEach(wrapper => {
             const cat = wrapper.dataset.cat;
             const stars = wrapper.querySelectorAll('i');
@@ -424,9 +439,17 @@
         // 5. FEEDBACK SUBMISSION
         document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Validate all ratings are filled
+            if (!ratings.login || !ratings.interface || !ratings.quality || !ratings.server) {
+                alert('⚠️ Please provide all 4 ratings before submitting!');
+                return;
+            }
+            
             const btn = e.target.querySelector('button');
             const originalText = btn.innerText;
             btn.innerText = "TRANSMITTING...";
+            btn.disabled = true;
             
             try {
                 const data = {
@@ -437,19 +460,38 @@
                     ratings: ratings
                 };
                 
+                console.log('📤 Sending feedback:', data);
+                
                 const res = await axios.post(`${API_BASE_URL}/api/feedback`, data);
+                
+                console.log('✅ Response:', res.data);
+                
                 if(res.data.success) {
-                    alert('✅ Data Transmitted Successfully.');
+                    alert('✅ Feedback transmitted successfully! Check your email for confirmation.');
                     e.target.reset();
                     document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+                    // Reset ratings
+                    ratings.login = 0;
+                    ratings.interface = 0;
+                    ratings.quality = 0;
+                    ratings.server = 0;
                 } else {
-                    alert('❌ Transmission Error.');
+                    alert('❌ Transmission Error: ' + (res.data.message || 'Unknown error'));
                 }
             } catch(err) {
-                console.error(err);
-                alert('❌ Server Downlink Failed.');
+                console.error('❌ Error:', err);
+                if (err.response) {
+                    console.error('❌ Response data:', err.response.data);
+                    alert('❌ Server Error: ' + (err.response.data.message || 'Please try again'));
+                } else if (err.request) {
+                    console.error('❌ No response from server');
+                    alert('❌ Server Downlink Failed. Please check if the backend is running.');
+                } else {
+                    alert('❌ Error: ' + err.message);
+                }
             } finally {
                 btn.innerText = originalText;
+                btn.disabled = false;
             }
         });
 
