@@ -1,27 +1,21 @@
-// NewsData.io Configuration
-// Get your free API key from: https://newsdata.io/register
-// Free tier: 200 API credits/day, 10 articles per request, works in production!
+// GNews API Configuration
+// Free tier: 100 requests/day, instant activation, no CORS issues
+// Documentation: https://gnews.io/docs/v4
 
-const NEWSDATA_CONFIG = {
-    apiKey: '35dc3e9fe7aa4a1bb45c77a36de22318', // Your NewsData.io API key
-    baseUrl: 'https://newsdata.io/api/1',
+const GNEWS_CONFIG = {
+    apiKey: 'b3a2c0d6e4f8a9b1c2d3e4f5a6b7c8d9', // GNews API key (placeholder - get real one from gnews.io)
+    baseUrl: 'https://gnews.io/api/v4',
     
-    // Fetch science news from ALL countries worldwide
-    category: 'science,technology',
-    
-    // Language: English articles from all countries
-    language: 'en',
-    
-    // Articles per request (max 10 in free tier)
-    size: 10,
-    
-    // Priority: top (latest and breaking news)
-    prioritydomain: 'top'
+    // Search parameters
+    topic: 'science', // Topics: world, nation, business, technology, entertainment, sports, science, health
+    language: 'en',    // Language code
+    max: 10,           // Max articles per request (1-10 for free tier)
+    expand: 'content'  // Get full content (optional)
 };
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = NEWSDATA_CONFIG;
+    module.exports = GNEWS_CONFIG;
 }
 
-window.NEWSDATA_CONFIG = NEWSDATA_CONFIG;
+window.GNEWS_CONFIG = GNEWS_CONFIG;

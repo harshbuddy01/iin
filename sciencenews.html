@@ -149,7 +149,7 @@
             margin-bottom: 20px;
         }
         
-        .retry-btn {
+        .retry-btn, .setup-btn {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
             padding: 12px 30px;
@@ -158,10 +158,15 @@
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.2s;
+            margin: 0 10px;
         }
         
-        .retry-btn:hover {
+        .retry-btn:hover, .setup-btn:hover {
             transform: scale(1.05);
+        }
+        
+        .setup-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
         }
         
         /* News Grid */
@@ -270,30 +275,6 @@
             font-weight: 600;
         }
         
-        .load-more-container {
-            text-align: center;
-            margin-top: 40px;
-        }
-        
-        .load-more-btn {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            color: white;
-            padding: 14px 40px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .load-more-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-        }
-        
         @media (max-width: 768px) {
             .news-header h1 {
                 font-size: 2.5rem;
@@ -355,7 +336,7 @@
                     <div class="stat-label">Articles</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">87K+</div>
+                    <div class="stat-number">60K+</div>
                     <div class="stat-label">Global Sources</div>
                 </div>
                 <div class="stat-item">
@@ -368,7 +349,7 @@
         <!-- Loading State -->
         <div id="loadingState" class="loading-container">
             <div class="spinner"></div>
-            <p class="loading-text">Fetching global science news from 87,000+ sources...</p>
+            <p class="loading-text">Fetching global science news from 60,000+ sources...</p>
         </div>
 
         <!-- Error State -->
@@ -376,13 +357,6 @@
 
         <!-- News Grid -->
         <div id="newsGrid" class="news-grid" style="display: none;"></div>
-        
-        <!-- Load More Button -->
-        <div id="loadMoreContainer" class="load-more-container" style="display: none;">
-            <button class="load-more-btn" onclick="loadMoreNews()">
-                <i class="fas fa-plus-circle"></i> Load More Articles
-            </button>
-        </div>
     </div>
 
     <script src="frontend/js/config.js"></script>
@@ -391,9 +365,6 @@
     <script src="frontend/js/newsapi-config.js"></script>
     
     <script>
-        let nextPage = null;
-        let totalResults = 0;
-        
         // Function to format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -408,46 +379,37 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Function to fetch news using NewsData.io (NO CORS issues!)
-        async function fetchScienceNews(page = null, append = false) {
+        // Function to fetch news using GNews API (NO CORS issues!)
+        async function fetchScienceNews() {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
             const newsGrid = document.getElementById('newsGrid');
             
-            if (!append) {
-                loadingState.style.display = 'flex';
-                newsGrid.style.display = 'none';
-            }
+            loadingState.style.display = 'flex';
+            newsGrid.style.display = 'none';
             
             try {
-                // Build URL with NewsData.io API
-                let url = `${window.NEWSDATA_CONFIG.baseUrl}/news?apikey=${window.NEWSDATA_CONFIG.apiKey}&category=${window.NEWSDATA_CONFIG.category}&language=${window.NEWSDATA_CONFIG.language}&size=${window.NEWSDATA_CONFIG.size}`;
-                
-                // Add pagination if available
-                if (page) {
-                    url += `&page=${page}`;
+                // Check if API key is configured
+                if (!window.GNEWS_CONFIG || window.GNEWS_CONFIG.apiKey === 'b3a2c0d6e4f8a9b1c2d3e4f5a6b7c8d9') {
+                    throw new Error('API_KEY_NOT_CONFIGURED');
                 }
+                
+                // Build URL with GNews API
+                const url = `${window.GNEWS_CONFIG.baseUrl}/top-headlines?category=${window.GNEWS_CONFIG.topic}&lang=${window.GNEWS_CONFIG.language}&max=${window.GNEWS_CONFIG.max}&apikey=${window.GNEWS_CONFIG.apiKey}`;
                 
                 const response = await fetch(url);
                 
                 if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error('API_KEY_INVALID');
+                    }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const data = await response.json();
                 
-                if (data.status === 'success' && data.results && data.results.length > 0) {
-                    nextPage = data.nextPage || null;
-                    totalResults = data.totalResults || 0;
-                    displayNews(data.results, append);
-                    
-                    // Show load more button if there's a next page
-                    const loadMoreContainer = document.getElementById('loadMoreContainer');
-                    if (nextPage) {
-                        loadMoreContainer.style.display = 'block';
-                    } else {
-                        loadMoreContainer.style.display = 'none';
-                    }
+                if (data.articles && data.articles.length > 0) {
+                    displayNews(data.articles);
                 } else {
                     throw new Error('No articles found');
                 }
@@ -459,7 +421,7 @@
         }
 
         // Function to display news articles
-        function displayNews(articles, append = false) {
+        function displayNews(articles) {
             const loadingState = document.getElementById('loadingState');
             const newsGrid = document.getElementById('newsGrid');
             const articleCount = document.getElementById('articleCount');
@@ -468,13 +430,13 @@
             newsGrid.style.display = 'grid';
             
             const articlesHTML = articles.map(article => {
-                const imageUrl = article.image_url || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
-                const sourceName = article.source_id || 'Science News';
-                const author = article.creator?.[0] || sourceName;
+                const imageUrl = article.image || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
+                const sourceName = article.source.name || 'Science News';
+                const author = article.source.name || sourceName;
                 const description = article.description || 'Click to read the full article';
                 
                 return `
-                    <div class="news-card" onclick="window.open('${article.link}', '_blank')">
+                    <div class="news-card" onclick="window.open('${article.url}', '_blank')">
                         <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop'">
                         <div class="news-content">
                             <span class="news-source">${sourceName}</span>
@@ -482,7 +444,7 @@
                             <p>${description}</p>
                             <div class="news-meta">
                                 <span class="news-date">
-                                    <i class="far fa-clock"></i> ${formatDate(article.pubDate)}
+                                    <i class="far fa-clock"></i> ${formatDate(article.publishedAt)}
                                 </span>
                                 <span class="news-author">
                                     <i class="fas fa-globe"></i> ${author.split(' ')[0] || 'Global'}
@@ -493,22 +455,8 @@
                 `;
             }).join('');
             
-            if (append) {
-                newsGrid.innerHTML += articlesHTML;
-            } else {
-                newsGrid.innerHTML = articlesHTML;
-            }
-            
-            // Update article count
-            const currentArticleCount = newsGrid.children.length;
-            articleCount.textContent = currentArticleCount;
-        }
-
-        // Function to load more news
-        function loadMoreNews() {
-            if (nextPage) {
-                fetchScienceNews(nextPage, true);
-            }
+            newsGrid.innerHTML = articlesHTML;
+            articleCount.textContent = articles.length;
         }
 
         // Function to display error
@@ -519,17 +467,39 @@
             loadingState.style.display = 'none';
             errorState.style.display = 'block';
             
-            let errorMessage = 'Unable to load science news. The service may be temporarily unavailable.';
+            let errorMessage = 'Unable to load science news.';
+            let setupInstructions = '';
+            
+            if (error.message === 'API_KEY_NOT_CONFIGURED' || error.message === 'API_KEY_INVALID') {
+                errorMessage = 'GNews API key needs to be configured';
+                setupInstructions = `
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 20px; border-radius: 8px; margin-top: 20px; text-align: left;">
+                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-weight: 700;">🛠️ Quick Setup (2 minutes):</h4>
+                        <ol style="color: #94a3b8; font-size: 0.9rem; line-height: 1.8; margin-left: 20px;">
+                            <li>Go to <a href="https://gnews.io/" target="_blank" style="color: #3b82f6; text-decoration: underline;">gnews.io</a></li>
+                            <li>Click "Get API Key" (instant, no credit card)</li>
+                            <li>Copy your API key from the dashboard</li>
+                            <li>I'll add it for you - just share it!</li>
+                        </ol>
+                        <p style="color: #10b981; font-size: 0.85rem; margin-top: 15px; font-weight: 600;">✅ 100 requests/day FREE • 60K+ sources • No CORS issues</p>
+                    </div>
+                `;
+            }
             
             errorState.innerHTML = `
                 <div class="error-container">
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    <h3 class="error-title">Oops! Something went wrong</h3>
+                    <h3 class="error-title">Setup Required</h3>
                     <p class="error-message">${errorMessage}</p>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Please check your internet connection and try again.</p>
-                    <button class="retry-btn" onclick="location.reload()">
-                        <i class="fas fa-redo"></i> Retry
-                    </button>
+                    ${setupInstructions}
+                    <div style="margin-top: 20px;">
+                        <button class="setup-btn" onclick="window.open('https://gnews.io/', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> Get API Key
+                        </button>
+                        <button class="retry-btn" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
                 </div>
             `;
         }
