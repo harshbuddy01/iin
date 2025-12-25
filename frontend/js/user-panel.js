@@ -1,12 +1,12 @@
 // ============================================
-// ULTRA-FAST USER PANEL SYSTEM
+// ULTRA-FAST USER PANEL SYSTEM - FIXED VERSION
 // Two-Layer Architecture:
-// 1. Direct Rendering (Immediate - <100ms)
-// 2. localStorage Persistence (Future-proof)
+// 1. Direct Rendering from localStorage (Immediate - <50ms)
+// 2. Backend Verification (Background - for data sync)
 // ============================================
 
 // LAYER 1: Direct Rendering Function (NO API CALL)
-// Called immediately after payment with backend data
+// Called immediately after payment OR on page load from localStorage
 window.renderUserPanelDirect = function(userData) {
   console.log('⚡ DIRECT RENDER: Instant user panel with data:', userData);
   
@@ -35,7 +35,7 @@ window.renderUserPanelDirect = function(userData) {
         </div>
         <div class="border-t border-white/10 pt-3 mb-3">
           <p class="text-[11px] text-gray-400 uppercase font-bold mb-2">Purchased Tests</p>
-          ${tests.map(t => `
+          ${tests.length > 0 ? tests.map(t => `
             <div class="flex items-center justify-between text-xs mb-2">
               <span class="${
                 t === "iat" ? "text-green-400" : 
@@ -46,7 +46,7 @@ window.renderUserPanelDirect = function(userData) {
                 <i class="fas fa-check-circle mr-1"></i> ${t.toUpperCase()} Series
               </span>
             </div>
-          `).join("")}
+          `).join("") : '<p class="text-xs text-gray-500">No tests purchased</p>'}
         </div>
         <button id="logoutBtn" class="w-full py-2 rounded-xl bg-red-600 text-white text-xs font-bold uppercase tracking-widest hover:bg-red-700 transition">
           <i class="fas fa-sign-out-alt mr-2"></i> Logout
@@ -61,44 +61,80 @@ window.renderUserPanelDirect = function(userData) {
   console.log('✅ User panel rendered INSTANTLY!');
 };
 
-// LAYER 2: Persistent Rendering Function (with API call)
-// Called on page load to check localStorage + verify with backend
-window.refreshUserDashboard = async function () {
+// LAYER 2: Persistent Rendering Function (with optional API call)
+// Called on page load to check localStorage + optionally verify with backend
+window.refreshUserDashboard = async function (skipBackendCheck = false) {
   const email = localStorage.getItem("userEmail");
+  const rollNumber = localStorage.getItem("userRollNumber");
+  const purchasedTests = localStorage.getItem("purchasedTests");
   
-  console.log('🔍 Checking localStorage for userEmail:', email);
+  console.log('🔍 Checking localStorage:');
+  console.log('  - userEmail:', email);
+  console.log('  - userRollNumber:', rollNumber);
+  console.log('  - purchasedTests:', purchasedTests);
   
-  if (!email) {
-    console.log('ℹ️ No email in localStorage - user not logged in');
-    return;
-  }
-
-  try {
-    const base = window.API_BASE_URL || "https://iin-production.up.railway.app";
-    console.log('📡 Fetching user status from backend:', `${base}/api/user-status?email=${email}`);
+  // 🔥 CRITICAL: If we have localStorage data, render IMMEDIATELY
+  if (email && rollNumber) {
+    const tests = purchasedTests ? JSON.parse(purchasedTests) : [];
     
-    const res = await axios.get(`${base}/api/user-status?email=${email}`);
-    const data = res.data;
+    console.log('⚡ INSTANT RENDER from localStorage!');
     
-    console.log('✅ User data received from backend:', data);
-
-    // Use direct render function with backend data
+    // Render profile icon INSTANTLY (no API call yet)
     window.renderUserPanelDirect({
-      email: data.email,
-      rollNumber: data.rollNumber,
-      tests: data.tests
+      email: email,
+      rollNumber: rollNumber,
+      tests: tests
     });
     
-  } catch (e) {
-    console.error('❌ User panel error:', e);
-    
-    // If user not found in database (404), clear localStorage and force logout
-    if (e.response && e.response.status === 404) {
-      console.log('⚠️ User not found in database. Forcing logout...');
-      localStorage.clear();
-      alert('⚠️ Your account has been removed.\n\nPlease contact support.');
-      window.location.href = "index.html";
+    // If skipBackendCheck is true, don't verify with backend
+    // (Used when we just got data from payment success)
+    if (skipBackendCheck) {
+      console.log('⏭️ Skipping backend verification (fresh data)');
+      return;
     }
+    
+    // 🔄 BACKGROUND: Verify with backend to sync any changes
+    // This runs AFTER the UI is already rendered, so it's non-blocking
+    try {
+      const base = window.API_BASE_URL || "https://iin-production.up.railway.app";
+      console.log('🔄 Background sync: Verifying with backend...');
+      
+      const res = await axios.get(`${base}/api/user-status?email=${email}`);
+      const data = res.data;
+      
+      console.log('✅ Backend data received:', data);
+      
+      // Update localStorage if backend has newer data
+      if (data.rollNumber !== rollNumber || JSON.stringify(data.tests) !== purchasedTests) {
+        console.log('🔄 Updating localStorage with backend data');
+        localStorage.setItem('userRollNumber', data.rollNumber);
+        localStorage.setItem('purchasedTests', JSON.stringify(data.tests));
+        
+        // Re-render with updated data
+        window.renderUserPanelDirect({
+          email: data.email,
+          rollNumber: data.rollNumber,
+          tests: data.tests
+        });
+      } else {
+        console.log('✅ localStorage is up to date');
+      }
+      
+    } catch (e) {
+      console.error('❌ Backend sync error:', e);
+      
+      // If user not found in database (404), clear localStorage
+      if (e.response && e.response.status === 404) {
+        console.log('⚠️ User not found in database. Forcing logout...');
+        localStorage.clear();
+        alert('⚠️ Your account has been removed.\n\nPlease contact support.');
+        window.location.href = "index.html";
+      }
+      // Otherwise, keep using localStorage data (offline mode)
+    }
+    
+  } else {
+    console.log('ℹ️ No user data in localStorage - user not logged in');
   }
 };
 
@@ -132,20 +168,25 @@ function attachProfileEventListeners() {
   }
 }
 
-// Initialize on page load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initUserPanel);
-} else {
-  initUserPanel();
-}
-
-window.addEventListener('load', initUserPanel);
-
+// 🔥 CRITICAL: Initialize IMMEDIATELY when script loads
+// Don't wait for DOMContentLoaded - run as soon as possible
 function initUserPanel() {
+  console.log('🚀 User panel initializing...');
   if (window.refreshUserDashboard) {
     window.refreshUserDashboard();
   }
 }
+
+// Run immediately if DOM is ready, otherwise wait
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initUserPanel);
+} else {
+  // DOM is already ready, run now!
+  initUserPanel();
+}
+
+// Also run on window load as backup
+window.addEventListener('load', initUserPanel);
 
 // Export for modules
 if (typeof module !== 'undefined' && module.exports) {
