@@ -17,8 +17,6 @@ import examRoutes from "./routes/examRoutes.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 config();
-await connectDB(); 
-await runMigrations(); // 🛠️ Run payment table migrations
 
 const app = express();
 
@@ -153,6 +151,18 @@ app.use("/api", examRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8400;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on Port ${PORT}`);
-});
+
+// ✅ FIXED: Wrap async operations in IIFE to prevent top-level await crash
+(async () => {
+  try {
+    await connectDB();
+    await runMigrations();
+    
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on Port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Fatal Error:', error);
+    process.exit(1);
+  }
+})();
