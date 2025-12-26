@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
-        // Centralized API configuration pointing to your live Render backend
         const API_BASE_URL = "https://iin-production.up.railway.app";
     </script>
 
@@ -75,11 +74,15 @@
             spinner.style.display = 'block';
 
             try {
-                // Sends request to your new modular examController.js
-                const response = await axios.post(`${API_BASE_URL}/api/start-test`, {
+                console.log('🚀 Sending login request to:', `${API_BASE_URL}/api/exam/start`);
+                
+                // ✅ FIXED: Updated endpoint to match backend route
+                const response = await axios.post(`${API_BASE_URL}/api/exam/start`, {
                     rollNumber: token,
                     email: email
                 });
+
+                console.log('✅ Login response:', response.data);
 
                 if (response.data.success) {
                     // Smart Login: Persist credentials locally
@@ -98,6 +101,7 @@
                     }, 1000);
                 }
             } catch (error) {
+                console.error('❌ Login error:', error);
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.style.display = 'block';
