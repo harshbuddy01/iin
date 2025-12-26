@@ -25,15 +25,29 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../"))); 
 
-// CORS Configuration - UPDATED
+// 🔥 DYNAMIC CORS - Allows ALL Vercel deployments
 const corsOptions = {
-  origin: [
-    'https://iin-1fhaclz7d-harshs-projects-7f561eb3.vercel.app', // NEW URL
-    'https://iin-theta.vercel.app', // OLD URL (keep for backward compatibility)
-    'http://localhost:3000',
-    'http://localhost:8400',
-    'http://127.0.0.1:5500'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed patterns
+    const allowedOrigins = [
+      /^https:\/\/.*\.vercel\.app$/,  // Any Vercel subdomain
+      /^http:\/\/localhost(:\d+)?$/,   // Localhost with any port
+      /^http:\/\/127\.0\.0\.1(:\d+)?$/ // 127.0.0.1 with any port
+    ];
+    
+    // Check if origin matches any pattern
+    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
