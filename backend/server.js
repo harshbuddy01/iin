@@ -55,7 +55,7 @@ const corsOptions = {
       callback(null, true);
     } else {
       console.log('❌ CORS blocked origin:', origin);
-      callback(null, true); // 🔥 Allow anyway for development - remove in production
+      callback(null, true); // 🔥 Allow anyway for development
     }
   },
   credentials: true,
@@ -67,11 +67,8 @@ const corsOptions = {
   optionsSuccessStatus: 204
 };
 
-// Apply CORS middleware
+// Apply CORS middleware - this handles ALL OPTIONS requests automatically
 app.use(cors(corsOptions));
-
-// 🔥 EXPLICIT OPTIONS HANDLER for ALL routes
-app.options('*', cors(corsOptions));
 
 // Body parsers AFTER CORS
 app.use(express.json({ limit: "50mb" }));
