@@ -1,5 +1,15 @@
 import { pool } from "../config/mysql.js";
 
+// Helper function to safely parse JSON
+const safeJsonParse = (jsonString, fallback = null) => {
+  try {
+    return typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+  } catch (error) {
+    console.error('JSON Parse Error:', error.message);
+    return fallback;
+  }
+};
+
 // Get user info (email, roll number, purchased tests)
 export const getUserInfo = async (req, res) => {
   try {
@@ -104,6 +114,14 @@ export const submitExam = async (req, res) => {
   try {
     const { email, rollNumber, testId, testName, userResponses, timeTaken, startedAt } = req.body;
     
+    // Validate required fields
+    if (!email || !testId || !userResponses || !Array.isArray(userResponses)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email, testId, and userResponses (array) are required" 
+      });
+    }
+    
     const normalizedEmail = email.toLowerCase().trim();
     
     // Get student roll number if not provided
@@ -133,6 +151,13 @@ export const submitExam = async (req, res) => {
       "SELECT question_number, correct_answer FROM questions WHERE test_id = ? ORDER BY question_number",
       [testId]
     );
+    
+    if (questions.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "No questions found for this test" 
+      });
+    }
     
     // ✅ FIXED: Create a map for easier lookup by question number
     const correctAnswersMap = {};
@@ -177,7 +202,7 @@ export const submitExam = async (req, res) => {
     });
     
     const score = correctAnswers;
-    const percentage = (correctAnswers / totalQuestions) * 100;
+    const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     
     // Save to student_attempts table
     await pool.query(
@@ -242,13 +267,20 @@ export const getQuestions = async (req, res) => {
       [testId]
     );
     
-    // Parse JSON options field
+    if (questions.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "No questions found for this test" 
+      });
+    }
+    
+    // Parse JSON options field with safe parsing
     const formattedQuestions = questions.map(q => ({
       _id: q.id,
       testId: q.test_id,
       questionNumber: q.question_number,
       questionText: q.question_text,
-      options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+      options: safeJsonParse(q.options, []), // ✅ Safe parsing
       difficulty: q.difficulty,
       topic: q.topic
     }));
@@ -288,13 +320,11 @@ export const getStudentResults = async (req, res) => {
     
     const [attempts] = await pool.query(query, params);
     
-    // Parse JSON fields
+    // Parse JSON fields with safe parsing
     const formattedAttempts = attempts.map(attempt => ({
       ...attempt,
-      answers: typeof attempt.answers === 'string' ? JSON.parse(attempt.answers) : attempt.answers,
-      question_wise_results: typeof attempt.question_wise_results === 'string' 
-        ? JSON.parse(attempt.question_wise_results) 
-        : attempt.question_wise_results
+      answers: safeJsonParse(attempt.answers, []), // ✅ Safe parsing
+      question_wise_results: safeJsonParse(attempt.question_wise_results, []) // ✅ Safe parsing
     }));
     
     res.status(200).json({ 
