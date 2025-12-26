@@ -134,15 +134,22 @@ export const submitExam = async (req, res) => {
       [testId]
     );
     
+    // ✅ FIXED: Create a map for easier lookup by question number
+    const correctAnswersMap = {};
+    questions.forEach(q => {
+      correctAnswersMap[q.question_number] = q.correct_answer;
+    });
+    
     const questionWiseResults = [];
     
     userResponses.forEach((userAnswer, index) => {
-      const correctAnswer = questions[index]?.correct_answer;
+      const questionNumber = index + 1;
+      const correctAnswer = correctAnswersMap[questionNumber];
       
       if (userAnswer === null || userAnswer === undefined) {
         unanswered++;
         questionWiseResults.push({
-          questionNumber: index + 1,
+          questionNumber,
           userAnswer: null,
           correctAnswer,
           isCorrect: false,
@@ -151,7 +158,7 @@ export const submitExam = async (req, res) => {
       } else if (userAnswer === correctAnswer) {
         correctAnswers++;
         questionWiseResults.push({
-          questionNumber: index + 1,
+          questionNumber,
           userAnswer,
           correctAnswer,
           isCorrect: true,
@@ -160,7 +167,7 @@ export const submitExam = async (req, res) => {
       } else {
         wrongAnswers++;
         questionWiseResults.push({
-          questionNumber: index + 1,
+          questionNumber,
           userAnswer,
           correctAnswer,
           isCorrect: false,
