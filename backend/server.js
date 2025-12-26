@@ -86,27 +86,61 @@ export const instance = new Razorpay({
 
 // --- RESTORED ROUTES ---
 
-// ✅ 2. LOGIN ROUTE (Fixed for MySQL)
+// ✅ 2. LOGIN ROUTE (Fixed for MySQL with CORRECT TABLE NAME)
 app.post("/api/verify-user-full", async (req, res) => {
   try {
     const { email, rollNumber } = req.body;
     
-    // Check MySQL Database
-    const [rows] = await pool.query("SELECT * FROM students WHERE email = ?", [email.toLowerCase()]);
+    console.log('🔍 Verify request:', { email, rollNumber });
     
-    if (rows.length === 0) return res.json({ status: "NEW_USER" }); 
+    // Validate email
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      console.log('❌ Invalid email format');
+      return res.status(400).json({ 
+        success: false, 
+        status: 'ERROR',
+        message: 'Valid email is required' 
+      });
+    }
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // ✅ FIXED: Check correct table name 'students_payments' (not 'students')
+    const [rows] = await pool.query(
+      "SELECT * FROM students_payments WHERE email = ?", 
+      [normalizedEmail]
+    );
+    
+    console.log(`📊 Query result: ${rows.length} rows found`);
+    
+    if (rows.length === 0) {
+      console.log('✅ NEW_USER');
+      return res.json({ status: "NEW_USER" }); 
+    }
 
     const student = rows[0];
-    if (!rollNumber) return res.json({ status: "EXISTING_USER_NEED_ROLL" }); 
+    console.log('👤 Existing student found:', student.email);
+    
+    if (!rollNumber) {
+      console.log('⚠️ EXISTING_USER_NEED_ROLL');
+      return res.json({ status: "EXISTING_USER_NEED_ROLL" }); 
+    }
     
     if (student.roll_number === rollNumber) {
-        return res.json({ status: "VERIFIED" });
+      console.log('✅ VERIFIED');
+      return res.json({ status: "VERIFIED" });
     } else {
-        return res.json({ status: "WRONG_ROLL" });
+      console.log('❌ WRONG_ROLL');
+      return res.json({ status: "WRONG_ROLL" });
     }
   } catch (error) {
-    console.error("Login Error:", error);
-    res.status(500).json({ success: false });
+    console.error("❌ Login Error:", error.message);
+    console.error("Stack:", error.stack);
+    res.status(500).json({ 
+      success: false, 
+      status: 'ERROR',
+      message: 'Server error. Please try again.' 
+    });
   }
 });
 
@@ -160,6 +194,8 @@ const PORT = process.env.PORT || 8400;
     
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on Port ${PORT}`);
+      console.log(`🔗 API Base URL: http://0.0.0.0:${PORT}`);
+      console.log(`✅ CORS enabled for all Vercel domains`);
     });
   } catch (error) {
     console.error('❌ Fatal Error:', error);
