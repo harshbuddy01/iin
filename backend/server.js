@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 
 // 👇 DATABASE CONNECTION
 import { connectDB, pool } from "./config/mysql.js"; 
+import { runMigrations } from "./config/runMigrations.js";
 import { sendFeedbackEmail, sendUserConfirmation } from "./config/email.js";
 
 // Route Imports
@@ -16,7 +17,8 @@ import examRoutes from "./routes/examRoutes.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 config();
-connectDB(); 
+await connectDB(); 
+await runMigrations(); // 🛠️ Run payment table migrations
 
 const app = express();
 
