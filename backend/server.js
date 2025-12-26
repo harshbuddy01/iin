@@ -20,63 +20,30 @@ config();
 
 const app = express();
 
-// ✅ 1. THE BRIDGE: Serve your Frontend Files
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "../"))); 
-
-// 🔥 CRITICAL: Railway-Compatible CORS Configuration
-// This must be BEFORE body parsers and other middleware
-
-const allowedOrigins = [
-  'https://iin-1fhaclz7d-harshs-projects-7f561eb3.vercel.app',
-  'https://iin-theta.vercel.app',
-  /^https:\/\/.*\.vercel\.app$/,  // Any Vercel deployment
-  /^http:\/\/localhost(:\d+)?$/,   // Localhost
-  /^http:\/\/127\.0\.0\.1(:\d+)?$/ // 127.0.0.1
-];
-
+// 🔥 CRITICAL: CORS must be FIRST before any other middleware
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin matches any pattern
-    const isAllowed = allowedOrigins.some(allowed => {
-      if (typeof allowed === 'string') {
-        return origin === allowed;
-      } else if (allowed instanceof RegExp) {
-        return allowed.test(origin);
-      }
-      return false;
-    });
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('❌ CORS blocked origin:', origin);
-      callback(null, true); // 🔥 Allow anyway for development
-    }
+    // Allow all origins for now (production should restrict this)
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400, // 24 hours
+  maxAge: 86400,
   preflightContinue: false,
   optionsSuccessStatus: 204
 };
 
-// Apply CORS middleware - this handles ALL OPTIONS requests automatically
 app.use(cors(corsOptions));
 
-// Body parsers AFTER CORS
+// Body parsers
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Request logging middleware
+// Request logging
 app.use((req, res, next) => {
-  console.log(`📥 ${req.method} ${req.path} - Origin: ${req.headers.origin || 'none'}`);
+  console.log(`📥 ${req.method} ${req.path}`);
   next();
 });
 
@@ -86,16 +53,51 @@ export const instance = new Razorpay({
   key_secret: process.env.RAZORPAY_API_SECRET || "dummy_secret",
 });
 
-// --- RESTORED ROUTES ---
+// 🔥 CRITICAL: Health checks MUST come before static files
+// Railway hits these endpoints to check if server is alive
 
-// ✅ 2. LOGIN ROUTE (Fixed for MySQL with CORRECT TABLE NAME)
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    database: 'MySQL', 
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok', 
+    database: 'MySQL', 
+    timestamp: new Date().toISOString(),
+    cors: 'enabled',
+    port: process.env.PORT || 8400
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    message: 'IIN Backend API', 
+    status: 'running',
+    version: '1.0.0',
+    endpoints: [
+      '/health',
+      '/api/health',
+      '/api/verify-user-full',
+      '/api/getkey',
+      '/api/checkout',
+      '/api/paymentverification'
+    ]
+  });
+});
+
+// ✅ LOGIN ROUTE
 app.post("/api/verify-user-full", async (req, res) => {
   try {
     const { email, rollNumber } = req.body;
     
     console.log('🔍 Verify request:', { email, rollNumber });
     
-    // Validate email
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       console.log('❌ Invalid email format');
       return res.status(400).json({ 
@@ -107,7 +109,6 @@ app.post("/api/verify-user-full", async (req, res) => {
     
     const normalizedEmail = email.toLowerCase().trim();
     
-    // ✅ FIXED: Check correct table name 'students_payments' (not 'students')
     const [rows] = await pool.query(
       "SELECT * FROM students_payments WHERE email = ?", 
       [normalizedEmail]
@@ -137,7 +138,6 @@ app.post("/api/verify-user-full", async (req, res) => {
     }
   } catch (error) {
     console.error("❌ Login Error:", error.message);
-    console.error("Stack:", error.stack);
     res.status(500).json({ 
       success: false, 
       status: 'ERROR',
@@ -146,12 +146,10 @@ app.post("/api/verify-user-full", async (req, res) => {
   }
 });
 
-// ✅ 3. FEEDBACK ROUTE (Email Works, DB Save Skipped)
+// ✅ FEEDBACK ROUTE
 app.post("/api/feedback", async (req, res) => {
   try {
     const { email, rollNumber, testId, ratings, comment } = req.body;
-
-    // Send Emails (This functionality is preserved!)
     const feedbackData = { email, rollNumber, testId, ratings, comment };
     
     try {
@@ -164,66 +162,45 @@ app.post("/api/feedback", async (req, res) => {
 
     res.json({ 
       success: true, 
-      message: "Feedback submitted successfully. (Database save skipped during migration)"
+      message: "Feedback submitted successfully."
     });
-
   } catch (error) {
     console.error("Feedback Error:", error);
     res.status(500).json({ success: false });
   }
 });
 
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    database: 'MySQL', 
-    timestamp: new Date().toISOString(),
-    cors: 'enabled',
-    port: process.env.PORT || 8400
-  });
-});
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({ 
-    message: 'IIN Backend API', 
-    status: 'running',
-    endpoints: [
-      '/api/health',
-      '/api/verify-user-full',
-      '/api/getkey',
-      '/api/checkout',
-      '/api/paymentverification'
-    ]
-  });
-});
-
-// Mount Routes
+// Mount API Routes
 app.use("/api", paymentRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", examRoutes);
 
+// Static files LAST (so API routes take precedence)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use(express.static(path.join(__dirname, "../")));
+
+// Error handler LAST
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 8400;
 
-// ✅ FIXED: Wrap async operations in IIFE to prevent top-level await crash
 (async () => {
   try {
+    console.log('🔗 Connecting to database...');
     await connectDB();
+    
+    console.log('🛠️ Running migrations...');
     await runMigrations();
     
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Server running on Port ${PORT}`);
-      console.log(`🔗 API Base URL: http://0.0.0.0:${PORT}`);
-      console.log(`✅ CORS enabled for:`);
-      console.log(`   - All Vercel domains (*.vercel.app)`);
-      console.log(`   - Localhost (any port)`);
-      console.log(`📡 Health check: /api/health`);
+      console.log(`✅ Server successfully started!`);
+      console.log(`🚀 Listening on Port ${PORT}`);
+      console.log(`🔗 Health check: http://0.0.0.0:${PORT}/health`);
+      console.log(`🌐 CORS: Enabled for all origins`);
     });
   } catch (error) {
-    console.error('❌ Fatal Error:', error);
+    console.error('❌ Startup Error:', error);
     process.exit(1);
   }
 })();
