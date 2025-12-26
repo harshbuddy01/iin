@@ -25,10 +25,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../"))); 
 
-// CORS Configuration
+// CORS Configuration - UPDATED
 const corsOptions = {
   origin: [
-    'https://iin-theta.vercel.app',
+    'https://iin-1fhaclz7d-harshs-projects-7f561eb3.vercel.app', // NEW URL
+    'https://iin-theta.vercel.app', // OLD URL (keep for backward compatibility)
     'http://localhost:3000',
     'http://localhost:8400',
     'http://127.0.0.1:5500'
