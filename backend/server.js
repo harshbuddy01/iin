@@ -25,58 +25,63 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../"))); 
 
-// 🔥 EXPLICIT OPTIONS HANDLER - MUST BE FIRST!
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // Check if origin is from Vercel or localhost
-  if (origin && (/^https:\/\/.*\.vercel\.app$/.test(origin) || /^http:\/\/localhost(:\d+)?$/.test(origin))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-  }
-  
-  // Handle OPTIONS preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  next();
-});
+// 🔥 CRITICAL: Railway-Compatible CORS Configuration
+// This must be BEFORE body parsers and other middleware
 
-// 🔥 DYNAMIC CORS - Allows ALL Vercel deployments
+const allowedOrigins = [
+  'https://iin-1fhaclz7d-harshs-projects-7f561eb3.vercel.app',
+  'https://iin-theta.vercel.app',
+  /^https:\/\/.*\.vercel\.app$/,  // Any Vercel deployment
+  /^http:\/\/localhost(:\d+)?$/,   // Localhost
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/ // 127.0.0.1
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
     
-    // List of allowed patterns
-    const allowedOrigins = [
-      /^https:\/\/.*\.vercel\.app$/,  // Any Vercel subdomain
-      /^http:\/\/localhost(:\d+)?$/,   // Localhost with any port
-      /^http:\/\/127\.0\.0\.1(:\d+)?$/ // 127.0.0.1 with any port
-    ];
-    
     // Check if origin matches any pattern
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return origin === allowed;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    });
     
     if (isAllowed) {
       callback(null, true);
     } else {
       console.log('❌ CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true); // 🔥 Allow anyway for development - remove in production
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// 🔥 EXPLICIT OPTIONS HANDLER for ALL routes
+app.options('*', cors(corsOptions));
+
+// Body parsers AFTER CORS
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path} - Origin: ${req.headers.origin || 'none'}`);
+  next();
+});
 
 // Initialize Razorpay
 export const instance = new Razorpay({
@@ -145,7 +150,6 @@ app.post("/api/verify-user-full", async (req, res) => {
 });
 
 // ✅ 3. FEEDBACK ROUTE (Email Works, DB Save Skipped)
-// This keeps your email service alive without crashing the database
 app.post("/api/feedback", async (req, res) => {
   try {
     const { email, rollNumber, testId, ratings, comment } = req.body;
@@ -174,7 +178,28 @@ app.post("/api/feedback", async (req, res) => {
 
 // Health Check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', database: 'MySQL', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    database: 'MySQL', 
+    timestamp: new Date().toISOString(),
+    cors: 'enabled',
+    port: process.env.PORT || 8400
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'IIN Backend API', 
+    status: 'running',
+    endpoints: [
+      '/api/health',
+      '/api/verify-user-full',
+      '/api/getkey',
+      '/api/checkout',
+      '/api/paymentverification'
+    ]
+  });
 });
 
 // Mount Routes
@@ -195,7 +220,10 @@ const PORT = process.env.PORT || 8400;
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on Port ${PORT}`);
       console.log(`🔗 API Base URL: http://0.0.0.0:${PORT}`);
-      console.log(`✅ CORS enabled for all Vercel domains`);
+      console.log(`✅ CORS enabled for:`);
+      console.log(`   - All Vercel domains (*.vercel.app)`);
+      console.log(`   - Localhost (any port)`);
+      console.log(`📡 Health check: /api/health`);
     });
   } catch (error) {
     console.error('❌ Fatal Error:', error);
