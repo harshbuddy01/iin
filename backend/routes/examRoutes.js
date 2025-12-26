@@ -1,24 +1,15 @@
-import express from "express";
-import { 
-  startTest, 
-  submitExam, 
-  getQuestions,
-  getUserInfo 
-} from "../controllers/examController.js";
+import express from 'express';
+import { startExam } from '../api/startExam.js';
+import { syncAnswer } from '../api/syncAnswer.js';
+import { submitExam } from '../api/submitExam.js';
+import { getResult } from '../api/getResult.js';
 
 const router = express.Router();
 
-// Get user info (email, roll number, purchased tests)
-router.post("/user-info", getUserInfo);
-
-// Start test (verify access)
-router.post("/start-test", startTest);
-
-// Submit exam
-router.post("/submit-exam", submitExam);
-
-// Get questions - support both endpoints
-router.get("/questions", getQuestions);
-router.get("/get-questions", getQuestions); // Alias for compatibility
+// New Exam System Routes (Phase 2)
+router.post('/exam/start', startExam);
+router.post('/exam/sync', syncAnswer);
+router.post('/exam/submit', submitExam);
+router.get('/exam/result/:attemptId', getResult);
 
 export default router;
