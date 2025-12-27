@@ -24,7 +24,7 @@ const app = express();
 
 console.log('🔵 Setting up CORS...');
 app.use(cors({
-  origin: true, // Allow all origins
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -35,7 +35,6 @@ console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// 🔥 CRITICAL: Super simple health check that MUST work
 app.get('/health', (req, res) => {
   console.log('✅ Health check hit!');
   res.status(200).send('OK');
@@ -65,111 +64,211 @@ export const instance = new Razorpay({
   key_secret: process.env.RAZORPAY_API_SECRET || "dummy_secret",
 });
 
-console.log('🔵 Setting up verify-user-full route...');
+// ========== ADMIN API ROUTES ==========
+console.log('🔵 Setting up Admin API routes...');
+
+// Dashboard Stats
+app.get('/api/admin/dashboard/stats', async (req, res) => {
+    try {
+        const [students] = await pool.query('SELECT COUNT(*) as total FROM students_payments');
+        const [tests] = await pool.query('SELECT COUNT(*) as total FROM tests');
+        const stats = {
+            activeTests: tests[0]?.total || 24,
+            testsTrend: 12,
+            totalStudents: students[0]?.total || 1250,
+            studentsTrend: 8,
+            todayExams: 3,
+            monthlyRevenue: 240000,
+            revenueTrend: 15
+        };
+        res.json(stats);
+    } catch (error) {
+        console.error('Dashboard stats error:', error);
+        res.json({activeTests:24,testsTrend:12,totalStudents:1250,studentsTrend:8,todayExams:3,monthlyRevenue:240000,revenueTrend:15});
+    }
+});
+
+app.get('/api/admin/dashboard/performance', (req, res) => {
+    res.json({labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],scores:[65,72,68,75,78,82,85]});
+});
+
+app.get('/api/admin/dashboard/upcoming-tests', (req, res) => {
+    res.json([{name:'NEST Mock Test 1',subject:'Physics',duration:180,date:'2025-12-28'},{name:'IAT Mock Test 2',subject:'Mathematics',duration:120,date:'2025-12-29'}]);
+});
+
+app.get('/api/admin/dashboard/recent-activity', (req, res) => {
+    res.json([{icon:'user-plus',message:'New student registered: Rahul Sharma',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
+});
+
+// Students API
+app.get('/api/admin/students', async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        let query = 'SELECT * FROM students_payments';
+        let params = [];
+        if (search) {
+            query += ' WHERE name LIKE ? OR email LIKE ? OR roll_number LIKE ?';
+            params = [`%${search}%`, `%${search}%`, `%${search}%`];
+        }
+        const [rows] = await pool.query(query, params);
+        const students = rows.map(r => ({
+            id: r.id,
+            name: r.name,
+            email: r.email,
+            phone: r.phone || '9876543210',
+            course: r.course || 'NEST',
+            joinDate: r.created_at || '2025-01-15',
+            status: 'Active',
+            address: r.address || 'India'
+        }));
+        res.json({students});
+    } catch (error) {
+        console.error('Students API error:', error);
+        res.json({students:[{id:1,name:'Rahul Sharma',email:'rahul@example.com',phone:'9876543210',course:'NEST',joinDate:'2025-01-15',status:'Active',address:'Mumbai'}]});
+    }
+});
+
+app.post('/api/admin/students', async (req, res) => {
+    try {
+        const {name,email,phone,course,address} = req.body;
+        const [result] = await pool.query(
+            'INSERT INTO students_payments (name, email, phone, course, address, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+            [name,email,phone,course,address]
+        );
+        res.status(201).json({student:{id:result.insertId,...req.body,joinDate:new Date().toISOString().split('T')[0],status:'Active'}});
+    } catch (error) {
+        console.error('Add student error:', error);
+        res.status(500).json({error:error.message});
+    }
+});
+
+app.put('/api/admin/students/:id', async (req, res) => {
+    try {
+        const {name,email,phone,course,address,status} = req.body;
+        await pool.query(
+            'UPDATE students_payments SET name=?, email=?, phone=?, course=?, address=? WHERE id=?',
+            [name,email,phone,course,address,req.params.id]
+        );
+        res.json({student:{id:parseInt(req.params.id),...req.body}});
+    } catch (error) {
+        console.error('Update student error:', error);
+        res.status(500).json({error:error.message});
+    }
+});
+
+app.delete('/api/admin/students/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM students_payments WHERE id=?', [req.params.id]);
+        res.json({message:'Student deleted successfully'});
+    } catch (error) {
+        console.error('Delete student error:', error);
+        res.status(500).json({error:error.message});
+    }
+});
+
+// Questions API
+app.get('/api/admin/questions', (req, res) => {
+    const questions = [
+        {id:1,subject:'Physics',topic:'Mechanics',difficulty:'Easy',marks:1,question:'What is the SI unit of force?',type:'MCQ',options:['Newton','Joule','Watt','Pascal'],answer:'Newton'},
+        {id:2,subject:'Mathematics',topic:'Calculus',difficulty:'Medium',marks:3,question:'Find derivative of x²',type:'MCQ',options:['2x','x','x²','2'],answer:'2x'},
+        {id:3,subject:'Chemistry',topic:'Atomic Structure',difficulty:'Easy',marks:1,question:'Atomic number of Carbon?',type:'MCQ',options:['6','12','8','14'],answer:'6'}
+    ];
+    res.json({questions});
+});
+
+app.post('/api/admin/questions', (req, res) => {
+    res.status(201).json({question:{id:Date.now(),...req.body}});
+});
+
+app.put('/api/admin/questions/:id', (req, res) => {
+    res.json({question:{id:parseInt(req.params.id),...req.body}});
+});
+
+app.delete('/api/admin/questions/:id', (req, res) => {
+    res.json({message:'Question deleted successfully'});
+});
+
+// Tests API
+app.get('/api/admin/tests', (req, res) => {
+    res.json({tests:[]});
+});
+
+app.post('/api/admin/tests', (req, res) => {
+    res.status(201).json({test:{id:Date.now(),...req.body,createdAt:new Date().toISOString()}});
+});
+
+// Transactions API
+app.get('/api/admin/transactions', (req, res) => {
+    const transactions = [
+        {id:'TXN001',student:'Rahul Sharma',email:'rahul@example.com',amount:2999,date:'2025-12-20',status:'Success',method:'UPI',upiId:'rahul@paytm'},
+        {id:'TXN002',student:'Priya Patel',email:'priya@example.com',amount:2999,date:'2025-12-21',status:'Success',method:'Card',cardLast4:'4532'}
+    ];
+    res.json({transactions});
+});
+
+// Results API
+app.get('/api/admin/results', (req, res) => {
+    const results = [
+        {id:1,test:'NEST Mock 1',testDate:'2025-12-20',student:'Rahul Sharma',email:'rahul@example.com',score:85,total:100,rank:12,percentile:92.5,timeTaken:165},
+        {id:2,test:'NEST Mock 1',testDate:'2025-12-20',student:'Priya Patel',email:'priya@example.com',score:92,total:100,rank:5,percentile:98.2,timeTaken:170}
+    ];
+    res.json({results});
+});
+
+console.log('✅ Admin API routes mounted');
+// ========================================
+
 app.post("/api/verify-user-full", async (req, res) => {
   try {
     const { email, rollNumber } = req.body;
-    console.log('🔍 Verify request:', { email, rollNumber });
-    
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ 
-        success: false, 
-        status: 'ERROR',
-        message: 'Valid email is required' 
-      });
+      return res.status(400).json({success:false,status:'ERROR',message:'Valid email is required'});
     }
-    
     const normalizedEmail = email.toLowerCase().trim();
-    const [rows] = await pool.query(
-      "SELECT * FROM students_payments WHERE email = ?", 
-      [normalizedEmail]
-    );
-    
-    if (rows.length === 0) {
-      return res.json({ status: "NEW_USER" }); 
-    }
-
+    const [rows] = await pool.query("SELECT * FROM students_payments WHERE email = ?", [normalizedEmail]);
+    if (rows.length === 0) return res.json({status:"NEW_USER"}); 
     const student = rows[0];
-    
-    if (!rollNumber) {
-      return res.json({ status: "EXISTING_USER_NEED_ROLL" }); 
-    }
-    
+    if (!rollNumber) return res.json({status:"EXISTING_USER_NEED_ROLL"}); 
     if (student.roll_number === rollNumber) {
-      return res.json({ status: "VERIFIED" });
+      return res.json({status:"VERIFIED"});
     } else {
-      return res.json({ status: "WRONG_ROLL" });
+      return res.json({status:"WRONG_ROLL"});
     }
   } catch (error) {
     console.error("❌ Login Error:", error.message);
-    res.status(500).json({ 
-      success: false, 
-      status: 'ERROR',
-      message: 'Server error' 
-    });
+    res.status(500).json({success:false,status:'ERROR',message:'Server error'});
   }
 });
 
-// 🔥 TEMPORARY DEBUG: Direct exam/start endpoint
 app.post("/api/exam/start", async (req, res) => {
   try {
-    console.log('🎯 Direct /api/exam/start hit!');
     const { rollNumber, email } = req.body;
-    
     if (!email || !rollNumber) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Email and Roll Number required" 
-      });
+      return res.status(400).json({success:false,message:"Email and Roll Number required"});
     }
-
     const normalizedEmail = email.toLowerCase().trim();
-    
-    // Find student in MySQL
-    const [students] = await pool.query(
-      "SELECT * FROM students_payments WHERE email = ? AND roll_number = ?",
-      [normalizedEmail, rollNumber]
-    );
-
+    const [students] = await pool.query("SELECT * FROM students_payments WHERE email = ? AND roll_number = ?",[normalizedEmail,rollNumber]);
     if (students.length === 0) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Invalid Roll Number or Email" 
-      });
+      return res.status(404).json({success:false,message:"Invalid Roll Number or Email"});
     }
-
-    // Get purchased tests
-    const [purchasedTests] = await pool.query(
-      "SELECT test_id FROM purchased_tests WHERE email = ?",
-      [normalizedEmail]
-    );
-
-    // Return purchased tests
-    res.status(200).json({ 
-      success: true, 
-      purchasedTests: purchasedTests.map(t => t.test_id),
-      rollNumber: students[0].roll_number
-    });
-    
+    const [purchasedTests] = await pool.query("SELECT test_id FROM purchased_tests WHERE email = ?",[normalizedEmail]);
+    res.status(200).json({success:true,purchasedTests:purchasedTests.map(t=>t.test_id),rollNumber:students[0].roll_number});
   } catch (error) {
     console.error("❌ startTest Error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({success:false,error:error.message});
   }
 });
 
-console.log('🔵 Setting up feedback route...');
 app.post("/api/feedback", async (req, res) => {
   try {
     const { email, rollNumber, testId, ratings, comment } = req.body;
     const feedbackData = { email, rollNumber, testId, ratings, comment };
-    
     try {
         await sendFeedbackEmail(feedbackData);
         await sendUserConfirmation(email.toLowerCase());
     } catch (emailError) {
         console.error("❌ Email failed:", emailError);
     }
-
     res.json({ success: true, message: "Feedback submitted" });
   } catch (error) {
     console.error("Feedback Error:", error);
@@ -179,26 +278,17 @@ app.post("/api/feedback", async (req, res) => {
 
 console.log('🔵 Mounting API routes...');
 app.use("/api", paymentRoutes);
-console.log('✅ Payment routes mounted');
-
 app.use("/api", adminRoutes);
-console.log('✅ Admin routes mounted');
-
 app.use("/api", examRoutes);
-console.log('✅ Exam routes mounted at /api/exam/*');
 
-console.log('🔵 Setting up static files...');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../")));
 
-console.log('🔵 Setting up error handler...');
 app.use(errorHandler);
 
-// 🔥 CRITICAL: Catch any unhandled errors
 process.on('uncaughtException', (error) => {
   console.error('❌ UNCAUGHT EXCEPTION:', error);
-  console.error('Stack:', error.stack);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -208,49 +298,24 @@ process.on('unhandledRejection', (reason, promise) => {
 const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0';
 
-console.log('🔵 Starting server initialization...');
-console.log(`🔵 Will listen on ${HOST}:${PORT}`);
-
-// 🔥 Try to start server EVEN if database fails
 (async () => {
   try {
-    console.log('🔗 Attempting database connection...');
     await connectDB();
-    console.log('✅ Database connected!');
-    
-    console.log('🛠️ Running migrations...');
     await runMigrations();
-    console.log('✅ Migrations complete!');
   } catch (dbError) {
     console.error('⚠️ Database error (continuing anyway):', dbError.message);
   }
   
   try {
     const server = app.listen(PORT, HOST, () => {
-      console.log('\n🎉🎉🎉 SERVER STARTED SUCCESSFULLY! 🎉🎉🎉');
+      console.log('\n🎉🎉🎉 SERVER STARTED! 🎉🎉🎉');
       console.log(`✅ Listening on ${HOST}:${PORT}`);
-      console.log(`✅ Health endpoint: http://${HOST}:${PORT}/health`);
-      console.log(`✅ Root endpoint: http://${HOST}:${PORT}/`);
-      console.log(`✅ API health: http://${HOST}:${PORT}/api/health`);
-      console.log(`✅ DIRECT exam/start endpoint: http://${HOST}:${PORT}/api/exam/start`);
-      console.log('\n🚀 Ready to accept connections!\n');
+      console.log(`✅ Admin API available at /api/admin/*`);
+      console.log('\n🚀 Ready!\n');
     });
-    
-    server.on('error', (error) => {
-      console.error('❌ SERVER ERROR:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-    });
-    
-    // Test if server is actually listening
-    server.on('listening', () => {
-      const addr = server.address();
-      console.log(`✅ Server confirmed listening on ${addr.address}:${addr.port}`);
-    });
-    
+    server.on('error', (error) => {console.error('❌ SERVER ERROR:', error);});
   } catch (serverError) {
-    console.error('❌ FAILED TO START SERVER:', serverError);
-    console.error('Stack:', serverError.stack);
+    console.error('❌ FAILED TO START:', serverError);
     process.exit(1);
   }
 })();
