@@ -1,5 +1,5 @@
 /**
- * Admin Dashboard Main - Fixed Navigation
+ * Admin Dashboard Main - Complete with ALL modules
  */
 
 let performanceChart = null;
@@ -65,48 +65,32 @@ function loadPageData(pageName) {
             case 'dashboard':
                 loadDashboardData();
                 break;
-            case 'view-questions':
-                if (typeof initViewQuestions === 'function') {
-                    initViewQuestions();
+                
+            // Test Management
+            case 'test-calendar':
+                if (typeof initTestCalendar === 'function') {
+                    initTestCalendar();
                 } else {
-                    console.warn('⚠️ initViewQuestions not found');
+                    console.warn('⚠️ initTestCalendar not found');
                 }
                 break;
-            case 'all-students':
-                if (typeof initStudents === 'function') {
-                    initStudents();
+                
+            case 'scheduled-tests':
+                if (typeof initScheduledTests === 'function') {
+                    initScheduledTests();
                 } else {
-                    console.warn('⚠️ initStudents not found');
+                    console.warn('⚠️ initScheduledTests not found');
                 }
                 break;
-            case 'add-student':
-                if (typeof initAddStudent === 'function') {
-                    initAddStudent();
+                
+            case 'past-tests':
+                if (typeof initPastTests === 'function') {
+                    initPastTests();
                 } else {
-                    console.warn('⚠️ initAddStudent not found');
+                    console.warn('⚠️ initPastTests not found');
                 }
                 break;
-            case 'transactions':
-                if (typeof initTransactions === 'function') {
-                    initTransactions();
-                } else {
-                    console.warn('⚠️ initTransactions not found');
-                }
-                break;
-            case 'view-results':
-                if (typeof initResults === 'function') {
-                    initResults();
-                } else {
-                    console.warn('⚠️ initResults not found');
-                }
-                break;
-            case 'upload-image':
-                if (typeof initImageUploadPage === 'function') {
-                    initImageUploadPage();
-                } else {
-                    console.warn('⚠️ initImageUploadPage not found');
-                }
-                break;
+                
             case 'create-test':
                 if (typeof initCreateTest === 'function') {
                     initCreateTest();
@@ -114,6 +98,8 @@ function loadPageData(pageName) {
                     console.warn('⚠️ initCreateTest not found');
                 }
                 break;
+                
+            // Question Bank
             case 'add-questions':
                 if (typeof initAddQuestions === 'function') {
                     initAddQuestions();
@@ -121,18 +107,78 @@ function loadPageData(pageName) {
                     console.warn('⚠️ initAddQuestions not found');
                 }
                 break;
-            case 'test-calendar':
-            case 'scheduled-tests':
-            case 'past-tests':
-            case 'upload-pdf':
-            case 'performance':
-                console.log(`ℹ️ ${pageName} - Coming soon page`);
+                
+            case 'view-questions':
+                if (typeof initViewQuestions === 'function') {
+                    initViewQuestions();
+                } else {
+                    console.warn('⚠️ initViewQuestions not found');
+                }
                 break;
+                
+            case 'upload-pdf':
+                if (typeof initUploadPDF === 'function') {
+                    initUploadPDF();
+                } else {
+                    console.warn('⚠️ initUploadPDF not found');
+                }
+                break;
+                
+            case 'upload-image':
+                if (typeof initImageUploadPage === 'function') {
+                    initImageUploadPage();
+                } else {
+                    console.warn('⚠️ initImageUploadPage not found');
+                }
+                break;
+                
+            // Students
+            case 'all-students':
+                if (typeof initStudents === 'function') {
+                    initStudents();
+                } else {
+                    console.warn('⚠️ initStudents not found');
+                }
+                break;
+                
+            case 'add-student':
+                if (typeof initAddStudent === 'function') {
+                    initAddStudent();
+                } else {
+                    console.warn('⚠️ initAddStudent not found');
+                }
+                break;
+                
+            case 'performance':
+                console.log('ℹ️ Performance analytics - Coming soon');
+                break;
+                
+            // Financial
+            case 'transactions':
+                if (typeof initTransactions === 'function') {
+                    initTransactions();
+                } else {
+                    console.warn('⚠️ initTransactions not found');
+                }
+                break;
+                
+            // Results
+            case 'view-results':
+                if (typeof initResults === 'function') {
+                    initResults();
+                } else {
+                    console.warn('⚠️ initResults not found');
+                }
+                break;
+                
             default:
                 console.log(`ℹ️ No initialization needed for ${pageName}`);
         }
     } catch (error) {
         console.error(`❌ Error loading ${pageName}:`, error);
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast(`Error loading ${pageName}. Please refresh the page.`, 'error');
+        }
     }
 }
 
@@ -174,6 +220,7 @@ function updatePerformanceChart(data) {
         
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not loaded yet');
+            setTimeout(() => updatePerformanceChart(data), 500);
             return;
         }
         
@@ -191,20 +238,47 @@ function updatePerformanceChart(data) {
                     borderColor: '#6366f1',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        borderRadius: 8,
+                        callbacks: {
+                            label: (context) => `Score: ${context.parsed.y}%`
+                        }
+                    }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: { callback: value => value + '%' }
+                        ticks: { 
+                            callback: value => value + '%',
+                            color: '#64748b'
+                        },
+                        grid: {
+                            color: '#f1f5f9'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#64748b'
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
