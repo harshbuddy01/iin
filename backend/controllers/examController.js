@@ -261,9 +261,9 @@ export const getQuestions = async (req, res) => {
       });
     }
     
-    // Get questions from MySQL
+    // Get questions from MySQL - REMOVED 'difficulty' column
     const [questions] = await pool.query(
-      "SELECT id, test_id, question_number, question_text, options, difficulty, topic FROM questions WHERE test_id = ? ORDER BY question_number",
+      "SELECT id, test_id, question_number, question_text, options, topic FROM questions WHERE test_id = ? ORDER BY question_number",
       [testId]
     );
     
@@ -281,7 +281,6 @@ export const getQuestions = async (req, res) => {
       questionNumber: q.question_number,
       questionText: q.question_text,
       options: safeJsonParse(q.options, []), // ✅ Safe parsing
-      difficulty: q.difficulty,
       topic: q.topic
     }));
     
