@@ -1,108 +1,116 @@
 /**
- * Create Test - Connected to Backend
+ * Create Test Page - Complete Implementation
  */
 
-let selectedQuestions = [];
-let currentSubject = 'Physics';
-const mockQuestions = {
-    Physics: [{ id: 1, text: 'What is the SI unit of force?', difficulty: 'Easy', marks: 1 }],
-    Mathematics: [{ id: 4, text: 'Solve: 2x + 5 = 15', difficulty: 'Easy', marks: 1 }],
-    Chemistry: [{ id: 7, text: 'Atomic number of Carbon?', difficulty: 'Easy', marks: 1 }]
-};
-
-function initCreateTestForm() {
-    const subjects = ['Physics', 'Mathematics', 'Chemistry'];
-    const subjectTabsContainer = document.getElementById('subjectTabs');
-    if (!subjectTabsContainer) return;
+function initCreateTest() {
+    console.log('Initializing Create Test page...');
     
-    subjects.forEach(subject => {
-        const tab = document.createElement('button');
-        tab.className = `subject-tab ${subject === currentSubject ? 'active' : ''}`;
-        tab.textContent = subject;
-        tab.type = 'button';
-        tab.addEventListener('click', () => switchSubject(subject));
-        subjectTabsContainer.appendChild(tab);
-    });
+    const container = document.getElementById('create-test-page');
+    if (!container) return;
     
-    loadQuestions();
-    document.getElementById('createTestForm')?.addEventListener('submit', handleTestSubmit);
+    container.innerHTML = `
+        <div class="page-header" style="margin-bottom: 24px;">
+            <h2>Create New Test</h2>
+            <p>Create and schedule a new test</p>
+        </div>
+        
+        <div class="form-container" style="max-width: 800px; margin: 0 auto;">
+            <form id="createTestForm" style="background: white; padding: 32px; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                
+                <h3 style="margin-bottom: 20px; color: #0f172a;"><i class="fas fa-info-circle"></i> Test Details</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="testName">Test Name *</label>
+                        <input type="text" id="testName" required class="form-input" placeholder="e.g., NEST Mock Test 1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="testSubject">Subject *</label>
+                        <select id="testSubject" required class="form-input">
+                            <option value="">Select Subject</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Mixed">Mixed (All Subjects)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="testDuration">Duration (minutes) *</label>
+                        <input type="number" id="testDuration" required class="form-input" value="180" min="30" max="300">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="totalMarks">Total Marks *</label>
+                        <input type="number" id="totalMarks" required class="form-input" value="100" min="10" max="300">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="testDate">Test Date *</label>
+                        <input type="date" id="testDate" required class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="testTime">Test Time *</label>
+                        <input type="time" id="testTime" required class="form-input" value="10:00">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label for="testDescription">Description</label>
+                    <textarea id="testDescription" class="form-input" rows="3" placeholder="Test description or instructions..."></textarea>
+                </div>
+                
+                <div style="margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="document.getElementById('createTestForm').reset()" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-plus"></i> Create Test
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('testDate').setAttribute('min', today);
+    
+    document.getElementById('createTestForm')?.addEventListener('submit', handleCreateTest);
+    console.log('✅ Create Test page initialized');
 }
 
-function switchSubject(subject) {
-    currentSubject = subject;
-    document.querySelectorAll('.subject-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.textContent === subject);
-    });
-    loadQuestions();
-}
-
-function loadQuestions() {
-    const questionsList = document.getElementById('questionsList');
-    if (!questionsList) return;
-    const questions = mockQuestions[currentSubject] || [];
-    questionsList.innerHTML = questions.map(q => {
-        const isSelected = selectedQuestions.some(sq => sq.id === q.id);
-        return `<div class="question-item ${isSelected ? 'selected' : ''}"><div class="question-header"><input type="checkbox" class="question-checkbox" id="q${q.id}" ${isSelected ? 'checked' : ''} onchange="toggleQuestion(${q.id}, '${currentSubject}')"><label for="q${q.id}" class="question-text">${q.text}</label></div><div class="question-meta"><span><i class="fas fa-signal"></i> ${q.difficulty}</span><span><i class="fas fa-star"></i> ${q.marks} marks</span></div></div>`;
-    }).join('');
-    updateSelectedCount();
-}
-
-function toggleQuestion(questionId, subject) {
-    const question = mockQuestions[subject].find(q => q.id === questionId);
-    const index = selectedQuestions.findIndex(q => q.id === questionId);
-    if (index > -1) selectedQuestions.splice(index, 1);
-    else selectedQuestions.push({ ...question, subject });
-    loadQuestions();
-}
-
-function updateSelectedCount() {
-    const count = selectedQuestions.length;
-    const totalMarks = selectedQuestions.reduce((sum, q) => sum + q.marks, 0);
-    document.getElementById('selectedCount').textContent = `${count} questions selected (${totalMarks} marks)`;
-}
-
-async function handleTestSubmit(e) {
+function handleCreateTest(e) {
     e.preventDefault();
-    if (selectedQuestions.length === 0) {
-        AdminUtils.showToast('Please select at least one question', 'error');
-        return;
-    }
     
-    const formData = {
-        testName: document.getElementById('testName').value,
-        testCode: document.getElementById('testCode').value,
-        examType: document.getElementById('examType').value,
-        duration: document.getElementById('duration').value,
-        totalMarks: document.getElementById('totalMarks').value,
-        examDate: document.getElementById('examDate').value,
-        startTime: document.getElementById('startTime').value,
-        endTime: document.getElementById('endTime').value,
-        instructions: document.getElementById('instructions').value,
-        negativeMarking: document.getElementById('negativeMarking').checked,
-        shuffleQuestions: document.getElementById('shuffleQuestions').checked,
-        showResults: document.getElementById('showResults').checked,
-        questions: selectedQuestions
+    const test = {
+        id: Date.now(),
+        name: document.getElementById('testName').value,
+        subject: document.getElementById('testSubject').value,
+        duration: parseInt(document.getElementById('testDuration').value),
+        totalMarks: parseInt(document.getElementById('totalMarks').value),
+        date: document.getElementById('testDate').value,
+        time: document.getElementById('testTime').value,
+        description: document.getElementById('testDescription').value,
+        status: 'Scheduled',
+        createdAt: new Date().toISOString()
     };
     
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<div class="spinner"></div> Creating Test...';
+    const tests = JSON.parse(localStorage.getItem('tests') || '[]');
+    tests.push(test);
+    localStorage.setItem('tests', JSON.stringify(tests));
     
-    try {
-        await AdminAPI.createTest(formData);
+    if (typeof AdminUtils !== 'undefined') {
         AdminUtils.showToast('Test created successfully!', 'success');
-        setTimeout(() => {
-            document.getElementById('createTestForm').reset();
-            selectedQuestions = [];
-            updateSelectedCount();
-        }, 1000);
-    } catch (error) {
-        AdminUtils.showToast('Failed to create test', 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check"></i> Create Test';
+    } else {
+        alert('Test created successfully!');
     }
+    
+    document.getElementById('createTestForm').reset();
 }
 
-if (document.getElementById('createTestForm')) initCreateTestForm();
-window.toggleQuestion = toggleQuestion;
+if (document.getElementById('create-test-page')) {
+    initCreateTest();
+}
