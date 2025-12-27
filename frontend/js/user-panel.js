@@ -1,5 +1,5 @@
 // ============================================
-// ULTRA-FAST USER PANEL SYSTEM - FIXED VERSION
+// ULTRA-FAST USER PANEL SYSTEM - WITH CALENDAR LINK
 // Two-Layer Architecture:
 // 1. Direct Rendering from localStorage (Immediate - <50ms)
 // 2. Backend Verification (Background - for data sync)
@@ -33,6 +33,22 @@ window.renderUserPanelDirect = function(userData) {
           <p class="text-sm text-white font-semibold truncate">${email}</p>
           <p class="text-[11px] text-blue-400 mt-1 font-semibold">Roll No: ${rollNumber}</p>
         </div>
+        
+        ${tests.length > 0 ? `
+          <a href="student-calendar.html" class="block mb-3 p-3 bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-500/30 rounded-xl hover:border-green-500/50 transition group">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition">
+                <i class="fas fa-calendar-alt text-green-400 text-lg"></i>
+              </div>
+              <div class="flex-1">
+                <p class="text-white font-bold text-sm">📅 My Test Calendar</p>
+                <p class="text-gray-400 text-[11px]">View upcoming tests</p>
+              </div>
+              <i class="fas fa-chevron-right text-gray-500 text-xs"></i>
+            </div>
+          </a>
+        ` : ''}
+        
         <div class="border-t border-white/10 pt-3 mb-3">
           <p class="text-[11px] text-gray-400 uppercase font-bold mb-2">Purchased Tests</p>
           ${tests.length > 0 ? tests.map(t => `
