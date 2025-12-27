@@ -71,11 +71,11 @@ console.log('🔵 Setting up Admin API routes...');
 app.get('/api/admin/dashboard/stats', async (req, res) => {
     try {
         const [students] = await pool.query('SELECT COUNT(*) as total FROM students_payments');
-        const [tests] = await pool.query('SELECT COUNT(*) as total FROM tests');
+        const [tests] = await pool.query('SELECT COUNT(*) as total FROM scheduled_tests');
         const stats = {
-            activeTests: tests[0]?.total || 24,
+            activeTests: tests[0]?.total || 0,
             testsTrend: 12,
-            totalStudents: students[0]?.total || 1250,
+            totalStudents: students[0]?.total || 0,
             studentsTrend: 8,
             todayExams: 3,
             monthlyRevenue: 240000,
@@ -84,7 +84,7 @@ app.get('/api/admin/dashboard/stats', async (req, res) => {
         res.json(stats);
     } catch (error) {
         console.error('Dashboard stats error:', error);
-        res.json({activeTests:24,testsTrend:12,totalStudents:1250,studentsTrend:8,todayExams:3,monthlyRevenue:240000,revenueTrend:15});
+        res.json({activeTests:0,testsTrend:12,totalStudents:0,studentsTrend:8,todayExams:3,monthlyRevenue:240000,revenueTrend:15});
     }
 });
 
@@ -97,10 +97,10 @@ app.get('/api/admin/dashboard/upcoming-tests', (req, res) => {
 });
 
 app.get('/api/admin/dashboard/recent-activity', (req, res) => {
-    res.json([{icon:'user-plus',message:'New student registered: Rahul Sharma',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
+    res.json([{icon:'user-plus',message:'New student registered',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
 });
 
-// Students API - FIXED
+// Students API - REAL DATA
 app.get('/api/admin/students', async (req, res) => {
     try {
         const search = req.query.search || '';
@@ -126,7 +126,6 @@ app.get('/api/admin/students', async (req, res) => {
         res.json({students});
     } catch (error) {
         console.error('❌ Students API error:', error);
-        // Return empty array instead of sample data to show real database state
         res.status(200).json({students: []});
     }
 });
@@ -172,30 +171,143 @@ app.delete('/api/admin/students/:id', async (req, res) => {
     }
 });
 
-// Questions API - FIXED
-app.get('/api/admin/questions', (req, res) => {
-    const questions = [
-        {id:1,subject:'Physics',topic:'Mechanics',difficulty:'Easy',marks:1,question:'What is the SI unit of force?',type:'MCQ',options:['Newton','Joule','Watt','Pascal'],answer:'Newton'},
-        {id:2,subject:'Mathematics',topic:'Calculus',difficulty:'Medium',marks:3,question:'Find derivative of x²',type:'MCQ',options:['2x','x','x²','2'],answer:'2x'},
-        {id:3,subject:'Chemistry',topic:'Atomic Structure',difficulty:'Easy',marks:1,question:'Atomic number of Carbon?',type:'MCQ',options:['6','12','8','14'],answer:'6'}
-    ];
-    console.log('✅ Questions loaded');
-    res.json({questions});
+// Questions API - FETCH FROM MYSQL DATABASE
+app.get('/api/admin/questions', async (req, res) => {
+    try {
+        console.log('🔍 Fetching questions from MySQL database...');
+        
+        // Get filters from query params
+        const subject = req.query.subject || '';
+        const difficulty = req.query.difficulty || '';
+        const search = req.query.search || '';
+        
+        let query = 'SELECT * FROM questions';
+        let conditions = [];
+        let params = [];
+        
+        if (subject) {
+            conditions.push('section = ?');
+            params.push(subject);
+        }
+        
+        if (difficulty) {
+            // Note: 'difficulty' column might not exist in your table
+            // You may need to add it or remove this filter
+            conditions.push('difficulty = ?');
+            params.push(difficulty);
+        }
+        
+        if (search) {
+            conditions.push('(question_text LIKE ? OR test_id LIKE ?)');
+            params.push(`%${search}%`, `%${search}%`);
+        }
+        
+        if (conditions.length > 0) {
+            query += ' WHERE ' + conditions.join(' AND ');
+        }
+        
+        query += ' ORDER BY id DESC LIMIT 100';
+        
+        const [rows] = await pool.query(query, params);
+        
+        // Format questions for frontend
+        const questions = rows.map(q => {
+            let options = [];
+            try {
+                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
+            } catch (e) {
+                console.error('Error parsing options for question', q.id);
+            }
+            
+            return {
+                id: q.id,
+                subject: q.section || 'Physics',
+                topic: q.topic || 'General',
+                difficulty: q.difficulty || 'Medium',
+                marks: q.marks_positive || 4,
+                question: q.question_text,
+                type: 'MCQ',
+                options: options,
+                answer: q.correct_answer
+            };
+        });
+        
+        console.log(`✅ Loaded ${questions.length} questions from database`);
+        res.json({questions});
+        
+    } catch (error) {
+        console.error('❌ Questions API error:', error);
+        console.error('Error details:', error.message);
+        
+        // Return empty array with error message
+        res.status(200).json({
+            questions: [],
+            error: error.message,
+            message: 'No questions found in database. Please add questions first.'
+        });
+    }
 });
 
-app.post('/api/admin/questions', (req, res) => {
-    console.log('✅ Question added');
-    res.status(201).json({question:{id:Date.now(),...req.body}});
+app.post('/api/admin/questions', async (req, res) => {
+    try {
+        const {testId, questionText, options, correctAnswer, section, marks} = req.body;
+        
+        // Get next question number for this test
+        const [maxQ] = await pool.query(
+            'SELECT MAX(question_number) as max_num FROM questions WHERE test_id = ?',
+            [testId]
+        );
+        const questionNumber = (maxQ[0]?.max_num || 0) + 1;
+        
+        const [result] = await pool.query(
+            `INSERT INTO questions 
+             (test_id, question_number, question_text, options, correct_answer, section, marks_positive) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [testId, questionNumber, questionText, JSON.stringify(options), correctAnswer, section || 'Physics', marks || 4]
+        );
+        
+        console.log('✅ Question added:', result.insertId);
+        res.status(201).json({
+            question: {
+                id: result.insertId,
+                questionNumber,
+                ...req.body
+            }
+        });
+    } catch (error) {
+        console.error('❌ Add question error:', error);
+        res.status(500).json({error: error.message});
+    }
 });
 
-app.put('/api/admin/questions/:id', (req, res) => {
-    console.log('✅ Question updated:', req.params.id);
-    res.json({question:{id:parseInt(req.params.id),...req.body}});
+app.put('/api/admin/questions/:id', async (req, res) => {
+    try {
+        const {questionText, options, correctAnswer, section, marks} = req.body;
+        
+        await pool.query(
+            `UPDATE questions 
+             SET question_text=?, options=?, correct_answer=?, section=?, marks_positive=? 
+             WHERE id=?`,
+            [questionText, JSON.stringify(options), correctAnswer, section, marks, req.params.id]
+        );
+        
+        console.log('✅ Question updated:', req.params.id);
+        res.json({question:{id:parseInt(req.params.id),...req.body}});
+    } catch (error) {
+        console.error('❌ Update question error:', error);
+        res.status(500).json({error:error.message});
+    }
 });
 
-app.delete('/api/admin/questions/:id', (req, res) => {
-    console.log('✅ Question deleted:', req.params.id);
-    res.json({message:'Question deleted successfully'});
+app.delete('/api/admin/questions/:id', async (req, res) => {
+    try {
+        await pool.query('DELETE FROM questions WHERE id=?', [req.params.id]);
+        console.log('✅ Question deleted:', req.params.id);
+        res.json({message:'Question deleted successfully'});
+    } catch (error) {
+        console.error('❌ Delete question error:', error);
+        res.status(500).json({error:error.message});
+    }
 });
 
 // Image Upload for Questions
@@ -205,8 +317,14 @@ app.post('/api/admin/questions/:id/image', (req, res) => {
 });
 
 // Tests API
-app.get('/api/admin/tests', (req, res) => {
-    res.json({tests:[]});
+app.get('/api/admin/tests', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM scheduled_tests ORDER BY exam_date DESC');
+        res.json({tests: rows});
+    } catch (error) {
+        console.error('Tests error:', error);
+        res.json({tests:[]});
+    }
 });
 
 app.post('/api/admin/tests', (req, res) => {
@@ -216,22 +334,36 @@ app.post('/api/admin/tests', (req, res) => {
 
 // Transactions API
 app.get('/api/admin/transactions', (req, res) => {
-    const transactions = [
-        {id:'TXN001',student:'Rahul Sharma',email:'rahul@example.com',amount:2999,date:'2025-12-20',status:'Success',method:'UPI',upiId:'rahul@paytm'},
-        {id:'TXN002',student:'Priya Patel',email:'priya@example.com',amount:2999,date:'2025-12-21',status:'Success',method:'Card',cardLast4:'4532'}
-    ];
+    // TODO: Connect to real payment transactions table
+    const transactions = [];
     console.log('✅ Transactions loaded');
     res.json({transactions});
 });
 
 // Results API
-app.get('/api/admin/results', (req, res) => {
-    const results = [
-        {id:1,test:'NEST Mock 1',testDate:'2025-12-20',student:'Rahul Sharma',email:'rahul@example.com',score:85,total:100,rank:12,percentile:92.5,timeTaken:165},
-        {id:2,test:'NEST Mock 1',testDate:'2025-12-20',student:'Priya Patel',email:'priya@example.com',score:92,total:100,rank:5,percentile:98.2,timeTaken:170}
-    ];
-    console.log('✅ Results loaded');
-    res.json({results});
+app.get('/api/admin/results', async (req, res) => {
+    try {
+        const [rows] = await pool.query(
+            'SELECT * FROM student_attempts ORDER BY submitted_at DESC LIMIT 100'
+        );
+        const results = rows.map(r => ({
+            id: r.id,
+            test: r.test_name,
+            testDate: r.started_at ? new Date(r.started_at).toISOString().split('T')[0] : '',
+            student: r.roll_number,
+            email: r.email,
+            score: r.score,
+            total: r.total_questions,
+            rank: 0, // Calculate if needed
+            percentile: parseFloat(r.percentage) || 0,
+            timeTaken: r.time_taken
+        }));
+        console.log('✅ Results loaded');
+        res.json({results});
+    } catch (error) {
+        console.error('Results error:', error);
+        res.json({results:[]});
+    }
 });
 
 console.log('✅ Admin API routes mounted');
@@ -333,7 +465,7 @@ const HOST = '0.0.0.0';
       console.log('\n🎉🎉🎉 SERVER STARTED! 🎉🎉🎉');
       console.log(`✅ Listening on ${HOST}:${PORT}`);
       console.log(`✅ Admin API: /api/admin/*`);
-      console.log(`✅ Image Upload: /api/admin/questions/:id/image`);
+      console.log(`✅ Questions: /api/admin/questions`);
       console.log('\n🚀 Ready!\n');
     });
     server.on('error', (error) => {console.error('❌ SERVER ERROR:', error);});
