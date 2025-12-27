@@ -1,29 +1,42 @@
-import express from "express";
-import { 
-  adminLogin, 
-  uploadQuestion, 
-  deleteQuestion, 
-  getResults,
-  getAllQuestions,
-  getAllStudents,
-  getFeedbacks
-} from "../controllers/adminController.js";
+import express from 'express';
+import * as adminController from '../controllers/adminController.js';
 
 const router = express.Router();
 
-// Admin authentication
-router.post("/admin-login", adminLogin);
+// ========== SCHEDULED TESTS MANAGEMENT ==========
 
-// Question management
-router.post("/upload-question", uploadQuestion);
-router.delete("/admin/delete-question/:id", deleteQuestion);
-router.get("/admin/all-questions", getAllQuestions);
+// Create new scheduled test
+router.post('/create-test', adminController.createScheduledTest);
 
-// Student management
-router.get("/admin/all-students", getAllStudents);
+// Get all scheduled tests
+router.get('/scheduled-tests', adminController.getScheduledTests);
 
-// Results and feedback
-router.get("/admin/results", getResults);
-router.get("/admin/feedbacks", getFeedbacks);
+// Get specific test details
+router.get('/test/:testId', adminController.getTestDetails);
+
+// Update test status
+router.put('/test/:testId/status', adminController.updateTestStatus);
+
+// Delete test
+router.delete('/delete-test/:testId', adminController.deleteTest);
+
+// ========== QUESTIONS MANAGEMENT ==========
+
+// Add question to test
+router.post('/add-question', adminController.addQuestion);
+
+// Get questions for a test (with optional section filter)
+router.get('/questions', adminController.getTestQuestions);
+
+// Update question
+router.put('/update-question/:questionId', adminController.updateQuestion);
+
+// Delete question
+router.delete('/delete-question/:questionId', adminController.deleteQuestion);
+
+// ========== STUDENT ACCESS ==========
+
+// Get available tests for students (tests active on current date/time)
+router.get('/available-tests', adminController.getAvailableTests);
 
 export default router;
