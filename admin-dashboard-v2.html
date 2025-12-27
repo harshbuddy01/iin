@@ -7,14 +7,12 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css">
     <link rel="stylesheet" href="frontend/css/admin-modals.css">
     <link rel="stylesheet" href="frontend/css/admin-forms.css">
     
     <style>
-    /* Additional styles for new pages */
     .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
     .data-table thead { background: #f8fafc; }
     .data-table th { padding: 16px; text-align: left; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase; }
@@ -109,7 +107,6 @@
             </div>
         </header>
 
-        <!-- DASHBOARD -->
         <div class="content-area" id="dashboard-page">
             <div class="stats-grid">
                 <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div class="stat-content"><div class="stat-value">24</div><div class="stat-label">Active Tests</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</div></div></div>
@@ -120,31 +117,15 @@
             <div class="analytics-section"><div class="chart-card"><div class="chart-header"><h2>Student Performance Trend</h2><div class="chart-controls"><button class="time-btn active">7D</button><button class="time-btn">1M</button><button class="time-btn">3M</button><button class="time-btn">1Y</button></div></div><canvas id="performanceChart"></canvas></div></div>
         </div>
 
-        <!-- CREATE TEST -->
         <div class="content-area" id="create-test-page" style="display: none;"></div>
-
-        <!-- ADD QUESTIONS -->
         <div class="content-area" id="add-questions-page" style="display: none;"></div>
-
-        <!-- VIEW/EDIT QUESTIONS -->
         <div class="content-area" id="view-questions-page" style="display: none;"></div>
-
-        <!-- ALL STUDENTS -->
         <div class="content-area" id="all-students-page" style="display: none;"></div>
-
-        <!-- ADD STUDENT -->
         <div class="content-area" id="add-student-page" style="display: none;"></div>
-
-        <!-- TRANSACTIONS -->
         <div class="content-area" id="transactions-page" style="display: none;"></div>
-
-        <!-- VIEW RESULTS -->
         <div class="content-area" id="view-results-page" style="display: none;"></div>
-
-        <!-- IMAGE UPLOAD PAGE (NEW!) -->
         <div class="content-area" id="upload-image-page" style="display: none;"></div>
-
-        <!-- Placeholder pages -->
+        
         <div class="content-area" id="test-management-page" style="display: none;"><p class="coming-soon">Calendar interface coming soon...</p></div>
         <div class="content-area" id="scheduled-tests-page" style="display: none;"><p class="coming-soon">Scheduled tests page coming soon...</p></div>
         <div class="content-area" id="past-tests-page" style="display: none;"><p class="coming-soon">Past tests page coming soon...</p></div>
@@ -158,10 +139,14 @@
         <div class="content-area" id="support-page" style="display: none;"><p class="coming-soon">Support page coming soon...</p></div>
     </main>
 
-    <script src="frontend/js/admin-auth.js"></script>
+    <!-- Load Chart.js FIRST -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Load core modules in order -->
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
-    <script src="frontend/js/admin-dashboard-v2.js"></script>
+    
+    <!-- Load page-specific modules -->
     <script src="frontend/js/create-test.js"></script>
     <script src="frontend/js/add-questions.js"></script>
     <script src="frontend/js/view-questions.js"></script>
@@ -169,5 +154,11 @@
     <script src="frontend/js/transactions.js"></script>
     <script src="frontend/js/results.js"></script>
     <script src="frontend/js/upload-image.js"></script>
+    
+    <!-- Load dashboard controller -->
+    <script src="frontend/js/admin-dashboard-v2.js"></script>
+    
+    <!-- Load initialization script LAST -->
+    <script src="frontend/js/admin-init.js"></script>
 </body>
 </html>
