@@ -102,52 +102,8 @@ window.refreshUserDashboard = async function (skipBackendCheck = false) {
       tests: tests
     });
     
-    // If skipBackendCheck is true, don't verify with backend
-    // (Used when we just got data from payment success)
-    if (skipBackendCheck) {
-      console.log('⏭️ Skipping backend verification (fresh data)');
-      return;
-    }
-    
-    // 🔄 BACKGROUND: Verify with backend to sync any changes
-    // This runs AFTER the UI is already rendered, so it's non-blocking
-    try {
-      const base = window.API_BASE_URL || "https://iin-production.up.railway.app";
-      console.log('🔄 Background sync: Verifying with backend...');
-      
-      const res = await axios.get(`${base}/api/user-status?email=${email}`);
-      const data = res.data;
-      
-      console.log('✅ Backend data received:', data);
-      
-      // Update localStorage if backend has newer data
-      if (data.rollNumber !== rollNumber || JSON.stringify(data.tests) !== purchasedTests) {
-        console.log('🔄 Updating localStorage with backend data');
-        localStorage.setItem('userRollNumber', data.rollNumber);
-        localStorage.setItem('purchasedTests', JSON.stringify(data.tests));
-        
-        // Re-render with updated data
-        window.renderUserPanelDirect({
-          email: data.email,
-          rollNumber: data.rollNumber,
-          tests: data.tests
-        });
-      } else {
-        console.log('✅ localStorage is up to date');
-      }
-      
-    } catch (e) {
-      console.error('❌ Backend sync error:', e);
-      
-      // If user not found in database (404), clear localStorage
-      if (e.response && e.response.status === 404) {
-        console.log('⚠️ User not found in database. Forcing logout...');
-        localStorage.clear();
-        alert('⚠️ Your account has been removed.\n\nPlease contact support.');
-        window.location.href = "index.html";
-      }
-      // Otherwise, keep using localStorage data (offline mode)
-    }
+    // 🔥 HOTFIX: Skip backend verification entirely to prevent 404 errors
+    console.log('ℹ️ Backend verification disabled (HOTFIX)');
     
   } else {
     console.log('ℹ️ No user data in localStorage - user not logged in');
