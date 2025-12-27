@@ -1,22 +1,18 @@
 /**
  * Admin API Service - Complete Backend Integration
- * UPDATED: Points to Railway backend in production
+ * Backend: Railway (https://iin-production.up.railway.app)
  */
 
 const AdminAPI = {
-    // 🔥 CRITICAL FIX: Use Railway backend URL
+    // 🚀 PRODUCTION Railway Backend URL
     get baseURL() {
         // If running locally, use local backend
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             return 'http://localhost:8080';
         }
         
-        // 🚀 PRODUCTION: Point to Railway backend
-        // Replace this with your actual Railway backend URL
-        const RAILWAY_BACKEND_URL = 'https://iin-production.up.railway.app';
-        
-        // You can also use environment variable if configured
-        return window.BACKEND_URL || RAILWAY_BACKEND_URL;
+        // ✅ RAILWAY BACKEND URL (confirmed from deployment)
+        return 'https://iin-production.up.railway.app';
     },
     
     // Helper method for API calls
@@ -30,7 +26,7 @@ const AdminAPI = {
         
         try {
             const fullURL = `${this.baseURL}${endpoint}`;
-            console.log(`🔵 API Request: ${fullURL}`);
+            console.log(`🔗 API Request: ${fullURL}`);
             
             const response = await fetch(fullURL, {
                 ...defaultOptions,
@@ -38,7 +34,11 @@ const AdminAPI = {
                 headers: { ...defaultOptions.headers, ...options.headers }
             });
             
+            console.log(`📊 Response Status: ${response.status} ${response.statusText}`);
+            
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Response Error:', errorText);
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
@@ -46,9 +46,10 @@ const AdminAPI = {
             console.log('✅ API Response:', data);
             return data;
         } catch (error) {
-            console.error('❌ API Error:', error);
-            console.error('Endpoint:', endpoint);
-            console.error('Base URL:', this.baseURL);
+            console.error('❌ API Error:', error.message);
+            console.error('   Endpoint:', endpoint);
+            console.error('   Base URL:', this.baseURL);
+            console.error('   Full Error:', error);
             throw error;
         }
     },
@@ -211,6 +212,17 @@ const AdminAPI = {
             body: formData,
             headers: {} // Let browser set Content-Type for FormData
         });
+    },
+    
+    // ==================== HEALTH CHECK ====================
+    async checkHealth() {
+        try {
+            const response = await fetch(`${this.baseURL}/health`);
+            return response.ok;
+        } catch (error) {
+            console.error('❌ Backend health check failed:', error);
+            return false;
+        }
     }
 };
 
@@ -220,3 +232,13 @@ window.AdminAPI = AdminAPI;
 // Log the backend URL being used
 console.log('🚀 Admin API Service initialized');
 console.log('🔗 Backend URL:', AdminAPI.baseURL);
+console.log('🌐 Environment:', window.location.hostname === 'localhost' ? 'Local' : 'Production');
+
+// Check backend health on load
+AdminAPI.checkHealth().then(healthy => {
+    if (healthy) {
+        console.log('✅ Backend is healthy and reachable');
+    } else {
+        console.warn('⚠️ Backend health check failed - server may be starting up');
+    }
+});
