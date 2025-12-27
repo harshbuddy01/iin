@@ -261,9 +261,9 @@ export const getQuestions = async (req, res) => {
       });
     }
     
-    // Get questions from MySQL - REMOVED 'difficulty' column
+    // Get questions from MySQL - REMOVED 'difficulty' and 'topic' columns
     const [questions] = await pool.query(
-      "SELECT id, test_id, question_number, question_text, options, topic FROM questions WHERE test_id = ? ORDER BY question_number",
+      "SELECT id, test_id, question_number, question_text, options FROM questions WHERE test_id = ? ORDER BY question_number",
       [testId]
     );
     
@@ -280,8 +280,7 @@ export const getQuestions = async (req, res) => {
       testId: q.test_id,
       questionNumber: q.question_number,
       questionText: q.question_text,
-      options: safeJsonParse(q.options, []), // ✅ Safe parsing
-      topic: q.topic
+      options: safeJsonParse(q.options, []) // ✅ Safe parsing
     }));
     
     res.status(200).json({ 
