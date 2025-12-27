@@ -7,9 +7,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css">
-    <link rel="stylesheet" href="frontend/css/admin-modals.css">
-    <link rel="stylesheet" href="frontend/css/admin-forms.css">
+    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=2">
+    <link rel="stylesheet" href="frontend/css/admin-modals.css?v=2">
+    <link rel="stylesheet" href="frontend/css/admin-forms.css?v=2">
     
     <style>
     .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
@@ -24,9 +24,9 @@
     .badge-physics { background: #dbeafe; color: #1e40af; }
     .badge-mathematics { background: #d1fae5; color: #065f46; }
     .badge-chemistry { background: #fed7aa; color: #92400e; }
-    .badge-jam { background: #dbeafe; color: #1e40af; }
-    .badge-gate { background: #d1fae5; color: #065f46; }
-    .badge-practice { background: #fed7aa; color: #92400e; }
+    .badge-iat { background: #dbeafe; color: #1e40af; }
+    .badge-isi { background: #d1fae5; color: #065f46; }
+    .badge-nest { background: #fed7aa; color: #92400e; }
     .difficulty-easy { color: #10b981; font-weight: 600; }
     .difficulty-medium { color: #f59e0b; font-weight: 600; }
     .difficulty-hard { color: #ef4444; font-weight: 600; }
@@ -191,26 +191,26 @@
         }
     </script>
     
-    <!-- Core utilities -->
-    <script src="frontend/js/admin-api-service.js"></script>
-    <script src="frontend/js/admin-utils.js"></script>
+    <!-- Core utilities with cache busting -->
+    <script src="frontend/js/admin-api-service.js?v=2"></script>
+    <script src="frontend/js/admin-utils.js?v=2"></script>
     
-    <!-- Feature modules -->
-    <script src="frontend/js/create-test.js"></script>
-    <script src="frontend/js/add-questions.js"></script>
-    <script src="frontend/js/view-questions.js"></script>
-    <script src="frontend/js/students.js"></script>
-    <script src="frontend/js/transactions.js"></script>
-    <script src="frontend/js/results.js"></script>
-    <script src="frontend/js/upload-image.js"></script>
+    <!-- Feature modules with cache busting -->
+    <script src="frontend/js/create-test.js?v=2"></script>
+    <script src="frontend/js/add-questions.js?v=2"></script>
+    <script src="frontend/js/view-questions.js?v=2"></script>
+    <script src="frontend/js/students.js?v=2"></script>
+    <script src="frontend/js/transactions.js?v=2"></script>
+    <script src="frontend/js/results.js?v=2"></script>
+    <script src="frontend/js/upload-image.js?v=2"></script>
     
-    <!-- NEW: Test management modules -->
-    <script src="frontend/js/test-calendar.js"></script>
-    <script src="frontend/js/scheduled-tests.js"></script>
-    <script src="frontend/js/past-tests.js"></script>
-    <script src="frontend/js/upload-pdf.js"></script>
+    <!-- NEW: Test management modules with cache busting -->
+    <script src="frontend/js/test-calendar.js?v=2"></script>
+    <script src="frontend/js/scheduled-tests.js?v=2"></script>
+    <script src="frontend/js/past-tests.js?v=2"></script>
+    <script src="frontend/js/upload-pdf.js?v=2"></script>
     
-    <!-- Main dashboard controller (must load last) -->
-    <script src="frontend/js/admin-dashboard-v2.js"></script>
+    <!-- Main dashboard controller (must load last) with cache busting -->
+    <script src="frontend/js/admin-dashboard-v2.js?v=2"></script>
 </body>
 </html>
