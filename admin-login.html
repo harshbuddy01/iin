@@ -460,8 +460,9 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
+            // Get values and normalize them (trim whitespace, lowercase email)
+            const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+            const password = document.getElementById('adminPassword').value.trim();
             const rememberMe = document.getElementById('rememberMe').checked;
             const loginBtn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
@@ -476,8 +477,9 @@
             loginBtn.disabled = true;
             btnText.innerHTML = '<div class="spinner"></div> Signing in...';
             
-            // Simple validation (in production, validate against backend)
+            // Validation with normalized values
             setTimeout(() => {
+                // Check credentials (case-insensitive for email)
                 if (email === 'admin@iin.edu' && password === 'admin123') {
                     // Success
                     successMessage.classList.add('show');
@@ -501,12 +503,23 @@
                         window.location.href = 'admin-dashboard-v2.html';
                     }, 1000);
                 } else {
-                    // Error
+                    // Error - show specific message
+                    let errorMsg = 'Invalid credentials. Please try again.';
+                    
+                    if (email !== 'admin@iin.edu' && password !== 'admin123') {
+                        errorMsg = 'Invalid email and password. Please check the demo credentials below.';
+                    } else if (email !== 'admin@iin.edu') {
+                        errorMsg = 'Invalid email address. Use: admin@iin.edu';
+                    } else if (password !== 'admin123') {
+                        errorMsg = 'Invalid password. Use: admin123';
+                    }
+                    
+                    document.getElementById('errorText').textContent = errorMsg;
                     errorMessage.classList.add('show');
                     loginBtn.disabled = false;
                     btnText.textContent = 'Sign In';
                 }
-            }, 1000);
+            }, 800);
         });
         
         // Check if already logged in
