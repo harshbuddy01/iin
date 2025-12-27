@@ -54,7 +54,7 @@ function renderStudentsPage() {
                 <tbody id="studentsTableBody">
                     <tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><br>
-                        Loading students from database...
+                        Fetching students from backend...
                     </td></tr>
                 </tbody>
             </table>
@@ -67,14 +67,16 @@ function renderStudentsPage() {
     });
 }
 
+// 🔥 FIXED: Use AdminAPI.getStudents() instead of direct fetch
 async function loadStudents() {
     try {
         console.log('🔄 Fetching students from backend...');
-        const response = await fetch('/api/admin/students');
-        const data = await response.json();
+        
+        // ✅ Use AdminAPI service (automatically handles Railway URL)
+        const data = await window.AdminAPI.getStudents();
         
         allStudents = data.students || [];
-        console.log(`✅ Loaded ${allStudents.length} real students from database`);
+        console.log(`✅ Loaded ${allStudents.length} students from database`);
         displayStudents(allStudents);
     } catch (error) {
         console.error('❌ Failed to load students:', error);
@@ -91,7 +93,7 @@ function filterStudents(search) {
     const filtered = allStudents.filter(s => 
         s.name.toLowerCase().includes(search) ||
         s.email.toLowerCase().includes(search) ||
-        s.phone.includes(search) ||
+        (s.phone && s.phone.includes(search)) ||
         s.course.toLowerCase().includes(search)
     );
     displayStudents(filtered);
@@ -105,7 +107,7 @@ function displayStudents(students) {
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
                 <i class="fas fa-user-slash" style="font-size: 24px;"></i><br>
-                No students registered yet
+                No students found
             </td></tr>
         `;
         return;
@@ -114,9 +116,9 @@ function displayStudents(students) {
     tbody.innerHTML = students.map(student => `
         <tr>
             <td><strong>#${student.id}</strong></td>
-            <td>${student.name}</td>
+            <td>${student.name || 'N/A'}</td>
             <td>${student.email}</td>
-            <td>${student.phone}</td>
+            <td>${student.phone || 'N/A'}</td>
             <td><span class="badge badge-${student.course.toLowerCase()}">${student.course}</span></td>
             <td>${student.joinDate}</td>
             <td><span class="status-active">${student.status}</span></td>
@@ -162,44 +164,36 @@ function editStudent(id) {
     updateStudent(id, {name, email, phone, course, status: student.status});
 }
 
+// 🔥 FIXED: Use AdminAPI.updateStudent()
 async function updateStudent(id, data) {
     try {
         console.log(`✏️ Updating student #${id}...`);
-        const response = await fetch(`/api/admin/students/${id}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
         
-        if (response.ok) {
-            console.log('✅ Student updated successfully');
-            if (window.AdminUtils) window.AdminUtils.showToast('Student updated successfully', 'success');
-            loadStudents();
-        } else {
-            throw new Error('Update failed');
-        }
+        // ✅ Use AdminAPI service
+        await window.AdminAPI.updateStudent(id, data);
+        
+        console.log('✅ Student updated successfully');
+        if (window.AdminUtils) window.AdminUtils.showToast('Student updated successfully', 'success');
+        loadStudents();
     } catch (error) {
         console.error('❌ Update error:', error);
         alert('Failed to update student. Please try again.');
     }
 }
 
+// 🔥 FIXED: Use AdminAPI.deleteStudent()
 async function deleteStudent(id) {
     if (!confirm('Are you sure you want to delete this student?')) return;
     
     try {
         console.log(`🗑️ Deleting student #${id}...`);
-        const response = await fetch(`/api/admin/students/${id}`, {
-            method: 'DELETE'
-        });
         
-        if (response.ok) {
-            console.log('✅ Student deleted successfully');
-            if (window.AdminUtils) window.AdminUtils.showToast('Student deleted successfully', 'success');
-            loadStudents();
-        } else {
-            throw new Error('Delete failed');
-        }
+        // ✅ Use AdminAPI service
+        await window.AdminAPI.deleteStudent(id);
+        
+        console.log('✅ Student deleted successfully');
+        if (window.AdminUtils) window.AdminUtils.showToast('Student deleted successfully', 'success');
+        loadStudents();
     } catch (error) {
         console.error('❌ Delete error:', error);
         alert('Failed to delete student. Please try again.');
@@ -261,6 +255,7 @@ function renderAddStudentPage() {
     `;
 }
 
+// 🔥 FIXED: Use AdminAPI.addStudent()
 async function handleAddStudent(event) {
     event.preventDefault();
     
@@ -275,31 +270,30 @@ async function handleAddStudent(event) {
     
     try {
         console.log('➕ Adding new student...');
-        const response = await fetch('/api/admin/students', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(studentData)
-        });
         
-        if (response.ok) {
-            console.log('✅ Student added successfully');
-            if (window.AdminUtils) window.AdminUtils.showToast('Student added successfully!', 'success');
-            event.target.reset();
-            setTimeout(() => {
-                document.querySelector('[data-page="all-students"]').click();
-            }, 1000);
-        } else {
-            throw new Error('Failed to add student');
-        }
+        // ✅ Use AdminAPI service
+        await window.AdminAPI.addStudent(studentData);
+        
+        console.log('✅ Student added successfully');
+        if (window.AdminUtils) window.AdminUtils.showToast('Student added successfully!', 'success');
+        event.target.reset();
+        
+        setTimeout(() => {
+            document.querySelector('[data-page="all-students"]').click();
+        }, 1000);
     } catch (error) {
         console.error('❌ Add student error:', error);
         alert('Failed to add student. Please try again.');
     }
 }
 
+// Export functions to global scope
 window.initStudents = initStudents;
 window.initAddStudent = initAddStudent;
 window.viewStudent = viewStudent;
 window.editStudent = editStudent;
 window.deleteStudent = deleteStudent;
 window.handleAddStudent = handleAddStudent;
+window.loadStudents = loadStudents;
+
+console.log('✅ Students module loaded - using AdminAPI service');
