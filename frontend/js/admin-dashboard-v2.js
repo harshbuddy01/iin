@@ -1,6 +1,5 @@
 /**
- * Admin Dashboard Main - Connected to Backend
- * No error notifications version - silently uses fallback data
+ * Admin Dashboard Main - Fixed Navigation
  */
 
 let performanceChart = null;
@@ -10,12 +9,8 @@ async function initDashboard() {
     console.log('🔵 Initializing dashboard...');
     
     try {
-        // Setup navigation first
         setupNavigation();
-        
-        // Load dashboard data with silent fallback
         await loadDashboardData();
-        
         console.log('✅ Dashboard initialized successfully');
     } catch (error) {
         console.error('❌ Dashboard initialization error:', error);
@@ -23,7 +18,6 @@ async function initDashboard() {
     }
 }
 
-// Logout function
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         sessionStorage.removeItem('adminAuth');
@@ -42,113 +36,112 @@ function setupNavigation() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             
-            // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             
-            // Hide all pages
             pages.forEach(p => p.style.display = 'none');
             
-            // Show selected page
             const pageName = link.dataset.page;
             const targetPage = document.getElementById(`${pageName}-page`);
+            
             if (targetPage) {
                 targetPage.style.display = 'block';
-                
-                // Update page title
                 const linkText = link.querySelector('span')?.textContent || 'Admin Panel';
                 if (pageTitle) pageTitle.textContent = linkText;
                 
-                // Load page-specific data
-                loadPageData(pageName);
+                // CRITICAL: Call the correct initialization function
+                setTimeout(() => loadPageData(pageName), 50);
             }
         });
     });
 }
 
 // Load page-specific data
-async function loadPageData(pageName) {
+function loadPageData(pageName) {
+    console.log(`📄 Loading page: ${pageName}`);
+    
     try {
-        console.log(`Loading page: ${pageName}`);
         switch(pageName) {
             case 'dashboard':
-                await loadDashboardData();
+                loadDashboardData();
                 break;
             case 'view-questions':
                 if (typeof initViewQuestions === 'function') {
                     initViewQuestions();
+                } else {
+                    console.warn('⚠️ initViewQuestions not found');
                 }
                 break;
             case 'all-students':
                 if (typeof initStudents === 'function') {
                     initStudents();
-                }
-                break;
-            case 'transactions':
-                if (typeof initTransactions === 'function') {
-                    initTransactions();
-                }
-                break;
-            case 'view-results':
-                if (typeof initResults === 'function') {
-                    initResults();
-                }
-                break;
-            case 'upload-image':
-                if (typeof initImageUploadPage === 'function') {
-                    initImageUploadPage();
-                }
-                break;
-            case 'create-test':
-                if (typeof initCreateTest === 'function') {
-                    initCreateTest();
-                }
-                break;
-            case 'add-questions':
-                if (typeof initAddQuestions === 'function') {
-                    initAddQuestions();
+                } else {
+                    console.warn('⚠️ initStudents not found');
                 }
                 break;
             case 'add-student':
                 if (typeof initAddStudent === 'function') {
                     initAddStudent();
+                } else {
+                    console.warn('⚠️ initAddStudent not found');
                 }
                 break;
+            case 'transactions':
+                if (typeof initTransactions === 'function') {
+                    initTransactions();
+                } else {
+                    console.warn('⚠️ initTransactions not found');
+                }
+                break;
+            case 'view-results':
+                if (typeof initResults === 'function') {
+                    initResults();
+                } else {
+                    console.warn('⚠️ initResults not found');
+                }
+                break;
+            case 'upload-image':
+                if (typeof initImageUploadPage === 'function') {
+                    initImageUploadPage();
+                } else {
+                    console.warn('⚠️ initImageUploadPage not found');
+                }
+                break;
+            case 'create-test':
+                if (typeof initCreateTest === 'function') {
+                    initCreateTest();
+                } else {
+                    console.warn('⚠️ initCreateTest not found');
+                }
+                break;
+            case 'add-questions':
+                if (typeof initAddQuestions === 'function') {
+                    initAddQuestions();
+                } else {
+                    console.warn('⚠️ initAddQuestions not found');
+                }
+                break;
+            case 'test-calendar':
+            case 'scheduled-tests':
+            case 'past-tests':
+            case 'upload-pdf':
+            case 'performance':
+                console.log(`ℹ️ ${pageName} - Coming soon page`);
+                break;
+            default:
+                console.log(`ℹ️ No initialization needed for ${pageName}`);
         }
     } catch (error) {
-        console.error('Error loading page data:', error);
-        // Silent error - no toast notification
+        console.error(`❌ Error loading ${pageName}:`, error);
     }
 }
 
-// Load dashboard data from backend
+// Load dashboard data
 async function loadDashboardData() {
     console.log('🔵 Loading dashboard data...');
-    
-    // Always use fallback data for now since backend isn't ready
     loadDashboardFallbackData();
-    
-    // Try to load from backend in background (won't show errors)
-    if (typeof AdminAPI !== 'undefined') {
-        try {
-            const stats = await AdminAPI.getDashboardStats();
-            console.log('✅ Stats loaded from API:', stats);
-            updateDashboardStats(stats);
-        } catch (error) {
-            console.log('📋 Using fallback stats');
-        }
-        
-        try {
-            const performanceData = await AdminAPI.getPerformanceData();
-            console.log('✅ Performance data loaded from API');
-            updatePerformanceChart(performanceData);
-        } catch (error) {
-            console.log('📋 Using fallback performance data');
-        }
-    }
 }
 
-// Update dashboard stats
 function updateDashboardStats(stats) {
     try {
         const statCards = {
@@ -158,7 +151,6 @@ function updateDashboardStats(stats) {
             revenue: { value: stats.monthlyRevenue || 240000, trend: stats.revenueTrend || 15 }
         };
         
-        // Update stat card values
         const testsValue = document.querySelector('.stat-card.blue .stat-value');
         const studentsValue = document.querySelector('.stat-card.green .stat-value');
         const examsValue = document.querySelector('.stat-card.orange .stat-value');
@@ -175,19 +167,16 @@ function updateDashboardStats(stats) {
     }
 }
 
-// Update performance chart
 function updatePerformanceChart(data) {
     try {
         const ctx = document.getElementById('performanceChart');
         if (!ctx) return;
         
-        // Check if Chart is available
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not loaded yet');
             return;
         }
         
-        // Destroy existing chart
         if (performanceChart) {
             performanceChart.destroy();
         }
@@ -227,7 +216,6 @@ function updatePerformanceChart(data) {
     }
 }
 
-// Fallback data
 function loadDashboardFallbackData() {
     console.log('📋 Loading demo dashboard data...');
     
