@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css">
+    <link rel="stylesheet" href="frontend/css/admin-modals.css">
 </head>
 <body>
     <!-- Sidebar Navigation -->
@@ -243,56 +244,7 @@
                         <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
                     </div>
                     <div class="test-list">
-                        <div class="test-item">
-                            <div class="test-date">
-                                <div class="date-day">28</div>
-                                <div class="date-month">DEC</div>
-                            </div>
-                            <div class="test-details">
-                                <h4>NEST Exam</h4>
-                                <p><i class="fas fa-clock"></i> 10:00 AM - 1:00 PM</p>
-                                <p><i class="fas fa-users"></i> 120 students registered</p>
-                            </div>
-                            <div class="test-actions">
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn danger"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="test-item">
-                            <div class="test-date">
-                                <div class="date-day">01</div>
-                                <div class="date-month">JAN</div>
-                            </div>
-                            <div class="test-details">
-                                <h4>IAT Exam</h4>
-                                <p><i class="fas fa-clock"></i> 2:00 PM - 5:00 PM</p>
-                                <p><i class="fas fa-users"></i> 89 students registered</p>
-                            </div>
-                            <div class="test-actions">
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn danger"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="test-item">
-                            <div class="test-date">
-                                <div class="date-day">15</div>
-                                <div class="date-month">JAN</div>
-                            </div>
-                            <div class="test-details">
-                                <h4>ISI Exam</h4>
-                                <p><i class="fas fa-clock"></i> 9:00 AM - 12:00 PM</p>
-                                <p><i class="fas fa-users"></i> 45 students registered</p>
-                            </div>
-                            <div class="test-actions">
-                                <button class="action-btn"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn danger"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
+                        <!-- Tests will be loaded dynamically -->
                     </div>
                 </div>
                 
@@ -301,61 +253,13 @@
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
                     </div>
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon blue">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p><strong>15 students</strong> completed NEST exam</p>
-                                <span class="time">2 minutes ago</span>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon green">
-                                <i class="fas fa-user-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p>New student registered: <strong>John Doe</strong></p>
-                                <span class="time">5 minutes ago</span>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon purple">
-                                <i class="fas fa-rupee-sign"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p>Payment received: <strong>₹2,999</strong></p>
-                                <span class="time">10 minutes ago</span>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon orange">
-                                <i class="fas fa-file-upload"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p><strong>25 new questions</strong> added to Physics</p>
-                                <span class="time">1 hour ago</span>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon blue">
-                                <i class="fas fa-calendar-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p>New test scheduled: <strong>NEST Mock 5</strong></p>
-                                <span class="time">2 hours ago</span>
-                            </div>
-                        </div>
+                        <!-- Activity will be loaded dynamically -->
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Other Page Content Placeholders -->
+        <!-- Other Page Placeholders -->
         <div class="content-area" id="test-management-page" style="display: none;">
             <div class="page-header">
                 <h1>Test Management - Calendar View</h1>
@@ -372,8 +276,81 @@
             </div>
             <p class="coming-soon">Test creation wizard coming in next update...</p>
         </div>
+        
+        <!-- Add placeholders for other pages -->
+        <div class="content-area" id="scheduled-tests-page" style="display: none;">
+            <p class="coming-soon">Scheduled tests page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="past-tests-page" style="display: none;">
+            <p class="coming-soon">Past tests page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="add-questions-page" style="display: none;">
+            <p class="coming-soon">Add questions page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="view-questions-page" style="display: none;">
+            <p class="coming-soon">View questions page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="upload-pdf-page" style="display: none;">
+            <p class="coming-soon">PDF upload page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="upload-image-page" style="display: none;">
+            <p class="coming-soon">Image upload page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="all-students-page" style="display: none;">
+            <p class="coming-soon">All students page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="add-student-page" style="display: none;">
+            <p class="coming-soon">Add student page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="performance-page" style="display: none;">
+            <p class="coming-soon">Performance page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="transactions-page" style="display: none;">
+            <p class="coming-soon">Transactions page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="pending-payments-page" style="display: none;">
+            <p class="coming-soon">Pending payments page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="reports-page" style="display: none;">
+            <p class="coming-soon">Reports page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="view-results-page" style="display: none;">
+            <p class="coming-soon">View results page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="analytics-page" style="display: none;">
+            <p class="coming-soon">Analytics page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="export-data-page" style="display: none;">
+            <p class="coming-soon">Export data page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="settings-page" style="display: none;">
+            <p class="coming-soon">Settings page coming soon...</p>
+        </div>
+        
+        <div class="content-area" id="support-page" style="display: none;">
+            <p class="coming-soon">Support page coming soon...</p>
+        </div>
     </main>
 
+    <!-- Load Scripts in Order -->
+    <script src="frontend/js/admin-auth.js"></script>
+    <script src="frontend/js/admin-api-service.js"></script>
+    <script src="frontend/js/admin-utils.js"></script>
     <script src="frontend/js/admin-dashboard-v2.js"></script>
 </body>
 </html>
