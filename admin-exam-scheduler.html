@@ -115,6 +115,55 @@
             cursor: pointer;
         }
         
+        /* Section Checkboxes Styling */
+        .section-checkboxes {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .checkbox-item:hover {
+            background: #e9ecef;
+        }
+        
+        .checkbox-item.checked {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .section-icon {
+            font-size: 1.5em;
+        }
+        
         .btn {
             padding: 12px 30px;
             border: none;
@@ -426,6 +475,46 @@
                 
                 <form id="createTestForm">
                     <div class="form-group">
+                        <label>📝 Exam Type *</label>
+                        <select id="examType" required>
+                            <option value="">Select Exam Type</option>
+                            <option value="IAT">IAT (IISER Aptitude Test)</option>
+                            <option value="ISI">ISI (Indian Statistical Institute)</option>
+                            <option value="NEST">NEST (National Entrance Screening Test)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>📚 Select Sections to Include *</label>
+                        <div class="section-checkboxes" id="sectionCheckboxes">
+                            <div class="checkbox-item" id="physics-checkbox">
+                                <input type="checkbox" id="sectionPhysics" name="sections" value="Physics" checked>
+                                <label for="sectionPhysics">
+                                    <span class="section-icon">⚛️</span> Physics
+                                </label>
+                            </div>
+                            <div class="checkbox-item" id="chemistry-checkbox">
+                                <input type="checkbox" id="sectionChemistry" name="sections" value="Chemistry" checked>
+                                <label for="sectionChemistry">
+                                    <span class="section-icon">🧪</span> Chemistry
+                                </label>
+                            </div>
+                            <div class="checkbox-item" id="mathematics-checkbox">
+                                <input type="checkbox" id="sectionMathematics" name="sections" value="Mathematics" checked>
+                                <label for="sectionMathematics">
+                                    <span class="section-icon">➗</span> Mathematics
+                                </label>
+                            </div>
+                            <div class="checkbox-item" id="biology-checkbox">
+                                <input type="checkbox" id="sectionBiology" name="sections" value="Biology" checked>
+                                <label for="sectionBiology">
+                                    <span class="section-icon">🧬</span> Biology
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
                         <label>📅 Select Exam Date</label>
                         <input type="text" id="examDate" class="calendar-input" placeholder="Click to select date" required>
                     </div>
@@ -438,16 +527,6 @@
                     <div class="form-group">
                         <label>⏱️ Duration (minutes)</label>
                         <input type="number" id="duration" value="180" min="60" max="300" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📝 Test Type</label>
-                        <select id="testType" required>
-                            <option value="">Select Test Type</option>
-                            <option value="IAT">IAT (All 4 sections count)</option>
-                            <option value="NEST">NEST (Best 3 of 4 count)</option>
-                            <option value="ISI">ISI (Coming Soon)</option>
-                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -487,11 +566,8 @@
             </h2>
 
             <!-- Section Tabs -->
-            <div class="section-tabs">
-                <button class="tab active" data-section="Physics">⚛️ Physics</button>
-                <button class="tab" data-section="Chemistry">🧪 Chemistry</button>
-                <button class="tab" data-section="Maths">➗ Maths</button>
-                <button class="tab" data-section="Biology">🧬 Biology</button>
+            <div class="section-tabs" id="sectionTabsContainer">
+                <!-- Tabs will be dynamically generated based on selected sections -->
             </div>
 
             <!-- Upload Method Selection -->
@@ -616,6 +692,7 @@
         let currentTestId = null;
         let currentSection = 'Physics';
         let currentMethod = 'manual';
+        let selectedSections = ['Physics', 'Chemistry', 'Mathematics', 'Biology'];
 
         // Initialize calendar
         flatpickr('#examDate', {
@@ -625,6 +702,43 @@
                 console.log('Selected date:', dateStr);
             }
         });
+
+        // Checkbox interaction
+        document.querySelectorAll('.checkbox-item').forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            
+            // Update visual state on checkbox change
+            checkbox.addEventListener('change', function() {
+                updateCheckboxVisual(item, checkbox.checked);
+                updateSelectedSections();
+            });
+            
+            // Click on the entire item to toggle
+            item.addEventListener('click', function(e) {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            // Initial visual state
+            updateCheckboxVisual(item, checkbox.checked);
+        });
+
+        function updateCheckboxVisual(item, isChecked) {
+            if (isChecked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+        }
+
+        function updateSelectedSections() {
+            selectedSections = Array.from(
+                document.querySelectorAll('input[name="sections"]:checked')
+            ).map(cb => cb.value);
+            console.log('Selected sections:', selectedSections);
+        }
 
         // Load scheduled tests on page load
         loadScheduledTests();
@@ -643,23 +757,14 @@
             });
         });
 
-        // Section tabs
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentSection = this.dataset.section;
-            });
-        });
-
         // Create test form
         document.getElementById('createTestForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const examType = document.getElementById('examType').value;
             const examDate = document.getElementById('examDate').value;
             const startTime = document.getElementById('startTime').value;
             const duration = document.getElementById('duration').value;
-            const testType = document.getElementById('testType').value;
             const testName = document.getElementById('testName').value;
             const description = document.getElementById('testDescription').value;
             
@@ -668,7 +773,12 @@
                 return;
             }
             
-            const testId = `${testType.toLowerCase()}_${examDate.replace(/-/g, '')}`;
+            if (selectedSections.length === 0) {
+                showAlert('Please select at least one section', 'error');
+                return;
+            }
+            
+            const testId = `${examType.toLowerCase()}_${examDate.replace(/-/g, '')}`;
             
             try {
                 const response = await fetch(`${API_URL}/admin/create-test`, {
@@ -677,11 +787,12 @@
                     body: JSON.stringify({
                         testId,
                         testName,
-                        testType,
+                        testType: examType,
                         examDate,
                         startTime,
                         durationMinutes: parseInt(duration),
-                        description
+                        description,
+                        sections: selectedSections
                     })
                 });
                 
@@ -691,8 +802,20 @@
                     showAlert('Test scheduled successfully! Now add questions.', 'success');
                     currentTestId = testId;
                     document.getElementById('currentTestName').textContent = testName;
+                    
+                    // Generate section tabs based on selected sections
+                    generateSectionTabs();
+                    
                     document.getElementById('addQuestionsSection').style.display = 'block';
                     document.getElementById('createTestForm').reset();
+                    
+                    // Reset checkboxes to all checked
+                    document.querySelectorAll('input[name="sections"]').forEach(cb => {
+                        cb.checked = true;
+                        updateCheckboxVisual(cb.closest('.checkbox-item'), true);
+                    });
+                    updateSelectedSections();
+                    
                     loadScheduledTests();
                 } else {
                     showAlert(data.message || 'Failed to create test', 'error');
@@ -702,6 +825,35 @@
                 showAlert('Network error. Please try again.', 'error');
             }
         });
+
+        function generateSectionTabs() {
+            const sectionIcons = {
+                'Physics': '⚛️',
+                'Chemistry': '🧪',
+                'Mathematics': '➗',
+                'Biology': '🧬'
+            };
+            
+            const tabsHTML = selectedSections.map((section, index) => `
+                <button class="tab ${index === 0 ? 'active' : ''}" data-section="${section}">
+                    ${sectionIcons[section]} ${section}
+                </button>
+            `).join('');
+            
+            document.getElementById('sectionTabsContainer').innerHTML = tabsHTML;
+            
+            // Set current section to first selected
+            currentSection = selectedSections[0];
+            
+            // Add tab click handlers
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentSection = this.dataset.section;
+                });
+            });
+        }
 
         // Add question form
         document.getElementById('addQuestionForm').addEventListener('submit', async (e) => {
@@ -768,11 +920,12 @@
                                     <div class="test-meta">
                                         📝 Type: ${test.test_type} | 📊 Questions: ${test.total_questions || 0}
                                     </div>
+                                    ${test.sections ? `<div class="test-meta">📚 Sections: ${test.sections.join(', ')}</div>` : ''}
                                 </div>
                                 <span class="status-badge status-${test.status}">${test.status}</span>
                             </div>
                             <div style="margin-top: 15px; display: flex; gap: 10px;">
-                                <button class="btn btn-primary action-btn" onclick="manageTest('${test.test_id}', '${test.test_name}')">
+                                <button class="btn btn-primary action-btn" onclick="manageTest('${test.test_id}', '${test.test_name}', ${JSON.stringify(test.sections || ['Physics', 'Chemistry', 'Mathematics', 'Biology']).replace(/"/g, "'")} )">
                                     ➕ Add Questions
                                 </button>
                                 <button class="btn btn-secondary action-btn" onclick="viewTestQuestions('${test.test_id}')">
@@ -794,9 +947,11 @@
             }
         }
 
-        function manageTest(testId, testName) {
+        function manageTest(testId, testName, sections) {
             currentTestId = testId;
+            selectedSections = sections;
             document.getElementById('currentTestName').textContent = testName;
+            generateSectionTabs();
             document.getElementById('addQuestionsSection').style.display = 'block';
             document.getElementById('addQuestionsSection').scrollIntoView({ behavior: 'smooth' });
         }
