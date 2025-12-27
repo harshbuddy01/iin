@@ -14,6 +14,7 @@
     
     <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css">
     <link rel="stylesheet" href="frontend/css/admin-modals.css">
+    <link rel="stylesheet" href="frontend/css/admin-forms.css">
 </head>
 <body>
     <!-- Sidebar Navigation -->
@@ -165,62 +166,41 @@
 
         <!-- Dashboard Content -->
         <div class="content-area" id="dashboard-page">
-            <!-- Stats Cards Row -->
+            <!-- Dashboard content stays the same... -->
             <div class="stats-grid">
                 <div class="stat-card blue">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">24</div>
                         <div class="stat-label">Active Tests</div>
-                        <div class="stat-trend up">
-                            <i class="fas fa-arrow-up"></i> 12% from last month
-                        </div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12% from last month</div>
                     </div>
                 </div>
-                
                 <div class="stat-card green">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">1,250</div>
                         <div class="stat-label">Students Enrolled</div>
-                        <div class="stat-trend up">
-                            <i class="fas fa-arrow-up"></i> 8% from last month
-                        </div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8% from last month</div>
                     </div>
                 </div>
-                
                 <div class="stat-card orange">
-                    <div class="stat-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">3</div>
                         <div class="stat-label">Today's Exams</div>
-                        <div class="stat-trend neutral">
-                            <i class="fas fa-minus"></i> Scheduled
-                        </div>
+                        <div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div>
                     </div>
                 </div>
-                
                 <div class="stat-card purple">
-                    <div class="stat-icon">
-                        <i class="fas fa-rupee-sign"></i>
-                    </div>
+                    <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
                     <div class="stat-content">
                         <div class="stat-value">₹2.4L</div>
                         <div class="stat-label">Revenue This Month</div>
-                        <div class="stat-trend up">
-                            <i class="fas fa-arrow-up"></i> 15% from last month
-                        </div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15% from last month</div>
                     </div>
                 </div>
             </div>
-
-            <!-- Analytics Chart -->
             <div class="analytics-section">
                 <div class="chart-card">
                     <div class="chart-header">
@@ -235,116 +215,156 @@
                     <canvas id="performanceChart"></canvas>
                 </div>
             </div>
-
-            <!-- Upcoming Tests & Recent Activity -->
             <div class="info-grid">
                 <div class="upcoming-tests-card">
                     <div class="card-header">
                         <h3><i class="fas fa-calendar-alt"></i> Upcoming Tests</h3>
                         <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
                     </div>
-                    <div class="test-list">
-                        <!-- Tests will be loaded dynamically -->
-                    </div>
+                    <div class="test-list"></div>
                 </div>
-                
                 <div class="recent-activity-card">
                     <div class="card-header">
                         <h3><i class="fas fa-history"></i> Recent Activity</h3>
                     </div>
-                    <div class="activity-list">
-                        <!-- Activity will be loaded dynamically -->
-                    </div>
+                    <div class="activity-list"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Other Page Placeholders -->
-        <div class="content-area" id="test-management-page" style="display: none;">
-            <div class="page-header">
-                <h1>Test Management - Calendar View</h1>
-                <button class="btn-primary">
-                    <i class="fas fa-plus"></i> Create New Test
-                </button>
+        <!-- CREATE TEST PAGE - COMPLETE FORM -->
+        <div class="content-area" id="create-test-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-plus-circle"></i> Create New Test</h2>
+                    <p>Fill in the details below to create a new test for your students</p>
+                </div>
+
+                <form id="createTestForm">
+                    <!-- Basic Information -->
+                    <h3 style="margin-bottom: 20px; color: #0f172a;"><i class="fas fa-info-circle"></i> Basic Information</h3>
+                    
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Test Name <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="testName" placeholder="e.g., NEST Mock Test 1" required>
+                        </div>
+                        <div>
+                            <label class="form-label">Test Code <span class="required">*</span></label>
+                            <input type="text" class="form-input" id="testCode" placeholder="e.g., NEST-M1-2025" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Exam Type <span class="required">*</span></label>
+                            <select class="form-select" id="examType" required>
+                                <option value="">Select exam type</option>
+                                <option value="NEST">NEST</option>
+                                <option value="IAT">IAT</option>
+                                <option value="ISI">ISI</option>
+                                <option value="JEST">JEST</option>
+                                <option value="Mock">Mock Test</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Duration (minutes) <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="duration" placeholder="e.g., 180" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Total Marks <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="totalMarks" placeholder="e.g., 100" min="1" required>
+                        </div>
+                    </div>
+
+                    <!-- Schedule -->
+                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-calendar"></i> Schedule</h3>
+                    
+                    <div class="form-row">
+                        <div>
+                            <label class="form-label">Exam Date <span class="required">*</span></label>
+                            <input type="date" class="form-input" id="examDate" required>
+                        </div>
+                        <div class="datetime-group">
+                            <div>
+                                <label class="form-label">Start Time <span class="required">*</span></label>
+                                <input type="time" class="form-input" id="startTime" required>
+                            </div>
+                            <div>
+                                <label class="form-label">End Time <span class="required">*</span></label>
+                                <input type="time" class="form-input" id="endTime" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-list-ol"></i> Instructions</h3>
+                    
+                    <div class="form-group-full">
+                        <label class="form-label">Test Instructions</label>
+                        <textarea class="form-textarea" id="instructions" placeholder="Enter instructions for students...\n\n1. Read all questions carefully\n2. Each question carries equal marks\n3. No negative marking"></textarea>
+                    </div>
+
+                    <!-- Settings -->
+                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-cog"></i> Settings</h3>
+                    
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="negativeMarking">
+                            <label for="negativeMarking">Enable Negative Marking (-0.25 per wrong answer)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="shuffleQuestions" checked>
+                            <label for="shuffleQuestions">Shuffle Questions Order</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="showResults" checked>
+                            <label for="showResults">Show Results After Submission</label>
+                        </div>
+                    </div>
+
+                    <!-- Question Selection -->
+                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-question-circle"></i> Select Questions</h3>
+                    
+                    <div class="question-selection">
+                        <div class="subject-tabs" id="subjectTabs"></div>
+                        <div class="questions-list" id="questionsList"></div>
+                        <div class="selected-count" id="selectedCount">0 questions selected (0 marks)</div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('createTestForm').reset();">Cancel</button>
+                        <button type="submit" class="btn-primary" id="submitBtn">
+                            <i class="fas fa-check"></i> Create Test
+                        </button>
+                    </div>
+                </form>
             </div>
-            <p class="coming-soon">Calendar interface coming in next update...</p>
         </div>
 
-        <div class="content-area" id="create-test-page" style="display: none;">
-            <div class="page-header">
-                <h1>Create New Test</h1>
-            </div>
-            <p class="coming-soon">Test creation wizard coming in next update...</p>
-        </div>
-        
-        <!-- Add placeholders for other pages -->
-        <div class="content-area" id="scheduled-tests-page" style="display: none;">
-            <p class="coming-soon">Scheduled tests page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="past-tests-page" style="display: none;">
-            <p class="coming-soon">Past tests page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="add-questions-page" style="display: none;">
-            <p class="coming-soon">Add questions page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="view-questions-page" style="display: none;">
-            <p class="coming-soon">View questions page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="upload-pdf-page" style="display: none;">
-            <p class="coming-soon">PDF upload page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="upload-image-page" style="display: none;">
-            <p class="coming-soon">Image upload page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="all-students-page" style="display: none;">
-            <p class="coming-soon">All students page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="add-student-page" style="display: none;">
-            <p class="coming-soon">Add student page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="performance-page" style="display: none;">
-            <p class="coming-soon">Performance page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="transactions-page" style="display: none;">
-            <p class="coming-soon">Transactions page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="pending-payments-page" style="display: none;">
-            <p class="coming-soon">Pending payments page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="reports-page" style="display: none;">
-            <p class="coming-soon">Reports page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="view-results-page" style="display: none;">
-            <p class="coming-soon">View results page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="analytics-page" style="display: none;">
-            <p class="coming-soon">Analytics page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="export-data-page" style="display: none;">
-            <p class="coming-soon">Export data page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="settings-page" style="display: none;">
-            <p class="coming-soon">Settings page coming soon...</p>
-        </div>
-        
-        <div class="content-area" id="support-page" style="display: none;">
-            <p class="coming-soon">Support page coming soon...</p>
-        </div>
+        <!-- Other pages remain as placeholders -->
+        <div class="content-area" id="test-management-page" style="display: none;"><p class="coming-soon">Calendar interface coming soon...</p></div>
+        <div class="content-area" id="scheduled-tests-page" style="display: none;"><p class="coming-soon">Scheduled tests page coming soon...</p></div>
+        <div class="content-area" id="past-tests-page" style="display: none;"><p class="coming-soon">Past tests page coming soon...</p></div>
+        <div class="content-area" id="add-questions-page" style="display: none;"><p class="coming-soon">Add questions page coming soon...</p></div>
+        <div class="content-area" id="view-questions-page" style="display: none;"><p class="coming-soon">View questions page coming soon...</p></div>
+        <div class="content-area" id="upload-pdf-page" style="display: none;"><p class="coming-soon">PDF upload page coming soon...</p></div>
+        <div class="content-area" id="upload-image-page" style="display: none;"><p class="coming-soon">Image upload page coming soon...</p></div>
+        <div class="content-area" id="all-students-page" style="display: none;"><p class="coming-soon">All students page coming soon...</p></div>
+        <div class="content-area" id="add-student-page" style="display: none;"><p class="coming-soon">Add student page coming soon...</p></div>
+        <div class="content-area" id="performance-page" style="display: none;"><p class="coming-soon">Performance page coming soon...</p></div>
+        <div class="content-area" id="transactions-page" style="display: none;"><p class="coming-soon">Transactions page coming soon...</p></div>
+        <div class="content-area" id="pending-payments-page" style="display: none;"><p class="coming-soon">Pending payments page coming soon...</p></div>
+        <div class="content-area" id="reports-page" style="display: none;"><p class="coming-soon">Reports page coming soon...</p></div>
+        <div class="content-area" id="view-results-page" style="display: none;"><p class="coming-soon">View results page coming soon...</p></div>
+        <div class="content-area" id="analytics-page" style="display: none;"><p class="coming-soon">Analytics page coming soon...</p></div>
+        <div class="content-area" id="export-data-page" style="display: none;"><p class="coming-soon">Export data page coming soon...</p></div>
+        <div class="content-area" id="settings-page" style="display: none;"><p class="coming-soon">Settings page coming soon...</p></div>
+        <div class="content-area" id="support-page" style="display: none;"><p class="coming-soon">Support page coming soon...</p></div>
     </main>
 
     <!-- Load Scripts in Order -->
@@ -352,5 +372,6 @@
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
     <script src="frontend/js/admin-dashboard-v2.js"></script>
+    <script src="frontend/js/create-test.js"></script>
 </body>
 </html>
