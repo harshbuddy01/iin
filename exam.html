@@ -5,13 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Assessment Portal - Exam Mode</title>
     
+    <!-- ⏰ TIME WINDOW VALIDATION (9 AM - 12 PM) -->
+    <script>
+        (function checkTimeWindow() {
+            const now = new Date();
+            const hours = now.getHours();
+            
+            // Check if current time is between 9 AM (9) and 12 PM (12)
+            if (hours < 9 || hours >= 12) {
+                alert(`⚠️ Test Window Closed!\n\nThis test is only available between 9:00 AM - 12:00 PM.\n\nCurrent time: ${now.toLocaleTimeString('en-IN')}\n\nPlease come back during the test window.`);
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+        })();
+    </script>
+    
     <!-- ACCESS CONTROL -->
     <script>
         (function checkAccess() {
             const userEmail = localStorage.getItem("userEmail");
+            const userToken = localStorage.getItem("userToken");
             const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
             
-            if (!userEmail || purchasedTests.length === 0) {
+            if (!userEmail || !userToken) {
+                alert("⚠️ Access Denied! Please login first.");
+                window.location.href = "signinpage.html";
+                return;
+            }
+            
+            if (purchasedTests.length === 0) {
                 alert("⚠️ Access Denied! Please purchase a test series first.");
                 window.location.href = "testfirstpage.html";
                 return;
@@ -165,7 +187,7 @@
                 <div class="l-item"><div class="status-shape sh-answered" id="countAnswered">0</div> Answered</div>
                 <div class="l-item"><div class="status-shape sh-not-answered" id="countNotAnswered">0</div> Not Answered</div>
                 <div class="l-item"><div class="status-shape sh-not-visited" id="countNotVisited">0</div> Not Visited</div>
-                <div class="l-item"><div class="status-shape sh-marked" id="countMarked">0</div> Marked</div>
+                <div class="l-item"><div class="status-shape sh-marked" id="countMarked">0</div> Marked for Review</div>
             </div>
 
             <div style="background:#0088cc; color:white; padding:10px; font-weight:bold; text-align:center;">
@@ -205,67 +227,75 @@
 
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
+            const rollNumber = localStorage.getItem("userToken"); // Roll number stored as userToken
             
-            if (!email) {
+            if (!email || !rollNumber) {
+                alert("⚠️ Session expired. Please login again.");
                 window.location.href = "signinpage.html";
                 return;
             }
             
             document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
+            document.getElementById("rollDisplay").innerText = "Roll: " + rollNumber;
             
             const testId = new URLSearchParams(window.location.search).get("test") || "iat";
-            startExam(email, testId);
+            startExam(email, rollNumber, testId);
         };
 
-        async function startExam(email, testId) {
+        async function startExam(email, rollNumber, testId) {
             try {
-                console.log('🚀 Starting exam:', { email, testId });
+                console.log('🚀 Starting exam:', { email, rollNumber, testId });
                 
                 const res = await axios.post(`${API_BASE_URL}/api/exam/start`, {
                     email: email,
-                    testId: testId
+                    rollNumber: rollNumber
                 });
                 
-                console.log('✅ Exam started:', res.data);
+                console.log('✅ Exam start response:', res.data);
                 
-                if(res.data.success && res.data.data) {
-                    attemptId = res.data.data.attemptId;
-                    examEndTime = new Date(res.data.data.timing.endTime);
+                if(res.data.success) {
+                    // Now fetch questions
+                    const qRes = await axios.get(`${API_BASE_URL}/api/exam/questions?testId=${testId}`);
                     
-                    document.getElementById("rollDisplay").innerText = "Roll: " + (res.data.data.student.rollNumber || "N/A");
+                    console.log('✅ Questions loaded:', qRes.data);
                     
-                    // Organize questions by subject (1-30 Physics, 31-60 Chemistry, 61-90 Math)
-                    res.data.data.questions.forEach(q => {
-                        let subject = "Physics";
-                        if(q.questionNumber > 60) subject = "Mathematics";
-                        else if(q.questionNumber > 30) subject = "Chemistry";
+                    if(qRes.data.success && qRes.data.questions) {
+                        allQuestions = qRes.data.questions;
                         
-                        questionsBySubject[subject].push({
-                            ...q,
-                            subject: subject
+                        // Organize questions by subject (1-30 Physics, 31-60 Chemistry, 61-90 Math)
+                        allQuestions.forEach(q => {
+                            let subject = "Physics";
+                            if(q.questionNumber > 60) subject = "Mathematics";
+                            else if(q.questionNumber > 30) subject = "Chemistry";
+                            
+                            questionsBySubject[subject].push({
+                                ...q,
+                                subject: subject
+                            });
                         });
-                    });
-                    
-                    allQuestions = res.data.data.questions;
-                    
-                    console.log('📚 Questions organized:', questionsBySubject);
-                    
-                    // Hide loading screen
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    
-                    // Start timer
-                    startTimer(res.data.data.timing.duration);
-                    
-                    // Load first question
-                    switchSubject("Physics");
+                        
+                        console.log('📚 Questions organized:', questionsBySubject);
+                        
+                        // Hide loading screen
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        
+                        // Start timer (3 hours = 180 minutes)
+                        startTimer(180);
+                        
+                        // Load first question
+                        loadQuestion();
+                    } else {
+                        alert('❌ No questions found for this test');
+                        window.location.href = "testfirstpage.html";
+                    }
                 } else {
                     alert('❌ Failed to start exam: ' + (res.data.message || 'Unknown error'));
                     window.location.href = "testfirstpage.html";
                 }
             } catch(e) { 
                 console.error('❌ Error starting exam:', e);
-                alert('Connection Error: ' + (e.response?.data?.message || e.message));
-                window.location.href = "testfirstpage.html";
+                alert('Connection Error: ' + (e.response?.data?.message || e.message || 'Server unavailable'));
+                window.location.href = "signinpage.html";
             }
         }
 
@@ -320,7 +350,7 @@
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
-            const options = [q.optionA, q.optionB, q.optionC, q.optionD];
+            const options = q.options || [q.optionA, q.optionB, q.optionC, q.optionD];
             const optionLabels = ['A', 'B', 'C', 'D'];
             
             options.forEach((optionText, index) => {
@@ -352,18 +382,6 @@
             userResponses[qKey] = optionLabel;
             questionStatus[qKey] = 'answered';
             
-            // Auto-save to backend
-            try {
-                await axios.post(`${API_BASE_URL}/api/exam/sync`, {
-                    attemptId: attemptId,
-                    questionId: questionId,
-                    answer: optionLabel
-                });
-                console.log('💾 Answer synced:', questionId, optionLabel);
-            } catch(error) {
-                console.error('❌ Sync failed:', error);
-            }
-            
             loadQuestion();
         }
 
@@ -374,13 +392,6 @@
             
             delete userResponses[qKey];
             questionStatus[qKey] = 'visited';
-            
-            // Sync clear to backend
-            axios.post(`${API_BASE_URL}/api/exam/sync`, {
-                attemptId: attemptId,
-                questionId: currentQ.id,
-                answer: null
-            }).catch(err => console.error('Clear sync failed:', err));
             
             loadQuestion();
         }
@@ -452,17 +463,35 @@
 
         async function finalSubmit() {
             try {
-                console.log('📤 Submitting exam:', attemptId);
+                console.log('📤 Submitting exam');
+                
+                const email = localStorage.getItem("userEmail");
+                const rollNumber = localStorage.getItem("userToken");
+                const testId = new URLSearchParams(window.location.search).get("test") || "iat";
+                
+                // Convert userResponses to array format
+                const responsesArray = allQuestions.map((q, idx) => {
+                    const subject = q.questionNumber <= 30 ? 'Physics' : q.questionNumber <= 60 ? 'Chemistry' : 'Mathematics';
+                    const localIdx = questionsBySubject[subject].findIndex(sq => sq.questionNumber === q.questionNumber);
+                    const qKey = `${subject}-${localIdx}`;
+                    return userResponses[qKey] || null;
+                });
                 
                 const res = await axios.post(`${API_BASE_URL}/api/exam/submit`, { 
-                    attemptId: attemptId
+                    email: email,
+                    rollNumber: rollNumber,
+                    testId: testId,
+                    testName: testId.toUpperCase(),
+                    userResponses: responsesArray,
+                    timeTaken: 180 * 60, // 3 hours in seconds
+                    startedAt: new Date().toISOString()
                 });
                 
                 console.log('✅ Exam submitted:', res.data);
                 
                 if(res.data.success) {
                     clearInterval(timerInterval);
-                    alert(`✅ Test Submitted Successfully!\n\nYour Score: ${res.data.data.score}\nCorrect Answers: ${res.data.data.correctAnswers}/${res.data.data.totalQuestions}\nPercentage: ${res.data.data.percentage}%`);
+                    alert(`✅ Test Submitted Successfully!\n\nCorrect Answers: ${res.data.results.correctAnswers}/${res.data.results.totalQuestions}\nScore: ${res.data.results.score}\nPercentage: ${res.data.results.percentage}%`);
                     window.location.href = "testfirstpage.html";
                 }
             } catch (error) {
