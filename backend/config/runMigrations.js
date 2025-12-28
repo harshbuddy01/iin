@@ -10,10 +10,11 @@ export const runMigrations = async () => {
   try {
     console.log('🛠️ Running database migrations...');
     
-    // Migration files to run
+    // Migration files to run IN ORDER
     const migrationFiles = [
       'create_payment_tables.sql',
-      'create_exam_tables.sql'
+      'create_exam_tables.sql',
+      'alter_scheduled_tests_table.sql'  // 🔥 NEW: Alter existing table
     ];
     
     for (const file of migrationFiles) {
@@ -34,10 +35,16 @@ export const runMigrations = async () => {
       for (const statement of statements) {
         try {
           await pool.query(statement);
+          console.log(`  ✅ Executed statement from ${file}`);
         } catch (err) {
-          // Ignore "already exists" errors
-          if (!err.message.includes('already exists')) {
-            throw err;
+          // Ignore "already exists" errors and duplicate column errors
+          if (err.message.includes('already exists') || 
+              err.message.includes('Duplicate column') ||
+              err.message.includes('Duplicate key')) {
+            console.log(`  ℹ️ Skipped (already exists): ${err.message.split(':')[0]}`);
+          } else {
+            console.error(`  ❌ Error in ${file}:`, err.message);
+            // Continue with other statements even if one fails
           }
         }
       }
