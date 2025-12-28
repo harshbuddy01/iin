@@ -1,47 +1,128 @@
 -- Fix questions table schema - Add missing columns
 -- This migration adds columns that might be missing from older table versions
+-- MySQL doesn't support IF NOT EXISTS for ALTER TABLE, so we use prepared statements
 
 -- Add marks_positive column if it doesn't exist
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS marks_positive DECIMAL(4,2) DEFAULT 4.00;
+SET @dbname = DATABASE();
+SET @tablename = 'questions';
+SET @columnname = 'marks_positive';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN marks_positive DECIMAL(4,2) DEFAULT 4.00'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add marks_negative column if it doesn't exist
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS marks_negative DECIMAL(4,2) DEFAULT -1.00;
+SET @columnname = 'marks_negative';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN marks_negative DECIMAL(4,2) DEFAULT -1.00'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add has_math column if it doesn't exist (for PDF extraction)
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS has_math BOOLEAN DEFAULT FALSE;
+SET @columnname = 'has_math';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN has_math BOOLEAN DEFAULT FALSE'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add exam_type column if it doesn't exist (for PDF metadata)
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS exam_type VARCHAR(50) DEFAULT NULL;
+SET @columnname = 'exam_type';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN exam_type VARCHAR(50) DEFAULT NULL'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add year column if it doesn't exist (for PDF metadata)
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS year VARCHAR(10) DEFAULT NULL;
+SET @columnname = 'year';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN year VARCHAR(10) DEFAULT NULL'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add has_latex column if it doesn't exist (legacy name for has_math)
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS has_latex BOOLEAN DEFAULT FALSE;
+SET @columnname = 'has_latex';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN has_latex BOOLEAN DEFAULT FALSE'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
 -- Add subject column if it doesn't exist (metadata)
-ALTER TABLE questions 
-ADD COLUMN IF NOT EXISTS subject VARCHAR(100) DEFAULT NULL;
+SET @columnname = 'subject';
+SET @preparedStatement = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+         WHERE (TABLE_SCHEMA = @dbname)
+         AND (TABLE_NAME = @tablename)
+         AND (COLUMN_NAME = @columnname)) > 0,
+        'SELECT 1',
+        'ALTER TABLE questions ADD COLUMN subject VARCHAR(100) DEFAULT NULL'
+    )
+);
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+DEALLOCATE PREPARE alterIfNotExists;
 
--- Update existing rows to have default values
+-- Update existing rows to have default values for marks
 UPDATE questions 
 SET marks_positive = 4.00 
-WHERE marks_positive IS NULL;
+WHERE marks_positive IS NULL OR marks_positive = 0;
 
 UPDATE questions 
 SET marks_negative = -1.00 
-WHERE marks_negative IS NULL;
+WHERE marks_negative IS NULL OR marks_negative = 0;
 
--- Create index on exam_type for faster filtering
-CREATE INDEX IF NOT EXISTS idx_exam_type ON questions(exam_type);
-
--- Create index on year for faster filtering
-CREATE INDEX IF NOT EXISTS idx_year ON questions(year);
-
-SELECT 'Questions table schema fixed successfully' as message;
+SELECT 'Questions table schema fixed successfully - all required columns added' as message;
