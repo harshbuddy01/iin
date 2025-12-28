@@ -13,7 +13,8 @@ let questions = [
 ];
 
 // 🔥 NEW: Fixed endpoint with safe JSON parsing from database
-router.get('/questions-fixed', async (req, res) => {
+// This will be accessible at /api/admin/questions-fixed
+router.get('-fixed', async (req, res) => {
     try {
         console.log('📥 Fetching questions from database with safe JSON parsing...');
         
