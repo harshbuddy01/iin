@@ -1,5 +1,6 @@
 import express from 'express';
 import * as adminController from '../controllers/adminController.js';
+import cleanupRoute from './cleanupRoute.js';
 
 const router = express.Router();
 
@@ -40,6 +41,12 @@ router.delete('/admin/delete-question/:questionId', adminController.deleteQuesti
 // Get available tests for students - GET /api/admin/available-tests
 router.get('/admin/available-tests', adminController.getAvailableTests);
 
+// ========== CLEANUP UTILITIES ==========
+
+// Cleanup corrupted questions - GET /api/admin/cleanup-questions
+router.use('/admin', cleanupRoute);
+
 console.log('✅ Admin routes configured with /admin prefix');
+console.log('✅ Cleanup endpoint: GET /api/admin/cleanup-questions');
 
 export default router;
