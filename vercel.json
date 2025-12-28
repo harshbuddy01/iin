@@ -1,5 +1,6 @@
 {
-  "buildCommand": "",
-  "outputDirectory": "frontend",
-  "installCommand": "echo 'No dependencies to install'"
+  "github": {
+    "silent": true
+  },
+  "cleanUrls": true
 }
