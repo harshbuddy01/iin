@@ -1,10 +1,14 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { spawn } from 'child_process';
+import { pool } from '../config/mysql.js';
+import { fileURLToPath } from 'url';
+
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { spawn } = require('child_process');
-const db = require('../config/db');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -105,13 +109,19 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
 
                     await saveUploadRecord(uploadRecord);
 
-                    // Delete PDF file after processing (optional)
-                    // fs.unlinkSync(pdfPath);
+                    // Create notification
+                    try {
+                        await pool.query(
+                            'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
+                            ['PDF Processed', `${result.total_questions} questions extracted from ${fileName}`, 'success']
+                        );
+                    } catch (e) { /* Ignore if table doesn't exist */ }
 
                     res.json({
                         success: true,
                         message: 'PDF processed successfully',
                         totalQuestions: result.total_questions,
+                        questionsExtracted: result.total_questions,
                         questions: result.questions,
                         savedQuestionIds: savedQuestions
                     });
@@ -165,8 +175,8 @@ async function saveQuestionsToDb(questions) {
         try {
             const query = `
                 INSERT INTO questions 
-                (question_text, subject, exam_type, difficulty, topic, year, options, correct_answer, marks, has_math)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (question_text, subject, exam_type, difficulty, topic, year, options, correct_answer, marks_positive, has_math, section, test_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
             
             const options = JSON.stringify(q.options);
@@ -180,11 +190,14 @@ async function saveQuestionsToDb(questions) {
                 options,
                 q.answer || null,
                 q.marks || 1,
-                q.has_math ? 1 : 0
+                q.has_math ? 1 : 0,
+                q.subject || 'Physics',
+                'PDF_UPLOAD'
             ];
             
-            const result = await db.query(query, values);
+            const [result] = await pool.query(query, values);
             savedIds.push(result.insertId);
+            console.log('✅ Question saved with ID:', result.insertId);
         } catch (err) {
             console.error('Error saving question:', err);
         }
@@ -213,19 +226,24 @@ async function saveUploadRecord(record) {
         record.uploadDate
     ];
     
-    return await db.query(query, values);
+    const [result] = await pool.query(query, values);
+    console.log('✅ Upload record saved with ID:', result.insertId);
+    return result;
 }
 
 // GET /api/pdf/history - Get upload history
 router.get('/history', async (req, res) => {
     try {
         const query = `
-            SELECT * FROM pdf_uploads 
+            SELECT id, file_name, exam_type, subject, topic, year, 
+                   questions_extracted, upload_date 
+            FROM pdf_uploads 
             ORDER BY upload_date DESC 
             LIMIT 50
         `;
         
-        const results = await db.query(query);
+        const [results] = await pool.query(query);
+        console.log(`✅ Fetched ${results.length} upload records`);
         res.json({ success: true, uploads: results });
     } catch (error) {
         console.error('History fetch error:', error);
@@ -240,19 +258,21 @@ router.delete('/:id', async (req, res) => {
         
         // Get file path before deleting
         const getQuery = 'SELECT file_path FROM pdf_uploads WHERE id = ?';
-        const result = await db.query(getQuery, [id]);
+        const [result] = await pool.query(getQuery, [id]);
         
         if (result.length > 0 && result[0].file_path) {
             // Delete physical file
             if (fs.existsSync(result[0].file_path)) {
                 fs.unlinkSync(result[0].file_path);
+                console.log('✅ PDF file deleted:', result[0].file_path);
             }
         }
         
         // Delete database record
         const deleteQuery = 'DELETE FROM pdf_uploads WHERE id = ?';
-        await db.query(deleteQuery, [id]);
+        await pool.query(deleteQuery, [id]);
         
+        console.log('✅ Upload record deleted:', id);
         res.json({ success: true, message: 'Upload deleted' });
     } catch (error) {
         console.error('Delete error:', error);
@@ -260,4 +280,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
