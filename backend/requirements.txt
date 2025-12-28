@@ -1,12 +1,2 @@
-# PDF Processing Dependencies
+# Python dependencies for PDF processing
 PyPDF2==3.0.1
-
-# Optional: For advanced PDF processing
-pdfplumber==0.10.3
-
-# Optional: For OCR support (if PDF contains images)
-pytesseract==0.3.10
-Pillow==10.1.0
-
-# Optional: For enhanced math equation detection
-sympy==1.12
