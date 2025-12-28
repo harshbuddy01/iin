@@ -1,5 +1,7 @@
-// Upload Image for Questions
-const API_BASE_URL = 'https://iinedu-git-main-harshs-projects-7f6616b3.vercel.app';
+// Upload Image for Questions - Fixed API_BASE_URL conflict
+// Last Updated: 2025-12-28 21:26 IST
+
+// Use global window.API_BASE_URL (no const declaration to avoid conflict)
 
 let selectedQuestionId = null;
 let uploadedImages = []; // Store uploaded images
@@ -170,7 +172,7 @@ function setupEventListeners() {
 
 async function loadQuestions() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/questions`);
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions`);
         const data = await response.json();
         
         const selector = document.getElementById('questionSelector');
@@ -281,7 +283,7 @@ async function linkImageToQuestion() {
 
     try {
         // Save to backend
-        const response = await fetch(`${API_BASE_URL}/api/admin/questions/${selectedQuestionId}/image`, {
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions/${selectedQuestionId}/image`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(linkData)
