@@ -1,22 +1,20 @@
-# PDF Upload & Question Extraction System - Setup Guide
+# PDF Upload & Question Extraction - Setup Guide
 
 ## Overview
-This system allows admins to upload PDF files containing questions, which are automatically extracted using Python and saved to the question bank.
+
+This system allows admins to upload PDF files containing exam questions. The system automatically extracts questions, parses mathematical equations, and saves them to the database for use in tests.
 
 ## Features
-- ✅ Upload PDF files (max 10MB)
-- ✅ Auto-extract questions with AI
-- ✅ Math formula detection and LaTeX conversion
-- ✅ Support for IAT, ISI, NEST exam types
-- ✅ Automatic question bank integration
-- ✅ Upload history tracking
 
-## Prerequisites
+✅ **Exam Type Support**: IAT, ISI, NEST  
+✅ **Math Equation Parsing**: Automatically converts mathematical notation to LaTeX  
+✅ **Auto-Extraction**: AI-powered question extraction from PDFs  
+✅ **Subject Support**: Physics, Mathematics, Chemistry, Biology  
+✅ **Answer Key Detection**: Automatically extracts answers if present  
+✅ **Database Integration**: Questions saved directly to question bank  
+✅ **Upload History**: Track all PDF uploads with metadata  
 
-### System Requirements
-- Node.js 14+ 
-- Python 3.8+
-- MySQL/MariaDB
+---
 
 ## Installation Steps
 
@@ -38,277 +36,325 @@ pip3 install PyPDF2==3.0.1
 npm install multer
 ```
 
-If not already installed, add to `package.json`:
-```json
-{
-  "dependencies": {
-    "multer": "^1.4.5-lts.1"
-  }
-}
-```
+This is needed for handling file uploads in Node.js backend.
 
-### 3. Database Setup
+### 3. Setup Database
 
-Run the migration to create required tables:
+Run the SQL migration to create necessary tables:
 
 ```bash
-mysql -u your_username -p your_database < backend/migrations/add_pdf_uploads_table.sql
+mysql -u your_username -p your_database < backend/migrations/add_pdf_tables.sql
 ```
 
-Or manually execute:
-```sql
-source backend/migrations/add_pdf_uploads_table.sql;
-```
+Or manually execute the SQL file in your MySQL client.
 
-### 4. Create Upload Directory
+### 4. Configure Backend Routes
 
-```bash
-mkdir -p uploads/pdfs
-chmod 755 uploads/pdfs
-```
-
-### 5. Update Server Configuration
-
-Add the PDF upload route to your `backend/server.js`:
+Ensure the PDF route is registered in your main server file (`backend/server.js`):
 
 ```javascript
-// Add after other route imports
-const pdfUploadRoutes = require('./routes/pdfUpload');
-
-// Add after other route registrations
-app.use('/api/pdf', pdfUploadRoutes);
+const pdfRoutes = require('./routes/pdf');
+app.use('/api/pdf', pdfRoutes);
 ```
 
-### 6. Verify Python Installation
+### 5. Create Upload Directory
 
-Test the Python script:
+Create the directory for storing uploaded PDFs:
+
 ```bash
-python3 backend/pdf_processor.py test.pdf
+mkdir -p backend/uploads/pdfs
 ```
 
-You should see JSON output with extracted questions.
+### 6. Make Python Script Executable
 
-## Usage
+```bash
+chmod +x backend/pdf_processor.py
+```
+
+---
+
+## Usage Guide
 
 ### For Admins
 
-1. **Navigate to Upload PDF Section**
-   - Open Admin Dashboard
-   - Go to Question Bank → Upload PDF
+1. **Login to Admin Panel**
+   - Navigate to admin dashboard
+   - Go to "Question Bank" → "Upload PDF"
 
-2. **Select Exam Type**
-   - IAT (IISER Aptitude Test)
-   - ISI (Indian Statistical Institute)  
-   - NEST (National Entrance Screening Test)
+2. **Upload PDF**
+   - Select Exam Type (IAT/ISI/NEST)
+   - Choose Subject
+   - Add Topic/Chapter (optional)
+   - Add Year (optional)
+   - **Enable "Auto-extract questions"** (recommended)
+   - Drag & drop or click to browse PDF file
+   - Add notes if needed
+   - Click "Upload PDF"
 
-3. **Choose Subject**
-   - Physics
-   - Mathematics
-   - Chemistry
-   - Biology
+3. **View Extracted Questions**
+   - After successful upload, click "Yes" when prompted
+   - You'll be redirected to "View/Edit" section
+   - Review extracted questions
+   - Edit/correct if needed
 
-4. **Upload PDF**
-   - Drag & drop or click to browse
-   - Maximum file size: 10MB
-   - Check "Auto-extract questions" for automatic processing
+4. **Upload History**
+   - Click "Upload History" button
+   - View all past uploads
+   - See number of questions extracted
+   - Delete old uploads if needed
 
-5. **View Results**
-   - Extracted questions automatically appear in View/Edit section
-   - Upload history shows extraction statistics
+---
 
 ## How It Works
 
+### Upload Flow
+
+```
+Admin uploads PDF → Backend receives file → Python processor extracts text
+                                            ↓
+                      Questions parsed ← Math equations converted to LaTeX
+                                            ↓
+                      Questions saved to database → Display in Edit/Review
+```
+
 ### Question Extraction Process
 
-1. **Upload**: Admin uploads PDF through web interface
-2. **Processing**: Node.js receives file and calls Python script
-3. **Extraction**: Python script:
-   - Extracts text from PDF
-   - Identifies question patterns (Q1, Q2, etc.)
-   - Detects MCQ options (A, B, C, D)
-   - Finds mathematical formulas
-   - Converts math to LaTeX format
-4. **Storage**: Questions saved to MySQL database
-5. **Display**: Questions appear in View/Edit section
+1. **Text Extraction**: PDF text is extracted using PyPDF2
+2. **Question Detection**: Regex patterns identify numbered questions (1., Q1, etc.)
+3. **Option Parsing**: Multiple choice options are extracted (A), B), etc.)
+4. **Math Detection**: Mathematical symbols and equations are identified
+5. **LaTeX Conversion**: Math notation is converted to LaTeX format
+6. **Answer Extraction**: Answer keys are detected if present
+7. **Database Storage**: Structured questions are saved with metadata
 
-### Math Formula Handling
+### Mathematical Equation Support
 
 The system automatically detects and converts:
-- Fractions: `3/4` → `\frac{3}{4}`
-- Powers: `x^2` → `x^{2}`
-- Subscripts: `x_1` → `x_{1}`
-- Greek letters: `π, θ, α, β` → `\pi, \theta, \alpha, \beta`
-- Symbols: `≤, ≥, ≠` → `\leq, \geq, \neq`
-- Integrals, sums, products: `∫, ∑, ∏` → `\int, \sum, \prod`
+- **Fractions**: `3/4` → `\frac{3}{4}`
+- **Powers**: `x^2` → `x^{2}`
+- **Greek letters**: α, β, γ → `\alpha`, `\beta`, `\gamma`
+- **Square roots**: √x → `\sqrt{x}`
+- **Operators**: ≤, ≥, ≠, ∞ → LaTeX equivalents
 
-## Troubleshooting
-
-### Python Script Not Running
-
-**Error**: `python3: command not found`
-
-**Solution**: Install Python 3 or update the spawn command in `pdfUpload.js` to use `python` instead of `python3`
-
-### File Upload Fails
-
-**Error**: `ENOENT: no such file or directory`
-
-**Solution**: Ensure `uploads/pdfs` directory exists:
-```bash
-mkdir -p uploads/pdfs
-```
-
-### Database Connection Error
-
-**Error**: `ER_NO_SUCH_TABLE: Table 'pdf_uploads' doesn't exist`
-
-**Solution**: Run the migration:
-```bash
-mysql -u username -p database < backend/migrations/add_pdf_uploads_table.sql
-```
-
-### No Questions Extracted
-
-**Possible Causes**:
-1. PDF is image-based (scanned) - text extraction won't work
-2. Question format doesn't match patterns
-3. PDF is encrypted or password-protected
-
-**Solutions**:
-- Use PDFs with selectable text
-- Check PDF format matches expected patterns (Q1, Q2, etc.)
-- Remove password protection before uploading
-
-### Math Formulas Not Rendering
-
-**Solution**: Ensure MathJax or KaTeX is loaded in your frontend:
-```html
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-```
-
-## File Structure
-
-```
-project/
-├── backend/
-│   ├── pdf_processor.py          # Python script for extraction
-│   ├── requirements.txt          # Python dependencies
-│   ├── routes/
-│   │   └── pdfUpload.js         # API routes
-│   └── migrations/
-│       └── add_pdf_uploads_table.sql
-├── frontend/
-│   └── js/
-│       └── upload-pdf.js        # Frontend interface
-└── uploads/
-    └── pdfs/                    # Uploaded files
-```
+---
 
 ## API Endpoints
 
 ### Upload PDF
-```
-POST /api/pdf/upload
-Content-Type: multipart/form-data
+**POST** `/api/pdf/upload`
 
-Fields:
-- pdfFile: File (required)
-- examType: String (IAT/ISI/NEST)
-- subject: String (Physics/Math/Chemistry/Biology)
-- topic: String (optional)
-- year: Number (optional)
-- autoExtract: Boolean
-- notes: String (optional)
+**Body** (multipart/form-data):
+```
+pdfFile: File
+examType: String (IAT/ISI/NEST)
+subject: String
+topic: String (optional)
+year: String (optional)
+autoExtract: Boolean
+notes: String (optional)
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "PDF processed successfully",
+  "totalQuestions": 25,
+  "questionsExtracted": 25,
+  "savedQuestionIds": [1, 2, 3, ...]
+}
 ```
 
 ### Get Upload History
-```
-GET /api/pdf/history
+**GET** `/api/pdf/history`
 
-Response:
+**Response**:
+```json
 {
   "success": true,
   "uploads": [
     {
       "id": 1,
-      "original_name": "IAT-Physics-2024.pdf",
+      "file_name": "iat_physics_2024.pdf",
       "exam_type": "IAT",
       "subject": "Physics",
-      "questions_extracted": 50,
-      "upload_date": "2024-12-28T12:00:00.000Z"
+      "questions_extracted": 25,
+      "upload_date": "2025-12-28T12:00:00.000Z"
     }
   ]
 }
 ```
 
 ### Delete Upload
-```
-DELETE /api/pdf/delete/:uploadId
+**DELETE** `/api/pdf/:id`
 
-Response:
+**Response**:
+```json
 {
   "success": true,
-  "message": "Upload deleted successfully"
+  "message": "Upload deleted"
 }
 ```
 
-## Performance Considerations
+---
 
-- **Large PDFs**: Processing time increases with file size
-- **Complex Layouts**: Multi-column or complex formats may reduce accuracy
-- **Image-based PDFs**: Cannot extract text from scanned images (OCR required)
-- **Concurrent Uploads**: System handles one upload at a time
+## Database Schema
 
-## Security Notes
+### `pdf_uploads` Table
 
-- File type validation enforced (PDF only)
-- File size limit: 10MB
-- Uploaded files stored securely in `uploads/pdfs/`
-- SQL injection prevention through parameterized queries
-- XSS protection through proper escaping
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| file_name | VARCHAR(255) | Original filename |
+| file_path | VARCHAR(512) | Server file path |
+| exam_type | VARCHAR(50) | IAT/ISI/NEST |
+| subject | VARCHAR(100) | Subject name |
+| topic | VARCHAR(200) | Topic/chapter |
+| year | VARCHAR(10) | Year |
+| notes | TEXT | Admin notes |
+| questions_extracted | INT | Number of questions |
+| upload_date | DATETIME | Upload timestamp |
+
+### `questions` Table
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | INT | Primary key |
+| question_text | TEXT | Question content |
+| subject | VARCHAR(100) | Subject |
+| exam_type | VARCHAR(50) | Exam type |
+| difficulty | ENUM | easy/medium/hard |
+| topic | VARCHAR(200) | Topic |
+| year | VARCHAR(10) | Year |
+| options | JSON | Answer options |
+| correct_answer | VARCHAR(10) | Correct answer |
+| marks | INT | Marks allocated |
+| has_math | BOOLEAN | Contains math |
+| created_at | DATETIME | Creation time |
+| updated_at | DATETIME | Last update |
+
+---
+
+## Troubleshooting
+
+### PDF Upload Fails
+
+**Problem**: Upload returns error  
+**Solutions**:
+- Check file size (max 10MB)
+- Ensure PDF is not corrupted
+- Verify Python is installed: `python3 --version`
+- Check backend logs for errors
+
+### Questions Not Extracted
+
+**Problem**: 0 questions extracted from PDF  
+**Solutions**:
+- Ensure PDF contains readable text (not scanned images)
+- Check if questions are numbered (1., 2., Q1, etc.)
+- Try disabling auto-extract and upload for manual entry
+- Review PDF structure - should have clear question format
+
+### Math Equations Not Formatted
+
+**Problem**: Math appears as plain text  
+**Solutions**:
+- PDF must use Unicode math symbols (∑, ∫, α, β)
+- LaTeX conversion works best with standard notation
+- Manual editing available in View/Edit section
+
+### Python Script Errors
+
+**Problem**: Python processing fails  
+**Solutions**:
+```bash
+# Test Python script manually
+python3 backend/pdf_processor.py path/to/test.pdf IAT Physics Mechanics 2024
+
+# Check PyPDF2 installation
+pip3 show PyPDF2
+
+# Reinstall if needed
+pip3 install --upgrade PyPDF2
+```
+
+### Permission Errors
+
+**Problem**: Cannot write to uploads directory  
+**Solutions**:
+```bash
+# Fix directory permissions
+chmod 755 backend/uploads
+chmod 755 backend/uploads/pdfs
+
+# Or for development
+chmod 777 backend/uploads/pdfs
+```
+
+---
+
+## Best Practices
+
+### For Best Extraction Results
+
+1. **Use text-based PDFs** (not scanned images)
+2. **Clear numbering** - Questions should be numbered (1., 2., etc.)
+3. **Standard format** - Options labeled A, B, C, D
+4. **Include answer key** - Improves automation
+5. **One question per section** - Avoid merged questions
+6. **Readable fonts** - Standard fonts work best
+
+### PDF Preparation Tips
+
+- **Convert scanned PDFs** using OCR software first
+- **Remove headers/footers** that might confuse extraction
+- **Check PDF structure** - copy/paste test in a text editor
+- **Split large files** - Process in smaller batches (< 10MB)
+- **Backup originals** - Keep original PDFs safe
+
+---
+
+## Security Considerations
+
+- PDFs are stored in `backend/uploads/pdfs` (ensure .gitignore includes this)
+- File size limited to 10MB
+- Only PDF MIME type accepted
+- Admin authentication required for upload
+- SQL injection protected through parameterized queries
+- File paths validated before deletion
+
+---
 
 ## Future Enhancements
 
 - [ ] OCR support for scanned PDFs
-- [ ] Batch PDF upload
-- [ ] Advanced math formula detection
-- [ ] Custom question pattern configuration
-- [ ] Answer key auto-detection improvement
-- [ ] Preview before saving
-- [ ] Question editing before database insertion
+- [ ] Image extraction from questions
+- [ ] Bulk PDF processing
+- [ ] Advanced math equation parsing
+- [ ] Question categorization using AI
+- [ ] Duplicate question detection
+- [ ] PDF preview before upload
+- [ ] Export extracted questions to Excel
+
+---
 
 ## Support
 
 For issues or questions:
 1. Check troubleshooting section above
-2. Review browser console for JavaScript errors
-3. Check server logs for backend errors
-4. Verify Python script output manually
-
-## Testing
-
-Test the system with a sample PDF:
-
-1. Create a test PDF with this format:
-```
-Q1. What is the value of π?
-A) 3.14
-B) 2.71
-C) 1.41
-D) 9.81
-
-Q2. Solve: x² - 4 = 0
-A) x = ±1
-B) x = ±2  
-C) x = ±3
-D) x = ±4
-```
-
-2. Upload through admin interface
-3. Verify questions appear in View/Edit section
-4. Check math formulas render correctly
+2. Review backend logs
+3. Test Python script independently
+4. Verify database tables exist
+5. Check file permissions
 
 ---
 
-**Last Updated**: December 28, 2025
-**Version**: 1.0.0
+## Version History
+
+**v1.0.0** (2025-12-28)
+- Initial release
+- PDF upload with auto-extraction
+- Math equation parsing
+- IAT, ISI, NEST exam support
+- Database integration
+- Upload history tracking
