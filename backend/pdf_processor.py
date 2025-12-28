@@ -9,6 +9,11 @@ import json
 import re
 import os
 
+# Redirect all print() to stderr by default
+def debug_print(msg):
+    """Print debug messages to stderr"""
+    print(msg, file=sys.stderr)
+
 try:
     import PyPDF2
 except ImportError:
@@ -19,7 +24,7 @@ except ImportError:
         'error_type': 'ImportError',
         'hint': 'Install with: pip3 install PyPDF2'
     }
-    print(json.dumps(error_output, indent=2))
+    print(json.dumps(error_output), flush=True)  # Ensure immediate output
     sys.exit(1)
 
 from io import BytesIO
@@ -47,7 +52,7 @@ class PDFQuestionExtractor:
                         page_text = page.extract_text()
                         text += page_text + "\n"
                     except Exception as page_error:
-                        print(f"Warning: Could not extract text from page {page_num + 1}: {str(page_error)}", file=sys.stderr)
+                        debug_print(f"Warning: Could not extract text from page {page_num + 1}: {str(page_error)}")
                         continue
                 
                 if not text.strip():
@@ -232,7 +237,7 @@ def main():
                 'error': 'No PDF file path provided',
                 'usage': 'python3 pdf_processor.py <pdf_file_path> [examType] [subject] [topic] [year]'
             }
-            print(json.dumps(output, indent=2))
+            print(json.dumps(output), flush=True)
             sys.exit(1)
         
         pdf_path = sys.argv[1]
@@ -244,7 +249,7 @@ def main():
                 'error': f'PDF file not found: {pdf_path}',
                 'error_type': 'FileNotFoundError'
             }
-            print(json.dumps(output, indent=2))
+            print(json.dumps(output), flush=True)
             sys.exit(1)
         
         # Get metadata from command line args if provided
@@ -258,8 +263,8 @@ def main():
         extractor = PDFQuestionExtractor()
         result = extractor.process_pdf(pdf_path, input_type='file', metadata=metadata)
         
-        # Always output as JSON
-        print(json.dumps(result, indent=2))
+        # CRITICAL: Only print JSON to stdout, nothing else!
+        print(json.dumps(result), flush=True)
         
         # Exit with appropriate code
         if result.get('success', False):
@@ -274,7 +279,7 @@ def main():
             'error': str(e),
             'error_type': type(e).__name__
         }
-        print(json.dumps(error_result, indent=2))
+        print(json.dumps(error_result), flush=True)
         sys.exit(1)
 
 if __name__ == '__main__':
