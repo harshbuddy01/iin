@@ -288,10 +288,26 @@ function viewTestDetails(id) {
     document.body.appendChild(modal);
 }
 
-// 🔥 NEW: Reschedule test
+// 🔥 Reschedule test
 function rescheduleTest(id) {
     const test = scheduledTests.find(t => t.id === id);
     if (!test) return;
+    
+    // Convert time back to 24-hour format for input
+    let timeValue = '10:00';
+    try {
+        const timeParts = test.time.match(/(\d+):(\d+)\s*(AM|PM)/);
+        if (timeParts) {
+            let hours = parseInt(timeParts[1]);
+            const minutes = timeParts[2];
+            const ampm = timeParts[3];
+            if (ampm === 'PM' && hours !== 12) hours += 12;
+            if (ampm === 'AM' && hours === 12) hours = 0;
+            timeValue = `${hours.toString().padStart(2, '0')}:${minutes}`;
+        }
+    } catch (e) {
+        console.error('Error parsing time:', e);
+    }
     
     const modal = document.createElement('div');
     modal.className = 'modal';
@@ -312,7 +328,7 @@ function rescheduleTest(id) {
                 
                 <div class="form-group">
                     <label>New Time *</label>
-                    <input type="time" name="time" required value="${test.time.split(' ')[0]}">
+                    <input type="time" name="time" required value="${timeValue}">
                 </div>
                 
                 <div class="form-group">
@@ -325,7 +341,7 @@ function rescheduleTest(id) {
                 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
-                    <button type="submit" class="btn-primary">
+                    <button type="submit" class="btn-primary" id="rescheduleBtn">
                         <i class="fas fa-save"></i> Update Schedule
                     </button>
                 </div>
@@ -333,26 +349,50 @@ function rescheduleTest(id) {
         </div>
     `;
     
-    modal.querySelector('#rescheduleForm').addEventListener('submit', (e) => {
+    modal.querySelector('#rescheduleForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const btn = document.getElementById('rescheduleBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        
         const formData = new FormData(e.target);
-        handleReschedule(id, formData);
+        await handleReschedule(id, formData);
         modal.remove();
     });
     
     document.body.appendChild(modal);
 }
 
+// 🔥 Handle reschedule API call
 async function handleReschedule(id, formData) {
     try {
         console.log('📅 Rescheduling test:', id);
         
-        // TODO: Implement backend UPDATE endpoint
-        // For now, show success message
+        const updateData = {
+            exam_date: formData.get('date'),
+            exam_time: formData.get('time') + ':00', // Add seconds
+            status: formData.get('status')
+        };
+        
+        const response = await fetch(`${API_BASE_URL}/api/admin/tests/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to update test');
+        }
+        
+        const result = await response.json();
+        console.log('✅ Test rescheduled:', result);
+        
         if (window.AdminUtils) {
-            window.AdminUtils.showToast('✅ Reschedule API will be implemented in backend!', 'info');
+            window.AdminUtils.showToast('✅ Test rescheduled successfully!', 'success');
         } else {
-            alert('Reschedule functionality will be implemented in backend soon!');
+            alert('Test rescheduled successfully!');
         }
         
         // Reload tests
@@ -361,45 +401,82 @@ async function handleReschedule(id, formData) {
     } catch (error) {
         console.error('❌ Error rescheduling test:', error);
         if (window.AdminUtils) {
-            window.AdminUtils.showToast('Failed to reschedule test', 'error');
+            window.AdminUtils.showToast('❌ Failed to reschedule test', 'error');
+        } else {
+            alert('Failed to reschedule test: ' + error.message);
         }
     }
 }
 
+// 🔥 Mark as completed
 async function markAsCompleted(id) {
     if (!confirm('Mark this test as completed?')) return;
     
     try {
         console.log('✅ Marking test as completed:', id);
         
-        // TODO: Implement backend UPDATE endpoint
-        alert('Mark as Completed API will be implemented in backend soon!');
+        const response = await fetch(`${API_BASE_URL}/api/admin/tests/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'completed' })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to update test status');
+        }
+        
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('✅ Test marked as completed!', 'success');
+        } else {
+            alert('Test marked as completed!');
+        }
         
         await loadScheduledTests();
         
     } catch (error) {
         console.error('❌ Error updating test status:', error);
         if (window.AdminUtils) {
-            window.AdminUtils.showToast('Failed to update test status', 'error');
+            window.AdminUtils.showToast('❌ Failed to update test status', 'error');
+        } else {
+            alert('Failed to update test status: ' + error.message);
         }
     }
 }
 
+// 🔥 Delete test
 async function deleteTest(id) {
     if (!confirm('⚠️ Delete this test? This action cannot be undone.')) return;
     
     try {
         console.log('🗑️ Deleting test:', id);
         
-        // TODO: Implement backend DELETE endpoint
-        alert('Delete API will be implemented in backend soon!');
+        const response = await fetch(`${API_BASE_URL}/api/admin/tests/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to delete test');
+        }
+        
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('✅ Test deleted successfully!', 'success');
+        } else {
+            alert('Test deleted successfully!');
+        }
         
         await loadScheduledTests();
         
     } catch (error) {
         console.error('❌ Error deleting test:', error);
         if (window.AdminUtils) {
-            window.AdminUtils.showToast('Failed to delete test', 'error');
+            window.AdminUtils.showToast('❌ Failed to delete test', 'error');
+        } else {
+            alert('Failed to delete test: ' + error.message);
         }
     }
 }
