@@ -14,6 +14,7 @@ import { sendFeedbackEmail, sendUserConfirmation } from "./config/email.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import examRoutes from "./routes/examRoutes.js";
+import pdfRoutes from "./routes/pdf.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 console.log('🔵 Loading environment variables...');
@@ -756,6 +757,7 @@ console.log('🔵 Mounting API routes...');
 app.use("/api", paymentRoutes);
 app.use("/api", adminRoutes);
 app.use("/api", examRoutes);
+app.use('/api/pdf', pdfRoutes);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -797,6 +799,9 @@ const HOST = '0.0.0.0';
       console.log(`✅ CORS: Vercel domains allowed`);
       console.log(`✅ Questions: /api/admin/questions`);
       console.log(`✅ Tests CRUD: GET/POST/PUT/DELETE /api/admin/tests`);
+      console.log(`✅ PDF Upload: POST /api/pdf/upload`);
+      console.log(`✅ PDF History: GET /api/pdf/history`);
+      console.log(`✅ PDF Delete: DELETE /api/pdf/:id`);
       console.log('\n🚀 Ready!\n');
     });
     server.on('error', (error) => {console.error('❌ SERVER ERROR:', error);});
