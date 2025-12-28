@@ -278,7 +278,7 @@ app.get('/api/admin/dashboard/recent-activity', (req, res) => {
     res.json([{icon:'user-plus',message:'New student registered',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
 });
 
-// 🔥 STUDENTS API - FIXED WITH BETTER LOGGING
+// 🔥 STUDENTS API - FIXED TO SHOW ACTUAL PHONE NUMBERS
 app.get('/api/admin/students', async (req, res) => {
     try {
         console.log('📄 Fetching students from database...');
@@ -288,34 +288,40 @@ app.get('/api/admin/students', async (req, res) => {
         let params = [];
         
         if (search) {
-            query += ' WHERE name LIKE ? OR email LIKE ? OR roll_number LIKE ?';
-            params = [`%${search}%`, `%${search}%`, `%${search}%`];
+            query += ' WHERE name LIKE ? OR email LIKE ? OR roll_number LIKE ? OR phone LIKE ?';
+            params = [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`];
         }
         
         query += ' ORDER BY created_at DESC';
         
         console.log('🔍 SQL Query:', query);
-        console.log('🔍 Params:', params);
         
         const [rows] = await pool.query(query, params);
         
         console.log(`📋 Found ${rows.length} rows in database`);
-        console.log('📦 Raw data:', JSON.stringify(rows, null, 2));
         
-        const students = rows.map(r => ({
-            id: r.id,
-            name: r.name || 'N/A',
-            email: r.email,
-            phone: r.phone || 'N/A',
-            course: r.course || 'NEST',
-            joinDate: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '2025-01-15',
-            status: 'Active',
-            address: r.address || 'India',
-            rollNumber: r.roll_number || 'N/A'
-        }));
+        const students = rows.map(r => {
+            // 🔥 FIX: Show actual phone number or "Not Provided"
+            let phoneDisplay = 'Not Provided';
+            if (r.phone && r.phone.trim() !== '' && r.phone !== 'null' && r.phone !== 'NULL') {
+                phoneDisplay = r.phone;
+            }
+            
+            return {
+                id: r.id,
+                name: r.name || 'N/A',
+                email: r.email,
+                phone: phoneDisplay, // ✅ Now shows actual phone or "Not Provided"
+                course: r.course || 'NEST',
+                joinDate: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '2025-01-15',
+                status: 'Active',
+                address: r.address || 'India',
+                rollNumber: r.roll_number || 'N/A'
+            };
+        });
         
         console.log(`✅ Returning ${students.length} students to frontend`);
-        console.log('📤 Response data:', JSON.stringify({students}, null, 2));
+        console.log('Sample student:', students[0]);
         
         res.json({students});
     } catch (error) {
