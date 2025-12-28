@@ -99,9 +99,6 @@ console.log('🔵 Setting up Admin API routes...');
 app.get('/api/admin/profile', async (req, res) => {
     try {
         console.log('👤 Fetching admin profile...');
-        
-        // For now, return a default admin profile
-        // TODO: Implement proper admin authentication and fetch from database
         const profile = {
             name: 'Admin User',
             email: 'admin@iinedu.com',
@@ -110,7 +107,6 @@ app.get('/api/admin/profile', async (req, res) => {
             lastLogin: new Date().toISOString(),
             permissions: ['all']
         };
-        
         console.log('✅ Admin profile loaded:', profile.name);
         res.json(profile);
     } catch (error) {
@@ -123,17 +119,13 @@ app.get('/api/admin/profile', async (req, res) => {
 app.get('/api/admin/notifications/count', async (req, res) => {
     try {
         console.log('📊 Fetching notification count...');
-        
-        // Try to get count from notifications table
         const [rows] = await pool.query(
             'SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0'
         );
-        
         const count = rows[0]?.count || 0;
         console.log(`✅ Unread notifications: ${count}`);
         res.json({ count });
     } catch (error) {
-        // If table doesn't exist, return 0
         console.warn('⚠️ Notifications table not found, returning 0');
         res.json({ count: 0 });
     }
@@ -143,41 +135,28 @@ app.get('/api/admin/notifications/count', async (req, res) => {
 app.get('/api/admin/notifications', async (req, res) => {
     try {
         console.log('📋 Fetching notifications list...');
-        
-        // Try to get notifications from database
         const [rows] = await pool.query(
             `SELECT id, title, message, type, is_read as unread, created_at as createdAt 
              FROM admin_notifications 
              ORDER BY created_at DESC 
              LIMIT 50`
         );
-        
-        // Convert is_read to unread boolean (MySQL stores as 0/1)
         const notifications = rows.map(n => ({
             ...n,
-            unread: !n.unread // Invert: is_read=0 means unread=true
+            unread: !n.unread
         }));
-        
         console.log(`✅ Loaded ${notifications.length} notifications`);
         res.json({ notifications });
     } catch (error) {
-        // If table doesn't exist, create sample notifications from recent activity
         console.warn('⚠️ Notifications table not found, generating from activity...');
-        
         try {
-            // Get recent student registrations
             const [students] = await pool.query(
                 'SELECT name, email, created_at FROM students_payments ORDER BY created_at DESC LIMIT 3'
             );
-            
-            // Get recent test creations
             const [tests] = await pool.query(
                 'SELECT test_name, created_at FROM scheduled_tests ORDER BY created_at DESC LIMIT 2'
             );
-            
             const notifications = [];
-            
-            // Add student notifications
             students.forEach(s => {
                 notifications.push({
                     id: `student_${s.email}`,
@@ -188,8 +167,6 @@ app.get('/api/admin/notifications', async (req, res) => {
                     createdAt: s.created_at
                 });
             });
-            
-            // Add test notifications
             tests.forEach(t => {
                 notifications.push({
                     id: `test_${t.test_name}`,
@@ -200,7 +177,6 @@ app.get('/api/admin/notifications', async (req, res) => {
                     createdAt: t.created_at
                 });
             });
-            
             console.log(`✅ Generated ${notifications.length} notifications from activity`);
             res.json({ notifications });
         } catch (genError) {
@@ -214,11 +190,9 @@ app.get('/api/admin/notifications', async (req, res) => {
 app.post('/api/admin/notifications/mark-all-read', async (req, res) => {
     try {
         console.log('✅ Marking all notifications as read...');
-        
         await pool.query(
             'UPDATE admin_notifications SET is_read = 1 WHERE is_read = 0'
         );
-        
         console.log('✅ All notifications marked as read');
         res.json({ success: true, message: 'All notifications marked as read' });
     } catch (error) {
@@ -231,12 +205,10 @@ app.post('/api/admin/notifications/mark-all-read', async (req, res) => {
 app.post('/api/admin/notifications/:id/read', async (req, res) => {
     try {
         console.log(`✅ Marking notification ${req.params.id} as read...`);
-        
         await pool.query(
             'UPDATE admin_notifications SET is_read = 1 WHERE id = ?',
             [req.params.id]
         );
-        
         console.log(`✅ Notification ${req.params.id} marked as read`);
         res.json({ success: true, message: 'Notification marked as read' });
     } catch (error) {
@@ -278,40 +250,29 @@ app.get('/api/admin/dashboard/recent-activity', (req, res) => {
     res.json([{icon:'user-plus',message:'New student registered',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
 });
 
-// 🔥 STUDENTS API - FIXED TO SHOW ACTUAL PHONE NUMBERS
+// 🔥 STUDENTS API
 app.get('/api/admin/students', async (req, res) => {
     try {
         console.log('📄 Fetching students from database...');
         const search = req.query.search || '';
-        
         let query = 'SELECT * FROM students_payments';
         let params = [];
-        
         if (search) {
             query += ' WHERE name LIKE ? OR email LIKE ? OR roll_number LIKE ? OR phone LIKE ?';
             params = [`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`];
         }
-        
         query += ' ORDER BY created_at DESC';
-        
-        console.log('🔍 SQL Query:', query);
-        
         const [rows] = await pool.query(query, params);
-        
-        console.log(`📋 Found ${rows.length} rows in database`);
-        
         const students = rows.map(r => {
-            // 🔥 FIX: Show actual phone number or "Not Provided"
             let phoneDisplay = 'Not Provided';
             if (r.phone && r.phone.trim() !== '' && r.phone !== 'null' && r.phone !== 'NULL') {
                 phoneDisplay = r.phone;
             }
-            
             return {
                 id: r.id,
                 name: r.name || 'N/A',
                 email: r.email,
-                phone: phoneDisplay, // ✅ Now shows actual phone or "Not Provided"
+                phone: phoneDisplay,
                 course: r.course || 'NEST',
                 joinDate: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '2025-01-15',
                 status: 'Active',
@@ -319,14 +280,10 @@ app.get('/api/admin/students', async (req, res) => {
                 rollNumber: r.roll_number || 'N/A'
             };
         });
-        
         console.log(`✅ Returning ${students.length} students to frontend`);
-        console.log('Sample student:', students[0]);
-        
         res.json({students});
     } catch (error) {
         console.error('❌ Students API error:', error);
-        console.error('🚨 Error stack:', error.stack);
         res.status(500).json({students: [], error: error.message});
     }
 });
@@ -339,15 +296,12 @@ app.post('/api/admin/students', async (req, res) => {
             'INSERT INTO students_payments (name, email, phone, course, address, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
             [name,email,phone,course,address]
         );
-        
-        // Create notification for new student
         try {
             await pool.query(
                 'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
                 ['New Student Registered', `${name} has registered for ${course}`, 'success']
             );
         } catch (e) { /* Ignore if table doesn't exist */ }
-        
         console.log('✅ Student added with ID:', result.insertId);
         res.status(201).json({student:{id:result.insertId,...req.body,joinDate:new Date().toISOString().split('T')[0],status:'Active'}});
     } catch (error) {
@@ -382,42 +336,33 @@ app.delete('/api/admin/students/:id', async (req, res) => {
     }
 });
 
-// Questions API - FETCH FROM MYSQL DATABASE
+// Questions API
 app.get('/api/admin/questions', async (req, res) => {
     try {
         console.log('🔍 Fetching questions from MySQL database...');
-        
         const subject = req.query.subject || '';
         const difficulty = req.query.difficulty || '';
         const search = req.query.search || '';
-        
         let query = 'SELECT * FROM questions';
         let conditions = [];
         let params = [];
-        
         if (subject) {
             conditions.push('section = ?');
             params.push(subject);
         }
-        
         if (difficulty) {
             conditions.push('difficulty = ?');
             params.push(difficulty);
         }
-        
         if (search) {
             conditions.push('(question_text LIKE ? OR test_id LIKE ?)');
             params.push(`%${search}%`, `%${search}%`);
         }
-        
         if (conditions.length > 0) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
-        
         query += ' ORDER BY id DESC LIMIT 100';
-        
         const [rows] = await pool.query(query, params);
-        
         const questions = rows.map(q => {
             let options = [];
             try {
@@ -425,7 +370,6 @@ app.get('/api/admin/questions', async (req, res) => {
             } catch (e) {
                 console.error('Error parsing options for question', q.id);
             }
-            
             return {
                 id: q.id,
                 subject: q.section || 'Physics',
@@ -438,13 +382,10 @@ app.get('/api/admin/questions', async (req, res) => {
                 answer: q.correct_answer
             };
         });
-        
         console.log(`✅ Loaded ${questions.length} questions from database`);
         res.json({questions});
-        
     } catch (error) {
         console.error('❌ Questions API error:', error);
-        console.error('Error details:', error.message);
         res.status(200).json({
             questions: [],
             error: error.message,
@@ -461,14 +402,12 @@ app.post('/api/admin/questions', async (req, res) => {
             [testId]
         );
         const questionNumber = (maxQ[0]?.max_num || 0) + 1;
-        
         const [result] = await pool.query(
             `INSERT INTO questions 
              (test_id, question_number, question_text, options, correct_answer, section, marks_positive) 
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [testId, questionNumber, questionText, JSON.stringify(options), correctAnswer, section || 'Physics', marks || 4]
         );
-        
         console.log('✅ Question added:', result.insertId);
         res.status(201).json({question: {id: result.insertId, questionNumber, ...req.body}});
     } catch (error) {
@@ -512,21 +451,118 @@ app.post('/api/admin/questions/:id/image', (req, res) => {
 
 // ========== SCHEDULED TESTS API ==========
 
-// GET all scheduled tests
-app.get('/api/admin/tests', async (req, res) => {
+// 🔥 FIX: Add /api/admin/create-test endpoint (frontend compatibility)
+app.post('/api/admin/create-test', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM scheduled_tests ORDER BY exam_date DESC');
-        res.json({tests: rows});
+        console.log('📝 [CREATE-TEST] Creating new test:', req.body);
+        const {
+            test_name,
+            test_type,
+            test_id,
+            exam_date,
+            start_time,
+            duration_minutes,
+            total_marks,
+            subjects,
+            description,
+            total_questions,
+            status
+        } = req.body;
+        
+        // Validate required fields
+        if (!test_name || !test_id || !exam_date) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: test_name, test_id, exam_date'
+            });
+        }
+        
+        // Check if test_id already exists
+        const [existing] = await pool.query(
+            'SELECT id FROM scheduled_tests WHERE test_id = ?',
+            [test_id]
+        );
+        
+        if (existing.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Test ID already exists. Please use a unique test ID.'
+            });
+        }
+        
+        // Insert test into scheduled_tests table
+        const [result] = await pool.query(
+            `INSERT INTO scheduled_tests 
+             (test_name, test_type, test_id, exam_date, start_time, duration_minutes, total_marks, subjects, description, total_questions, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [
+                test_name,
+                test_type || 'NEST',
+                test_id,
+                exam_date,
+                start_time || '10:00:00',
+                duration_minutes || 180,
+                total_marks || 100,
+                subjects || 'Physics, Chemistry, Mathematics',
+                description || '',
+                total_questions || 0,
+                status || 'scheduled'
+            ]
+        );
+        
+        // Create notification for new test
+        try {
+            await pool.query(
+                'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
+                ['New Test Created', `${test_name} (${test_type}) scheduled for ${exam_date}`, 'info']
+            );
+        } catch (e) { 
+            console.warn('⚠️ Could not create notification:', e.message); 
+        }
+        
+        console.log(`✅ [CREATE-TEST] Test created with ID: ${result.insertId}`);
+        res.status(201).json({
+            success: true,
+            message: 'Test created successfully',
+            test: {
+                id: result.insertId,
+                test_name,
+                test_type,
+                test_id,
+                exam_date,
+                start_time,
+                duration_minutes,
+                total_marks,
+                subjects,
+                description,
+                total_questions,
+                status,
+                created_at: new Date().toISOString()
+            }
+        });
     } catch (error) {
-        console.error('Tests error:', error);
-        res.json({tests:[]});
+        console.error('❌ [CREATE-TEST] Error creating test:', error);
+        res.status(500).json({success: false, error: error.message});
     }
 });
 
-// CREATE new test
+// GET all scheduled tests
+app.get('/api/admin/tests', async (req, res) => {
+    try {
+        console.log('📋 [GET-TESTS] Fetching all scheduled tests...');
+        const [rows] = await pool.query('SELECT * FROM scheduled_tests ORDER BY exam_date DESC, created_at DESC');
+        console.log(`✅ [GET-TESTS] Found ${rows.length} tests`);
+        res.json({success: true, tests: rows});
+    } catch (error) {
+        console.error('❌ [GET-TESTS] Error:', error);
+        res.status(500).json({success: false, tests: [], error: error.message});
+    }
+});
+
+// CREATE new test (alternative endpoint)
 app.post('/api/admin/tests', async (req, res) => {
     try {
-        console.log('📝 Creating new test:', req.body);
+        console.log('📝 [POST-TESTS] Creating new test:', req.body);
         const {
             test_name,
             test_id,
@@ -539,7 +575,6 @@ app.post('/api/admin/tests', async (req, res) => {
             status
         } = req.body;
         
-        // Validate required fields
         if (!test_name || !test_id || !exam_date) {
             return res.status(400).json({
                 success: false,
@@ -547,7 +582,6 @@ app.post('/api/admin/tests', async (req, res) => {
             });
         }
         
-        // Insert test into scheduled_tests table
         const [result] = await pool.query(
             `INSERT INTO scheduled_tests 
              (test_name, test_id, exam_date, exam_time, duration, total_marks, sections, description, status, created_at) 
@@ -565,7 +599,6 @@ app.post('/api/admin/tests', async (req, res) => {
             ]
         );
         
-        // Create notification for new test
         try {
             await pool.query(
                 'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
@@ -573,7 +606,7 @@ app.post('/api/admin/tests', async (req, res) => {
             );
         } catch (e) { /* Ignore if table doesn't exist */ }
         
-        console.log('✅ Test created with ID:', result.insertId);
+        console.log('✅ [POST-TESTS] Test created with ID:', result.insertId);
         res.status(201).json({
             success: true,
             test: {
@@ -583,15 +616,15 @@ app.post('/api/admin/tests', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('❌ Error creating test:', error);
+        console.error('❌ [POST-TESTS] Error creating test:', error);
         res.status(500).json({success: false, error: error.message});
     }
 });
 
-// 🔥 NEW: UPDATE test (Reschedule)
+// UPDATE test
 app.put('/api/admin/tests/:id', async (req, res) => {
     try {
-        console.log('📅 Updating test:', req.params.id, req.body);
+        console.log('📅 [PUT-TESTS] Updating test:', req.params.id, req.body);
         const {
             test_name,
             test_id,
@@ -604,7 +637,6 @@ app.put('/api/admin/tests/:id', async (req, res) => {
             status
         } = req.body;
         
-        // Build dynamic update query
         let updateFields = [];
         let params = [];
         
@@ -627,40 +659,38 @@ app.put('/api/admin/tests/:id', async (req, res) => {
         const query = `UPDATE scheduled_tests SET ${updateFields.join(', ')} WHERE id = ?`;
         await pool.query(query, params);
         
-        console.log('✅ Test updated:', req.params.id);
+        console.log('✅ [PUT-TESTS] Test updated:', req.params.id);
         res.json({
             success: true,
             message: 'Test updated successfully',
             test: { id: parseInt(req.params.id), ...req.body }
         });
     } catch (error) {
-        console.error('❌ Update test error:', error);
+        console.error('❌ [PUT-TESTS] Update test error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// 🔥 NEW: DELETE test
+// DELETE test
 app.delete('/api/admin/tests/:id', async (req, res) => {
     try {
-        console.log('🗑️ Deleting test:', req.params.id);
+        console.log('🗑️ [DELETE-TESTS] Deleting test:', req.params.id);
         
-        // First check if test exists
         const [rows] = await pool.query('SELECT * FROM scheduled_tests WHERE id = ?', [req.params.id]);
         
         if (rows.length === 0) {
             return res.status(404).json({ success: false, error: 'Test not found' });
         }
         
-        // Delete the test
         await pool.query('DELETE FROM scheduled_tests WHERE id = ?', [req.params.id]);
         
-        console.log('✅ Test deleted:', req.params.id);
+        console.log('✅ [DELETE-TESTS] Test deleted:', req.params.id);
         res.json({
             success: true,
             message: 'Test deleted successfully'
         });
     } catch (error) {
-        console.error('❌ Delete test error:', error);
+        console.error('❌ [DELETE-TESTS] Delete test error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -805,6 +835,7 @@ const HOST = '0.0.0.0';
       console.log(`✅ CORS: Vercel domains allowed`);
       console.log(`✅ Questions: /api/admin/questions`);
       console.log(`✅ Tests CRUD: GET/POST/PUT/DELETE /api/admin/tests`);
+      console.log(`✅ CREATE TEST: POST /api/admin/create-test`);
       console.log(`✅ PDF Upload: POST /api/pdf/upload`);
       console.log(`✅ PDF History: GET /api/pdf/history`);
       console.log(`✅ PDF Delete: DELETE /api/pdf/:id`);
