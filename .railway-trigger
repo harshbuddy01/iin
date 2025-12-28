@@ -1,0 +1,5 @@
+# Railway Deployment Trigger
+# This file is used to force Railway to redeploy
+# Last update: 2025-12-29 00:35 IST
+
+Deployment triggered to update PDF processing route with enhanced logging and PyPDF2 debug endpoint.
