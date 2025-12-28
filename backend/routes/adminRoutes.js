@@ -4,39 +4,42 @@ import * as adminController from '../controllers/adminController.js';
 const router = express.Router();
 
 // ========== SCHEDULED TESTS MANAGEMENT ==========
+// All routes here will be prefixed with /api/admin in server.js
 
-// Create new scheduled test
-router.post('/create-test', adminController.createScheduledTest);
+// Create new scheduled test - POST /api/admin/create-test
+router.post('/admin/create-test', adminController.createScheduledTest);
 
-// Get all scheduled tests
-router.get('/scheduled-tests', adminController.getScheduledTests);
+// Get all scheduled tests - GET /api/admin/scheduled-tests
+router.get('/admin/scheduled-tests', adminController.getScheduledTests);
 
-// Get specific test details
-router.get('/test/:testId', adminController.getTestDetails);
+// Get specific test details - GET /api/admin/test/:testId
+router.get('/admin/test/:testId', adminController.getTestDetails);
 
-// Update test status
-router.put('/test/:testId/status', adminController.updateTestStatus);
+// Update test status - PUT /api/admin/test/:testId/status
+router.put('/admin/test/:testId/status', adminController.updateTestStatus);
 
-// Delete test
-router.delete('/delete-test/:testId', adminController.deleteTest);
+// Delete test - DELETE /api/admin/delete-test/:testId
+router.delete('/admin/delete-test/:testId', adminController.deleteTest);
 
 // ========== QUESTIONS MANAGEMENT ==========
 
-// Add question to test
-router.post('/add-question', adminController.addQuestion);
+// Add question to test - POST /api/admin/add-question
+router.post('/admin/add-question', adminController.addQuestion);
 
-// Get questions for a test (with optional section filter)
-router.get('/questions', adminController.getTestQuestions);
+// Get questions for a test - GET /api/admin/questions?testId=xxx&section=xxx
+router.get('/admin/questions', adminController.getTestQuestions);
 
-// Update question
-router.put('/update-question/:questionId', adminController.updateQuestion);
+// Update question - PUT /api/admin/update-question/:questionId
+router.put('/admin/update-question/:questionId', adminController.updateQuestion);
 
-// Delete question
-router.delete('/delete-question/:questionId', adminController.deleteQuestion);
+// Delete question - DELETE /api/admin/delete-question/:questionId
+router.delete('/admin/delete-question/:questionId', adminController.deleteQuestion);
 
 // ========== STUDENT ACCESS ==========
 
-// Get available tests for students (tests active on current date/time)
-router.get('/available-tests', adminController.getAvailableTests);
+// Get available tests for students - GET /api/admin/available-tests
+router.get('/admin/available-tests', adminController.getAvailableTests);
+
+console.log('✅ Admin routes configured with /admin prefix');
 
 export default router;
