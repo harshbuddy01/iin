@@ -7,7 +7,21 @@ Extracts questions from PDF files and converts them to structured JSON format
 import sys
 import json
 import re
-import PyPDF2
+import os
+
+try:
+    import PyPDF2
+except ImportError:
+    # If PyPDF2 is not installed, output error as JSON and exit
+    error_output = {
+        'success': False,
+        'error': 'PyPDF2 library not installed',
+        'error_type': 'ImportError',
+        'hint': 'Install with: pip3 install PyPDF2'
+    }
+    print(json.dumps(error_output, indent=2))
+    sys.exit(1)
+
 from io import BytesIO
 import base64
 
@@ -18,11 +32,27 @@ class PDFQuestionExtractor:
     def extract_text_from_pdf(self, pdf_file_path):
         """Extract text content from PDF file"""
         try:
+            if not os.path.exists(pdf_file_path):
+                return f"Error: PDF file not found at {pdf_file_path}"
+            
             with open(pdf_file_path, 'rb') as file:
                 pdf_reader = PyPDF2.PdfReader(file)
+                
+                if len(pdf_reader.pages) == 0:
+                    return "Error: PDF file has no pages"
+                
                 text = ""
-                for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
+                for page_num, page in enumerate(pdf_reader.pages):
+                    try:
+                        page_text = page.extract_text()
+                        text += page_text + "\n"
+                    except Exception as page_error:
+                        print(f"Warning: Could not extract text from page {page_num + 1}: {str(page_error)}", file=sys.stderr)
+                        continue
+                
+                if not text.strip():
+                    return "Error: No text could be extracted from PDF (might be image-based)"
+                
                 return text
         except Exception as e:
             return f"Error reading PDF: {str(e)}"
@@ -155,10 +185,17 @@ class PDFQuestionExtractor:
             text = self.extract_text_from_base64(pdf_input)
         
         if text.startswith("Error"):
-            return {'error': text}
+            return {'success': False, 'error': text}
         
         # Parse questions
         questions = self.parse_questions(text)
+        
+        if len(questions) == 0:
+            return {
+                'success': False,
+                'error': 'No questions found in PDF',
+                'hint': 'Make sure questions are numbered (1., 2., Q1, etc.) with options A, B, C, D'
+            }
         
         # Try to extract answers
         answers = self.extract_answer_key(text)
@@ -188,25 +225,57 @@ class PDFQuestionExtractor:
 
 def main():
     """Command line interface"""
-    if len(sys.argv) < 2:
-        print(json.dumps({'error': 'No PDF file path provided'}))
+    try:
+        if len(sys.argv) < 2:
+            output = {
+                'success': False,
+                'error': 'No PDF file path provided',
+                'usage': 'python3 pdf_processor.py <pdf_file_path> [examType] [subject] [topic] [year]'
+            }
+            print(json.dumps(output, indent=2))
+            sys.exit(1)
+        
+        pdf_path = sys.argv[1]
+        
+        # Check if file exists
+        if not os.path.exists(pdf_path):
+            output = {
+                'success': False,
+                'error': f'PDF file not found: {pdf_path}',
+                'error_type': 'FileNotFoundError'
+            }
+            print(json.dumps(output, indent=2))
+            sys.exit(1)
+        
+        # Get metadata from command line args if provided
+        metadata = {}
+        if len(sys.argv) > 2:
+            metadata['examType'] = sys.argv[2] if len(sys.argv) > 2 else ''
+            metadata['subject'] = sys.argv[3] if len(sys.argv) > 3 else ''
+            metadata['topic'] = sys.argv[4] if len(sys.argv) > 4 else ''
+            metadata['year'] = sys.argv[5] if len(sys.argv) > 5 else ''
+        
+        extractor = PDFQuestionExtractor()
+        result = extractor.process_pdf(pdf_path, input_type='file', metadata=metadata)
+        
+        # Always output as JSON
+        print(json.dumps(result, indent=2))
+        
+        # Exit with appropriate code
+        if result.get('success', False):
+            sys.exit(0)
+        else:
+            sys.exit(1)
+        
+    except Exception as e:
+        # Catch ALL errors and return as JSON
+        error_result = {
+            'success': False,
+            'error': str(e),
+            'error_type': type(e).__name__
+        }
+        print(json.dumps(error_result, indent=2))
         sys.exit(1)
-    
-    pdf_path = sys.argv[1]
-    
-    # Get metadata from command line args if provided
-    metadata = {}
-    if len(sys.argv) > 2:
-        metadata['examType'] = sys.argv[2] if len(sys.argv) > 2 else ''
-        metadata['subject'] = sys.argv[3] if len(sys.argv) > 3 else ''
-        metadata['topic'] = sys.argv[4] if len(sys.argv) > 4 else ''
-        metadata['year'] = sys.argv[5] if len(sys.argv) > 5 else ''
-    
-    extractor = PDFQuestionExtractor()
-    result = extractor.process_pdf(pdf_path, input_type='file', metadata=metadata)
-    
-    # Output as JSON
-    print(json.dumps(result, indent=2))
 
 if __name__ == '__main__':
     main()
