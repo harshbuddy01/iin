@@ -44,7 +44,7 @@ function renderStudentsPage() {
                         <th>ID</th>
                         <th>NAME</th>
                         <th>EMAIL</th>
-                        <th>PHONE</th>
+                        <th>ROLL NUMBER</th>
                         <th>COURSE</th>
                         <th>JOIN DATE</th>
                         <th>STATUS</th>
@@ -93,7 +93,7 @@ function filterStudents(search) {
     const filtered = allStudents.filter(s => 
         s.name.toLowerCase().includes(search) ||
         s.email.toLowerCase().includes(search) ||
-        (s.phone && s.phone.includes(search)) ||
+        (s.rollNumber && s.rollNumber.toLowerCase().includes(search)) ||
         s.course.toLowerCase().includes(search)
     );
     displayStudents(filtered);
@@ -118,7 +118,7 @@ function displayStudents(students) {
             <td><strong>#${student.id}</strong></td>
             <td>${student.name || 'N/A'}</td>
             <td>${student.email}</td>
-            <td>${student.phone || 'N/A'}</td>
+            <td><strong>${student.rollNumber || 'Not Assigned'}</strong></td>
             <td><span class="badge badge-${student.course.toLowerCase()}">${student.course}</span></td>
             <td>${student.joinDate}</td>
             <td><span class="status-active">${student.status}</span></td>
@@ -141,7 +141,7 @@ function viewStudent(id) {
     const student = allStudents.find(s => s.id === id);
     if (!student) return;
     
-    alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nPhone: ${student.phone}\nCourse: ${student.course}\nJoin Date: ${student.joinDate}\nStatus: ${student.status}`);
+    alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate}\nStatus: ${student.status}`);
 }
 
 function editStudent(id) {
@@ -155,13 +155,13 @@ function editStudent(id) {
     const email = prompt('Email:', student.email);
     if (!email) return;
     
-    const phone = prompt('Phone:', student.phone);
-    if (!phone) return;
+    const rollNumber = prompt('Roll Number:', student.rollNumber || '');
+    if (!rollNumber) return;
     
     const course = prompt('Course (IAT/NEST/ISI):', student.course);
     if (!course) return;
     
-    updateStudent(id, {name, email, phone, course, status: student.status});
+    updateStudent(id, {name, email, rollNumber, course, status: student.status});
 }
 
 // 🔥 FIXED: Use AdminAPI.updateStudent()
@@ -223,6 +223,11 @@ function renderAddStudentPage() {
                 </div>
                 
                 <div class="form-group">
+                    <label>Roll Number</label>
+                    <input type="text" name="rollNumber" placeholder="Enter roll number (optional)">
+                </div>
+                
+                <div class="form-group">
                     <label>Phone Number *</label>
                     <input type="tel" name="phone" required placeholder="10-digit phone number" pattern="[0-9]{10}">
                 </div>
@@ -264,6 +269,7 @@ async function handleAddStudent(event) {
         name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
+        rollNumber: formData.get('rollNumber') || null,
         course: formData.get('course'),
         address: formData.get('address') || 'India'
     };
