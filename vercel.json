@@ -1,7 +1,18 @@
 {
-  "version": 2,
-  "buildCommand": null,
-  "outputDirectory": ".",
-  "framework": null,
-  "installCommand": null
+  "rewrites": [
+    {
+      "source": "/admin-dashboard-v2",
+      "destination": "/admin-dashboard-v2.html"
+    },
+    {
+      "source": "/admin-login",
+      "destination": "/admin-login.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1.html"
+    }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
