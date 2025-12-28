@@ -81,7 +81,8 @@ async function loadQuestionsFromBackend() {
     try {
         console.log('🔄 Fetching questions from backend...');
         
-        const response = await fetch('/api/admin/questions', {
+        // 🔥 FIXED: Using the fixed questions endpoint with safe JSON parsing
+        const response = await fetch('/api/admin/questions-fixed', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
