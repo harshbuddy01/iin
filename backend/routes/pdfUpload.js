@@ -1,10 +1,15 @@
-const express = require('express');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs/promises';
+import { spawn } from 'child_process';
+import { pool } from '../config/mysql.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs').promises;
-const { spawn } = require('child_process');
-const pool = require('../config/database');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -82,8 +87,8 @@ async function saveQuestionsToDatabase(questions, metadata) {
                 `INSERT INTO questions 
                 (question_text, option_a, option_b, option_c, option_d, 
                  correct_answer, explanation, difficulty, exam_type, subject, 
-                 topic, year, has_formula, source) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 topic, year, has_formula, source, section) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     question.questionText,
                     question.options[0] || '',
@@ -98,7 +103,8 @@ async function saveQuestionsToDatabase(questions, metadata) {
                     metadata.topic || null,
                     metadata.year || null,
                     question.hasFormula ? 1 : 0,
-                    'PDF Upload'
+                    'PDF Upload',
+                    metadata.subject // section field
                 ]
             );
             
@@ -292,4 +298,4 @@ router.delete('/delete/:uploadId', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
