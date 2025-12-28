@@ -1,9 +1,9 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * Last Updated: 2025-12-28 18:57 IST - Added debug logging
+ * Last Updated: 2025-12-28 21:20 IST - Fixed API_BASE_URL conflict
  */
 
-// Use global API URL
+// Use global API URL (already defined in HTML, no need to redeclare)
 const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
 
 console.log('🔵 scheduled-tests.js loading...');
@@ -108,7 +108,6 @@ async function loadScheduledTests() {
     try {
         showLoading(true);
         
-        // 🔥 FIXED: Use correct backend endpoint
         const endpoint = `${API_BASE_URL}/api/admin/tests`;
         console.log('📡 Fetching tests from:', endpoint);
         
@@ -295,7 +294,6 @@ window.deleteTest = async function(testId) {
     try {
         console.log('🗑️ Deleting test with ID:', testId);
         
-        // 🔥 FIXED: Use correct backend endpoint
         const endpoint = `${API_BASE_URL}/api/admin/tests/${testId}`;
         console.log('📡 DELETE request to:', endpoint);
         
