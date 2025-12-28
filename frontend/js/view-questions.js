@@ -1,5 +1,5 @@
 /**
- * View Questions Page - BACKEND CONNECTED
+ * View Questions Page - BACKEND CONNECTED TO RAILWAY
  */
 
 let allQuestions = [];
@@ -79,10 +79,13 @@ function renderViewQuestionsPage() {
 
 async function loadQuestionsFromBackend() {
     try {
-        console.log('🔄 Fetching questions from backend...');
+        console.log('🔄 Fetching questions from Railway backend...');
         
-        // 🔥 FIXED: Using the fixed questions endpoint with safe JSON parsing
-        const response = await fetch('/api/admin/questions-fixed', {
+        // ✅ FIXED: Using full Railway backend URL from config
+        const apiUrl = `${window.API_BASE_URL}/api/admin/questions-fixed`;
+        console.log('📍 API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -272,7 +275,7 @@ async function deleteQuestionConfirm(id) {
     
     try {
         console.log(`🗑️ Deleting question #${id}...`);
-        const response = await fetch(`/api/admin/questions/${id}`, {
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions/${id}`, {
             method: 'DELETE'
         });
         
