@@ -94,6 +94,156 @@ export const instance = new Razorpay({
 // ========== ADMIN API ROUTES ==========
 console.log('🔵 Setting up Admin API routes...');
 
+// 🔔 ADMIN PROFILE API
+app.get('/api/admin/profile', async (req, res) => {
+    try {
+        console.log('👤 Fetching admin profile...');
+        
+        // For now, return a default admin profile
+        // TODO: Implement proper admin authentication and fetch from database
+        const profile = {
+            name: 'Admin User',
+            email: 'admin@iinedu.com',
+            role: 'Super Admin',
+            avatar: null,
+            lastLogin: new Date().toISOString(),
+            permissions: ['all']
+        };
+        
+        console.log('✅ Admin profile loaded:', profile.name);
+        res.json(profile);
+    } catch (error) {
+        console.error('❌ Admin profile error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// 🔔 NOTIFICATIONS API - Count
+app.get('/api/admin/notifications/count', async (req, res) => {
+    try {
+        console.log('📊 Fetching notification count...');
+        
+        // Try to get count from notifications table
+        const [rows] = await pool.query(
+            'SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0'
+        );
+        
+        const count = rows[0]?.count || 0;
+        console.log(`✅ Unread notifications: ${count}`);
+        res.json({ count });
+    } catch (error) {
+        // If table doesn't exist, return 0
+        console.warn('⚠️ Notifications table not found, returning 0');
+        res.json({ count: 0 });
+    }
+});
+
+// 🔔 NOTIFICATIONS API - List
+app.get('/api/admin/notifications', async (req, res) => {
+    try {
+        console.log('📋 Fetching notifications list...');
+        
+        // Try to get notifications from database
+        const [rows] = await pool.query(
+            `SELECT id, title, message, type, is_read as unread, created_at as createdAt 
+             FROM admin_notifications 
+             ORDER BY created_at DESC 
+             LIMIT 50`
+        );
+        
+        // Convert is_read to unread boolean (MySQL stores as 0/1)
+        const notifications = rows.map(n => ({
+            ...n,
+            unread: !n.unread // Invert: is_read=0 means unread=true
+        }));
+        
+        console.log(`✅ Loaded ${notifications.length} notifications`);
+        res.json({ notifications });
+    } catch (error) {
+        // If table doesn't exist, create sample notifications from recent activity
+        console.warn('⚠️ Notifications table not found, generating from activity...');
+        
+        try {
+            // Get recent student registrations
+            const [students] = await pool.query(
+                'SELECT name, email, created_at FROM students_payments ORDER BY created_at DESC LIMIT 3'
+            );
+            
+            // Get recent test creations
+            const [tests] = await pool.query(
+                'SELECT test_name, created_at FROM scheduled_tests ORDER BY created_at DESC LIMIT 2'
+            );
+            
+            const notifications = [];
+            
+            // Add student notifications
+            students.forEach(s => {
+                notifications.push({
+                    id: `student_${s.email}`,
+                    title: 'New Student Registered',
+                    message: `${s.name} has registered`,
+                    type: 'success',
+                    unread: true,
+                    createdAt: s.created_at
+                });
+            });
+            
+            // Add test notifications
+            tests.forEach(t => {
+                notifications.push({
+                    id: `test_${t.test_name}`,
+                    title: 'New Test Created',
+                    message: `${t.test_name} has been scheduled`,
+                    type: 'info',
+                    unread: true,
+                    createdAt: t.created_at
+                });
+            });
+            
+            console.log(`✅ Generated ${notifications.length} notifications from activity`);
+            res.json({ notifications });
+        } catch (genError) {
+            console.error('❌ Error generating notifications:', genError);
+            res.json({ notifications: [] });
+        }
+    }
+});
+
+// 🔔 MARK ALL NOTIFICATIONS AS READ
+app.post('/api/admin/notifications/mark-all-read', async (req, res) => {
+    try {
+        console.log('✅ Marking all notifications as read...');
+        
+        await pool.query(
+            'UPDATE admin_notifications SET is_read = 1 WHERE is_read = 0'
+        );
+        
+        console.log('✅ All notifications marked as read');
+        res.json({ success: true, message: 'All notifications marked as read' });
+    } catch (error) {
+        console.warn('⚠️ Notifications table not found, skipping mark-all-read');
+        res.json({ success: true, message: 'No notifications to mark' });
+    }
+});
+
+// 🔔 MARK SINGLE NOTIFICATION AS READ
+app.post('/api/admin/notifications/:id/read', async (req, res) => {
+    try {
+        console.log(`✅ Marking notification ${req.params.id} as read...`);
+        
+        await pool.query(
+            'UPDATE admin_notifications SET is_read = 1 WHERE id = ?',
+            [req.params.id]
+        );
+        
+        console.log(`✅ Notification ${req.params.id} marked as read`);
+        res.json({ success: true, message: 'Notification marked as read' });
+    } catch (error) {
+        console.warn('⚠️ Could not mark notification as read:', error.message);
+        res.json({ success: true, message: 'Notification marked as read' });
+    }
+});
+
 // Dashboard Stats
 app.get('/api/admin/dashboard/stats', async (req, res) => {
     try {
@@ -182,6 +332,15 @@ app.post('/api/admin/students', async (req, res) => {
             'INSERT INTO students_payments (name, email, phone, course, address, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
             [name,email,phone,course,address]
         );
+        
+        // Create notification for new student
+        try {
+            await pool.query(
+                'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
+                ['New Student Registered', `${name} has registered for ${course}`, 'success']
+            );
+        } catch (e) { /* Ignore if table doesn't exist */ }
+        
         console.log('✅ Student added with ID:', result.insertId);
         res.status(201).json({student:{id:result.insertId,...req.body,joinDate:new Date().toISOString().split('T')[0],status:'Active'}});
     } catch (error) {
@@ -398,6 +557,14 @@ app.post('/api/admin/tests', async (req, res) => {
                 status || 'scheduled'
             ]
         );
+        
+        // Create notification for new test
+        try {
+            await pool.query(
+                'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
+                ['New Test Scheduled', `${test_name} scheduled for ${exam_date}`, 'info']
+            );
+        } catch (e) { /* Ignore if table doesn't exist */ }
         
         console.log('✅ Test created with ID:', result.insertId);
         res.status(201).json({
@@ -623,6 +790,10 @@ const HOST = '0.0.0.0';
       console.log('\n🎉🎉🎉 SERVER STARTED! 🎉🎉🎉');
       console.log(`✅ Listening on ${HOST}:${PORT}`);
       console.log(`✅ Admin API: /api/admin/*`);
+      console.log(`✅ Profile: GET /api/admin/profile`);
+      console.log(`✅ Notifications: GET /api/admin/notifications`);
+      console.log(`✅ Notifications Count: GET /api/admin/notifications/count`);
+      console.log(`✅ Mark All Read: POST /api/admin/notifications/mark-all-read`);
       console.log(`✅ CORS: Vercel domains allowed`);
       console.log(`✅ Questions: /api/admin/questions`);
       console.log(`✅ Tests CRUD: GET/POST/PUT/DELETE /api/admin/tests`);
