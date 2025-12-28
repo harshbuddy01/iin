@@ -1,0 +1,37 @@
+# Ignore backend files - only deploy frontend
+backend/
+node_modules/
+.env
+.env.local
+.git/
+.gitignore
+README.md
+package.json
+package-lock.json
+
+# Ignore Python files
+*.py
+*.pyc
+__pycache__/
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Keep only frontend files
+!frontend/
+!index.html
+!admin-dashboard-v2.html
+!*.html
+!*.css
+!*.js
