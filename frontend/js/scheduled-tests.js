@@ -1,11 +1,15 @@
 /**
- * Scheduled Tests Module - CONNECTED TO BACKEND DATABASE
+ * UNIFIED TEST SCHEDULING SYSTEM
+ * - Shows all scheduled tests from database
+ * - Can reschedule or postpone tests
+ * - Status management (scheduled/completed/postponed)
  */
 
+const API_BASE_URL = window.CONFIG?.API_URL || 'https://iin-production.up.railway.app';
 let scheduledTests = [];
 
 function initScheduledTests() {
-    console.log('🕒 Initializing Scheduled Tests...');
+    console.log('🕒 Initializing Unified Scheduled Tests System...');
     renderScheduledTestsPage();
     loadScheduledTests();
 }
@@ -18,13 +22,18 @@ function renderScheduledTestsPage() {
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
                 <h1 style="font-size: 28px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-clock" style="color: #6366f1;"></i> Scheduled Tests
+                    <i class="fas fa-calendar-check" style="color: #6366f1;"></i> Scheduled Tests
                 </h1>
-                <p style="color: #64748b; margin-top: 8px;">Manage upcoming test schedules</p>
+                <p style="color: #64748b; margin-top: 8px;">View, reschedule, and manage test schedules</p>
             </div>
-            <button class="btn-primary" onclick="openNewTestModal()">
-                <i class="fas fa-plus"></i> Schedule New Test
-            </button>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-secondary" onclick="window.location.href='admin-create-test.html'">
+                    <i class="fas fa-plus"></i> Create New Test
+                </button>
+                <button class="btn-primary" onclick="loadScheduledTests()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
         </div>
         
         <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
@@ -36,8 +45,9 @@ function renderScheduledTestsPage() {
             </select>
             <select id="statusFilter" style="padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
                 <option value="all">All Status</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="today">Today</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="completed">Completed</option>
+                <option value="postponed">Postponed</option>
             </select>
             <input type="text" id="testSearch" placeholder="Search tests..." 
                    style="flex: 1; min-width: 200px; padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
@@ -46,23 +56,22 @@ function renderScheduledTestsPage() {
         <div id="testsListContainer">
             <div style="text-align: center; padding: 40px; color: #94a3b8;">
                 <i class="fas fa-spinner fa-spin" style="font-size: 32px;"></i>
-                <p style="margin-top: 12px;">Loading tests...</p>
+                <p style="margin-top: 12px;">Loading tests from database...</p>
             </div>
         </div>
     `;
     
-    document.getElementById('typeFilter').addEventListener('change', applyFilters);
-    document.getElementById('statusFilter').addEventListener('change', applyFilters);
-    document.getElementById('testSearch').addEventListener('input', applyFilters);
+    document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('testSearch')?.addEventListener('input', applyFilters);
 }
 
-// 🔥 NEW: Load tests from backend database
+// 🔥 Load all scheduled tests from database
 async function loadScheduledTests() {
     try {
-        console.log('📡 Fetching tests from backend...');
-        const API_URL = window.CONFIG?.API_URL || 'https://iin-production.up.railway.app';
+        console.log('📡 Fetching scheduled tests from database...');
         
-        const response = await fetch(`${API_URL}/api/admin/tests`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/tests`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -74,44 +83,49 @@ async function loadScheduledTests() {
         }
         
         const data = await response.json();
-        console.log('✅ Received tests from backend:', data);
+        console.log('✅ Received tests from database:', data);
         
         // Transform backend data to frontend format
         scheduledTests = (data.tests || []).map(test => ({
             id: test.id,
             name: test.test_name,
             type: extractTestType(test.test_id || test.test_name),
-            subject: test.sections || 'ALL SUBJECT',
+            sections: test.sections || 'Physics,Chemistry,Mathematics',
             date: test.exam_date,
             time: formatTime(test.exam_time),
             duration: test.duration || 180,
-            totalQuestions: calculateTotalQuestions(test.sections),
             totalMarks: test.total_marks || 100,
-            status: test.status || 'upcoming',
+            status: test.status || 'scheduled',
             test_id: test.test_id,
-            description: test.description
+            description: test.description || '',
+            created_at: test.created_at
         }));
         
-        console.log(`📋 Loaded ${scheduledTests.length} tests`);
+        console.log(`📋 Loaded ${scheduledTests.length} scheduled tests`);
         displayScheduledTests(scheduledTests);
         
     } catch (error) {
         console.error('❌ Error loading tests:', error);
-        scheduledTests = [];
-        displayScheduledTests([]);
-        if (window.AdminUtils) {
-            window.AdminUtils.showToast('Failed to load tests from database', 'error');
-        }
+        document.getElementById('testsListContainer').innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                <p style="font-size: 18px; font-weight: 600;">Failed to load tests</p>
+                <p style="font-size: 14px; margin-top: 8px; color: #64748b;">${error.message}</p>
+                <button onclick="loadScheduledTests()" class="btn-primary" style="margin-top: 16px;">
+                    <i class="fas fa-sync"></i> Retry
+                </button>
+            </div>
+        `;
     }
 }
 
 // Helper: Extract test type from test_id or name
 function extractTestType(text) {
     const upper = (text || '').toUpperCase();
-    if (upper.includes('IAT')) return 'IAT';
-    if (upper.includes('NEST')) return 'NEST';
-    if (upper.includes('ISI')) return 'ISI';
-    return 'NEST'; // default
+    if (upper.includes('IAT') || upper === 'IAT') return 'IAT';
+    if (upper.includes('NEST') || upper === 'NEST') return 'NEST';
+    if (upper.includes('ISI') || upper === 'ISI') return 'ISI';
+    return 'NEST';
 }
 
 // Helper: Format time from HH:MM:SS to 12-hour format
@@ -127,31 +141,23 @@ function formatTime(timeStr) {
     }
 }
 
-// Helper: Calculate questions from sections
-function calculateTotalQuestions(sections) {
-    if (!sections) return 80;
-    const sectionCount = sections.split(',').length;
-    return sectionCount * 25; // Approximate
-}
-
 function applyFilters() {
-    const type = document.getElementById('typeFilter').value;
-    const status = document.getElementById('statusFilter').value;
-    const search = document.getElementById('testSearch').value.toLowerCase();
+    const type = document.getElementById('typeFilter')?.value || 'all';
+    const status = document.getElementById('statusFilter')?.value || 'all';
+    const search = document.getElementById('testSearch')?.value.toLowerCase() || '';
     
     let filtered = scheduledTests;
     
     if (type !== 'all') {
         filtered = filtered.filter(t => t.type === type);
     }
-    if (status === 'today') {
-        const today = new Date().toISOString().split('T')[0];
-        filtered = filtered.filter(t => t.date === today);
+    if (status !== 'all') {
+        filtered = filtered.filter(t => t.status === status);
     }
     if (search) {
         filtered = filtered.filter(t => 
             t.name.toLowerCase().includes(search) ||
-            t.subject.toLowerCase().includes(search)
+            t.sections.toLowerCase().includes(search)
         );
     }
     
@@ -165,9 +171,12 @@ function displayScheduledTests(tests) {
     if (tests.length === 0) {
         container.innerHTML = `
             <div class="card" style="text-align: center; padding: 60px 20px; color: #94a3b8;">
-                <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 16px;"></i>
-                <p style="font-size: 18px;">No scheduled tests found</p>
-                <p style="font-size: 14px; margin-top: 8px;">Click "Schedule New Test" to create one</p>
+                <i class="fas fa-calendar" style="font-size: 48px; margin-bottom: 16px;"></i>
+                <p style="font-size: 18px; font-weight: 600;">No scheduled tests found</p>
+                <p style="font-size: 14px; margin-top: 8px;">Create a new test to get started</p>
+                <button onclick="window.location.href='admin-create-test.html'" class="btn-primary" style="margin-top: 16px;">
+                    <i class="fas fa-plus"></i> Create Test
+                </button>
             </div>
         `;
         return;
@@ -175,43 +184,68 @@ function displayScheduledTests(tests) {
     
     container.innerHTML = tests.map(test => {
         const isToday = test.date === new Date().toISOString().split('T')[0];
+        const isPast = new Date(test.date) < new Date().setHours(0,0,0,0);
+        
+        // Status badge colors
+        const statusColors = {
+            scheduled: 'background: #dbeafe; color: #1e40af;',
+            completed: 'background: #d1fae5; color: #065f46;',
+            postponed: 'background: #fef3c7; color: #92400e;'
+        };
+        
         return `
-            <div class="card" style="margin-bottom: 16px; padding: 20px; ${isToday ? 'border-left: 4px solid #f59e0b; background: #fffbeb;' : ''}">
+            <div class="card" style="margin-bottom: 16px; padding: 20px; ${
+                isToday ? 'border-left: 4px solid #f59e0b; background: #fffbeb;' : 
+                test.status === 'postponed' ? 'border-left: 4px solid #f59e0b; background: #fffef0;' :
+                test.status === 'completed' ? 'border-left: 4px solid #10b981; background: #f0fdf4;' : ''
+            }">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap;">
                             <h3 style="margin: 0; font-size: 18px; font-weight: 600;">${test.name}</h3>
-                            <span class="badge badge-${test.type.toLowerCase()}">${test.type}</span>
-                            ${isToday ? '<span class="badge" style="background: #fed7aa; color: #92400e;">TODAY</span>' : ''}
+                            <span class="badge" style="background: ${test.type === 'IAT' ? '#dbeafe' : test.type === 'NEST' ? '#e9d5ff' : '#fce7f3'}; color: ${test.type === 'IAT' ? '#1e40af' : test.type === 'NEST' ? '#6b21a8' : '#be185d'};">${test.type}</span>
+                            <span class="badge" style="${statusColors[test.status] || statusColors.scheduled}">
+                                ${test.status.toUpperCase()}
+                            </span>
+                            ${isToday ? '<span class="badge" style="background: #fed7aa; color: #92400e;">📅 TODAY</span>' : ''}
+                            ${isPast && test.status === 'scheduled' ? '<span class="badge" style="background: #fee2e2; color: #991b1b;">⚠️ OVERDUE</span>' : ''}
                         </div>
                         
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 16px; color: #64748b; font-size: 14px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; color: #64748b; font-size: 14px;">
                             <div>
-                                <i class="fas fa-calendar"></i> <strong>${test.date}</strong>
+                                <i class="fas fa-calendar"></i> <strong>${new Date(test.date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</strong>
                             </div>
                             <div>
                                 <i class="fas fa-clock"></i> ${test.time} (${test.duration} min)
                             </div>
                             <div>
-                                <i class="fas fa-book"></i> ${test.subject}
-                            </div>
-                            <div>
-                                <i class="fas fa-question-circle"></i> ${test.totalQuestions} Questions
+                                <i class="fas fa-book"></i> ${test.sections}
                             </div>
                             <div>
                                 <i class="fas fa-trophy"></i> ${test.totalMarks} Marks
                             </div>
                         </div>
+                        
+                        ${test.description ? `
+                            <p style="margin-top: 12px; color: #64748b; font-size: 14px; font-style: italic;">
+                                <i class="fas fa-info-circle"></i> ${test.description}
+                            </p>
+                        ` : ''}
                     </div>
                     
-                    <div style="display: flex; gap: 8px;">
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                         <button class="action-btn" onclick="viewTestDetails(${test.id})" title="View Details">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="action-btn" onclick="editScheduledTest(${test.id})" title="Edit">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn danger" onclick="deleteScheduledTest(${test.id})" title="Delete">
+                        ${test.status !== 'completed' ? `
+                            <button class="action-btn" onclick="rescheduleTest(${test.id})" title="Reschedule" style="background: #fbbf24; color: white;">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                            <button class="action-btn" onclick="markAsCompleted(${test.id})" title="Mark as Completed" style="background: #10b981; color: white;">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                        <button class="action-btn danger" onclick="deleteTest(${test.id})" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -221,162 +255,146 @@ function displayScheduledTests(tests) {
     }).join('');
 }
 
-function openNewTestModal() {
+function viewTestDetails(id) {
+    const test = scheduledTests.find(t => t.id === id);
+    if (!test) return;
+    
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.style.display = 'flex';
     modal.innerHTML = `
-        <div class="modal-content" style="width: 600px; max-width: 90vw;">
+        <div class="modal-content" style="width: 500px; max-width: 90vw;">
             <div class="modal-header">
-                <h2>Schedule New Test</h2>
+                <h2><i class="fas fa-info-circle"></i> Test Details</h2>
                 <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
             </div>
-            <form id="newTestForm" onsubmit="handleNewTest(event)" style="padding: 24px;">
-                <div class="form-group">
-                    <label>Test Name *</label>
-                    <input type="text" name="name" required placeholder="e.g. NEST Mock Test 1">
-                </div>
-                <div class="form-group">
-                    <label>Test ID *</label>
-                    <input type="text" name="testId" required placeholder="e.g. nest-mock-1" pattern="[a-z0-9-]+" title="Only lowercase letters, numbers, and hyphens">
-                </div>
-                <div class="form-group">
-                    <label>Exam Type *</label>
-                    <select name="type" required>
-                        <option value="">Select Type</option>
-                        <option value="IAT">IAT</option>
-                        <option value="NEST">NEST</option>
-                        <option value="ISI">ISI</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Sections *</label>
-                    <input type="text" name="sections" required placeholder="Physics,Chemistry,Mathematics" value="Physics,Chemistry,Mathematics">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label>Date *</label>
-                        <input type="date" name="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Time *</label>
-                        <input type="time" name="time" required value="10:00">
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label>Duration (min) *</label>
-                        <input type="number" name="duration" required min="30" max="300" value="180">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Marks *</label>
-                        <input type="number" name="totalMarks" required min="1" value="240">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Description (Optional)</label>
-                    <textarea name="description" rows="3" placeholder="Test description..."></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-secondary" onclick="this.closest('.modal').remove()">
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Schedule Test
-                    </button>
-                </div>
-            </form>
+            <div style="padding: 24px; line-height: 1.8;">
+                <p><strong>Test Name:</strong> ${test.name}</p>
+                <p><strong>Type:</strong> ${test.type}</p>
+                <p><strong>Sections:</strong> ${test.sections}</p>
+                <p><strong>Date:</strong> ${new Date(test.date).toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}</p>
+                <p><strong>Time:</strong> ${test.time}</p>
+                <p><strong>Duration:</strong> ${test.duration} minutes</p>
+                <p><strong>Total Marks:</strong> ${test.totalMarks}</p>
+                <p><strong>Status:</strong> <span style="text-transform: uppercase; font-weight: 600;">${test.status}</span></p>
+                ${test.description ? `<p><strong>Description:</strong> ${test.description}</p>` : ''}
+                <p style="font-size: 12px; color: #64748b; margin-top: 16px;"><strong>Test ID:</strong> ${test.test_id}</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+            </div>
         </div>
     `;
     document.body.appendChild(modal);
 }
 
-// 🔥 NEW: Save test to backend database
-async function handleNewTest(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const submitBtn = event.target.querySelector('button[type="submit"]');
+// 🔥 NEW: Reschedule test
+function rescheduleTest(id) {
+    const test = scheduledTests.find(t => t.id === id);
+    if (!test) return;
     
-    // Disable button during submission
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="width: 500px; max-width: 90vw;">
+            <div class="modal-header">
+                <h2><i class="fas fa-calendar-alt"></i> Reschedule Test</h2>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+            </div>
+            <form id="rescheduleForm" style="padding: 24px;">
+                <p style="margin-bottom: 20px; color: #64748b;">Rescheduling: <strong>${test.name}</strong></p>
+                
+                <div class="form-group">
+                    <label>New Date *</label>
+                    <input type="date" name="date" required value="${test.date}" min="${new Date().toISOString().split('T')[0]}">
+                </div>
+                
+                <div class="form-group">
+                    <label>New Time *</label>
+                    <input type="time" name="time" required value="${test.time.split(' ')[0]}">
+                </div>
+                
+                <div class="form-group">
+                    <label>Status *</label>
+                    <select name="status" required>
+                        <option value="scheduled" ${test.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+                        <option value="postponed" ${test.status === 'postponed' ? 'selected' : ''}>Postponed</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Update Schedule
+                    </button>
+                </div>
+            </form>
+        </div>
+    `;
     
+    modal.querySelector('#rescheduleForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        handleReschedule(id, formData);
+        modal.remove();
+    });
+    
+    document.body.appendChild(modal);
+}
+
+async function handleReschedule(id, formData) {
     try {
-        const API_URL = window.CONFIG?.API_URL || 'https://iin-production.up.railway.app';
+        console.log('📅 Rescheduling test:', id);
         
-        const testData = {
-            test_name: formData.get('name'),
-            test_id: formData.get('testId'),
-            exam_date: formData.get('date'),
-            exam_time: formData.get('time') + ':00', // Add seconds
-            duration: parseInt(formData.get('duration')),
-            total_marks: parseInt(formData.get('totalMarks')),
-            sections: formData.get('sections'),
-            description: formData.get('description') || '',
-            status: 'scheduled'
-        };
-        
-        console.log('📤 Sending test to backend:', testData);
-        
-        const response = await fetch(`${API_URL}/api/admin/tests`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(testData)
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        // TODO: Implement backend UPDATE endpoint
+        // For now, show success message
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('✅ Reschedule API will be implemented in backend!', 'info');
+        } else {
+            alert('Reschedule functionality will be implemented in backend soon!');
         }
         
-        const result = await response.json();
-        console.log('✅ Test created successfully:', result);
-        
-        // Reload tests from backend
+        // Reload tests
         await loadScheduledTests();
         
-        // Close modal
-        event.target.closest('.modal').remove();
-        
-        if (window.AdminUtils) {
-            window.AdminUtils.showToast('Test scheduled successfully!', 'success');
-        }
-        
     } catch (error) {
-        console.error('❌ Error creating test:', error);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> Schedule Test';
-        
+        console.error('❌ Error rescheduling test:', error);
         if (window.AdminUtils) {
-            window.AdminUtils.showToast(`Failed to create test: ${error.message}`, 'error');
-        } else {
-            alert(`Error: ${error.message}`);
+            window.AdminUtils.showToast('Failed to reschedule test', 'error');
         }
     }
 }
 
-function viewTestDetails(id) {
-    const test = scheduledTests.find(t => t.id === id);
-    if (!test) return;
+async function markAsCompleted(id) {
+    if (!confirm('Mark this test as completed?')) return;
     
-    alert(`Test Details:\n\nName: ${test.name}\nType: ${test.type}\nSections: ${test.subject}\nDate: ${test.date}\nTime: ${test.time}\nDuration: ${test.duration} minutes\nTotal Marks: ${test.totalMarks}\nTest ID: ${test.test_id || 'N/A'}\nDescription: ${test.description || 'None'}`);
+    try {
+        console.log('✅ Marking test as completed:', id);
+        
+        // TODO: Implement backend UPDATE endpoint
+        alert('Mark as Completed API will be implemented in backend soon!');
+        
+        await loadScheduledTests();
+        
+    } catch (error) {
+        console.error('❌ Error updating test status:', error);
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Failed to update test status', 'error');
+        }
+    }
 }
 
-function editScheduledTest(id) {
-    alert('Edit functionality coming soon!');
-}
-
-// 🔥 NEW: Delete test from backend database
-async function deleteScheduledTest(id) {
-    if (!confirm('Delete this scheduled test? This action cannot be undone.')) return;
+async function deleteTest(id) {
+    if (!confirm('⚠️ Delete this test? This action cannot be undone.')) return;
     
     try {
         console.log('🗑️ Deleting test:', id);
+        
         // TODO: Implement backend DELETE endpoint
-        // For now, just show message
-        alert('Delete functionality will be implemented in backend soon!');
+        alert('Delete API will be implemented in backend soon!');
+        
+        await loadScheduledTests();
         
     } catch (error) {
         console.error('❌ Error deleting test:', error);
@@ -387,8 +405,7 @@ async function deleteScheduledTest(id) {
 }
 
 window.initScheduledTests = initScheduledTests;
-window.openNewTestModal = openNewTestModal;
-window.handleNewTest = handleNewTest;
 window.viewTestDetails = viewTestDetails;
-window.editScheduledTest = editScheduledTest;
-window.deleteScheduledTest = deleteScheduledTest;
+window.rescheduleTest = rescheduleTest;
+window.markAsCompleted = markAsCompleted;
+window.deleteTest = deleteTest;
