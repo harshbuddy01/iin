@@ -1,24 +1,5 @@
 {
-  "version": 2,
-  "routes": [
-    {
-      "src": "/frontend/(.*)",
-      "dest": "/frontend/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/frontend/js/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    }
-  ]
+  "buildCommand": "",
+  "outputDirectory": "frontend",
+  "installCommand": "echo 'No dependencies to install'"
 }
