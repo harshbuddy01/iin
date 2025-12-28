@@ -344,7 +344,9 @@ app.post('/api/admin/questions/:id/image', (req, res) => {
     res.json({success: true, message: 'Image linked successfully'});
 });
 
-// Tests API - GET all scheduled tests
+// ========== SCHEDULED TESTS API ==========
+
+// GET all scheduled tests
 app.get('/api/admin/tests', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM scheduled_tests ORDER BY exam_date DESC');
@@ -355,7 +357,7 @@ app.get('/api/admin/tests', async (req, res) => {
     }
 });
 
-// Tests API - CREATE new test (NOW SAVES TO DATABASE!)
+// CREATE new test
 app.post('/api/admin/tests', async (req, res) => {
     try {
         console.log('📝 Creating new test:', req.body);
@@ -411,6 +413,85 @@ app.post('/api/admin/tests', async (req, res) => {
         res.status(500).json({success: false, error: error.message});
     }
 });
+
+// 🔥 NEW: UPDATE test (Reschedule)
+app.put('/api/admin/tests/:id', async (req, res) => {
+    try {
+        console.log('📅 Updating test:', req.params.id, req.body);
+        const {
+            test_name,
+            test_id,
+            exam_date,
+            exam_time,
+            duration,
+            total_marks,
+            sections,
+            description,
+            status
+        } = req.body;
+        
+        // Build dynamic update query
+        let updateFields = [];
+        let params = [];
+        
+        if (test_name !== undefined) { updateFields.push('test_name = ?'); params.push(test_name); }
+        if (test_id !== undefined) { updateFields.push('test_id = ?'); params.push(test_id); }
+        if (exam_date !== undefined) { updateFields.push('exam_date = ?'); params.push(exam_date); }
+        if (exam_time !== undefined) { updateFields.push('exam_time = ?'); params.push(exam_time); }
+        if (duration !== undefined) { updateFields.push('duration = ?'); params.push(duration); }
+        if (total_marks !== undefined) { updateFields.push('total_marks = ?'); params.push(total_marks); }
+        if (sections !== undefined) { updateFields.push('sections = ?'); params.push(sections); }
+        if (description !== undefined) { updateFields.push('description = ?'); params.push(description); }
+        if (status !== undefined) { updateFields.push('status = ?'); params.push(status); }
+        
+        if (updateFields.length === 0) {
+            return res.status(400).json({ success: false, error: 'No fields to update' });
+        }
+        
+        params.push(req.params.id);
+        
+        const query = `UPDATE scheduled_tests SET ${updateFields.join(', ')} WHERE id = ?`;
+        await pool.query(query, params);
+        
+        console.log('✅ Test updated:', req.params.id);
+        res.json({
+            success: true,
+            message: 'Test updated successfully',
+            test: { id: parseInt(req.params.id), ...req.body }
+        });
+    } catch (error) {
+        console.error('❌ Update test error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 🔥 NEW: DELETE test
+app.delete('/api/admin/tests/:id', async (req, res) => {
+    try {
+        console.log('🗑️ Deleting test:', req.params.id);
+        
+        // First check if test exists
+        const [rows] = await pool.query('SELECT * FROM scheduled_tests WHERE id = ?', [req.params.id]);
+        
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Test not found' });
+        }
+        
+        // Delete the test
+        await pool.query('DELETE FROM scheduled_tests WHERE id = ?', [req.params.id]);
+        
+        console.log('✅ Test deleted:', req.params.id);
+        res.json({
+            success: true,
+            message: 'Test deleted successfully'
+        });
+    } catch (error) {
+        console.error('❌ Delete test error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ========================================
 
 app.get('/api/admin/transactions', (req, res) => {
     const transactions = [];
@@ -544,6 +625,7 @@ const HOST = '0.0.0.0';
       console.log(`✅ Admin API: /api/admin/*`);
       console.log(`✅ CORS: Vercel domains allowed`);
       console.log(`✅ Questions: /api/admin/questions`);
+      console.log(`✅ Tests CRUD: GET/POST/PUT/DELETE /api/admin/tests`);
       console.log('\n🚀 Ready!\n');
     });
     server.on('error', (error) => {console.error('❌ SERVER ERROR:', error);});
