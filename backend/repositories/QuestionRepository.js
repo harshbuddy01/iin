@@ -32,7 +32,7 @@ export class QuestionRepository {
                 params.push(filters.section || filters.subject);
             }
             
-            // Filter by difficulty
+            // Filter by difficulty (if column exists)
             if (filters.difficulty) {
                 query += ' AND difficulty = ?';
                 params.push(filters.difficulty);
@@ -254,15 +254,42 @@ export class QuestionRepository {
     }
     
     /**
+     * Check if a column exists in the table
+     */
+    async columnExists(columnName) {
+        try {
+            const query = `
+                SELECT COUNT(*) as count 
+                FROM information_schema.COLUMNS 
+                WHERE TABLE_SCHEMA = DATABASE() 
+                AND TABLE_NAME = ? 
+                AND COLUMN_NAME = ?
+            `;
+            const rows = await db.query(query, [this.tableName, columnName]);
+            return rows[0].count > 0;
+        } catch (error) {
+            console.warn(`⚠️ Could not check if column ${columnName} exists:`, error.message);
+            return false;
+        }
+    }
+    
+    /**
      * Get statistics about questions
+     * Gracefully handles missing columns (difficulty, topic)
      */
     async getStatistics() {
         try {
+            // Check if difficulty column exists
+            const hasDifficulty = await this.columnExists('difficulty');
+            const hasTopic = await this.columnExists('topic');
+            
+            console.log(`📊 Statistics: difficulty=${hasDifficulty}, topic=${hasTopic}`);
+            
             // Total questions
             const totalQuery = `SELECT COUNT(*) as total FROM ${this.tableName}`;
             const totalRows = await db.query(totalQuery);
             
-            // By section
+            // By section (always exists)
             const sectionQuery = `
                 SELECT section, COUNT(*) as count 
                 FROM ${this.tableName} 
@@ -270,13 +297,34 @@ export class QuestionRepository {
             `;
             const sectionRows = await db.query(sectionQuery);
             
-            // By difficulty
-            const difficultyQuery = `
-                SELECT difficulty, COUNT(*) as count 
-                FROM ${this.tableName} 
-                GROUP BY difficulty
-            `;
-            const difficultyRows = await db.query(difficultyQuery);
+            const statistics = {
+                total: totalRows[0].total,
+                bySection: sectionRows.reduce((acc, row) => {
+                    acc[row.section || 'Unknown'] = row.count;
+                    return acc;
+                }, {})
+            };
+            
+            // By difficulty (only if column exists)
+            if (hasDifficulty) {
+                const difficultyQuery = `
+                    SELECT difficulty, COUNT(*) as count 
+                    FROM ${this.tableName} 
+                    WHERE difficulty IS NOT NULL
+                    GROUP BY difficulty
+                `;
+                const difficultyRows = await db.query(difficultyQuery);
+                
+                statistics.byDifficulty = difficultyRows.reduce((acc, row) => {
+                    acc[row.difficulty || 'Unknown'] = row.count;
+                    return acc;
+                }, {});
+            } else {
+                console.log('⚠️ Difficulty column not found - skipping difficulty statistics');
+                statistics.byDifficulty = {
+                    note: 'Difficulty column not yet added to database'
+                };
+            }
             
             // By test
             const testQuery = `
@@ -288,21 +336,12 @@ export class QuestionRepository {
             `;
             const testRows = await db.query(testQuery);
             
-            return {
-                total: totalRows[0].total,
-                bySection: sectionRows.reduce((acc, row) => {
-                    acc[row.section] = row.count;
-                    return acc;
-                }, {}),
-                byDifficulty: difficultyRows.reduce((acc, row) => {
-                    acc[row.difficulty] = row.count;
-                    return acc;
-                }, {}),
-                topTests: testRows.map(row => ({
-                    testId: row.test_id,
-                    questionCount: row.count
-                }))
-            };
+            statistics.topTests = testRows.map(row => ({
+                testId: row.test_id,
+                questionCount: row.count
+            }));
+            
+            return statistics;
             
         } catch (error) {
             console.error('❌ QuestionRepository.getStatistics error:', error);
