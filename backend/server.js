@@ -18,6 +18,7 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import examRoutes from "./routes/examRoutes.js";
 import pdfRoutes from "./routes/pdf.js";
+import questionRoutes from "./routes/questionRoutes.js"; // 🆕 OOP Question Routes
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 
 console.log('🔵 Loading environment variables...');
@@ -339,118 +340,10 @@ app.delete('/api/admin/students/:id', async (req, res) => {
     }
 });
 
-// Questions API
-app.get('/api/admin/questions', async (req, res) => {
-    try {
-        console.log('🔍 Fetching questions from MySQL database...');
-        const subject = req.query.subject || '';
-        const difficulty = req.query.difficulty || '';
-        const search = req.query.search || '';
-        let query = 'SELECT * FROM questions';
-        let conditions = [];
-        let params = [];
-        if (subject) {
-            conditions.push('section = ?');
-            params.push(subject);
-        }
-        if (difficulty) {
-            conditions.push('difficulty = ?');
-            params.push(difficulty);
-        }
-        if (search) {
-            conditions.push('(question_text LIKE ? OR test_id LIKE ?)');
-            params.push(`%${search}%`, `%${search}%`);
-        }
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
-        query += ' ORDER BY id DESC LIMIT 100';
-        const [rows] = await pool.query(query, params);
-        const questions = rows.map(q => {
-            let options = [];
-            try {
-                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
-            } catch (e) {
-                console.error('Error parsing options for question', q.id);
-            }
-            return {
-                id: q.id,
-                subject: q.section || 'Physics',
-                topic: q.topic || 'General',
-                difficulty: q.difficulty || 'Medium',
-                marks: q.marks_positive || 4,
-                question: q.question_text,
-                type: 'MCQ',
-                options: options,
-                answer: q.correct_answer
-            };
-        });
-        console.log(`✅ Loaded ${questions.length} questions from database`);
-        res.json({questions});
-    } catch (error) {
-        console.error('❌ Questions API error:', error);
-        res.status(200).json({
-            questions: [],
-            error: error.message,
-            message: 'No questions found in database. Please add questions first.'
-        });
-    }
-});
-
-app.post('/api/admin/questions', async (req, res) => {
-    try {
-        const {testId, questionText, options, correctAnswer, section, marks} = req.body;
-        const [maxQ] = await pool.query(
-            'SELECT MAX(question_number) as max_num FROM questions WHERE test_id = ?',
-            [testId]
-        );
-        const questionNumber = (maxQ[0]?.max_num || 0) + 1;
-        const [result] = await pool.query(
-            `INSERT INTO questions 
-             (test_id, question_number, question_text, options, correct_answer, section, marks_positive) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [testId, questionNumber, questionText, JSON.stringify(options), correctAnswer, section || 'Physics', marks || 4]
-        );
-        console.log('✅ Question added:', result.insertId);
-        res.status(201).json({question: {id: result.insertId, questionNumber, ...req.body}});
-    } catch (error) {
-        console.error('❌ Add question error:', error);
-        res.status(500).json({error: error.message});
-    }
-});
-
-app.put('/api/admin/questions/:id', async (req, res) => {
-    try {
-        const {questionText, options, correctAnswer, section, marks} = req.body;
-        await pool.query(
-            `UPDATE questions 
-             SET question_text=?, options=?, correct_answer=?, section=?, marks_positive=? 
-             WHERE id=?`,
-            [questionText, JSON.stringify(options), correctAnswer, section, marks, req.params.id]
-        );
-        console.log('✅ Question updated:', req.params.id);
-        res.json({question:{id:parseInt(req.params.id),...req.body}});
-    } catch (error) {
-        console.error('❌ Update question error:', error);
-        res.status(500).json({error:error.message});
-    }
-});
-
-app.delete('/api/admin/questions/:id', async (req, res) => {
-    try {
-        await pool.query('DELETE FROM questions WHERE id=?', [req.params.id]);
-        console.log('✅ Question deleted:', req.params.id);
-        res.json({message:'Question deleted successfully'});
-    } catch (error) {
-        console.error('❌ Delete question error:', error);
-        res.status(500).json({error:error.message});
-    }
-});
-
-app.post('/api/admin/questions/:id/image', (req, res) => {
-    console.log('✅ Image linked to question:', req.params.id);
-    res.json({success: true, message: 'Image linked successfully'});
-});
+// ========== QUESTION ROUTES (OLD + NEW OOP) ==========
+app.use('/api/admin', questionRoutes);
+console.log('✅ Question routes mounted (OLD + NEW OOP routes)');
+// =====================================================
 
 // ========== SCHEDULED TESTS API ==========
 
@@ -838,9 +731,11 @@ const HOST = '0.0.0.0';
       console.log(`✅ Profile: GET /api/admin/profile`);
       console.log(`✅ Notifications: GET /api/admin/notifications`);
       console.log(`✅ Notifications Count: GET /api/admin/notifications/count`);
-      console.log(`✅ Mark All Read: POST /api/admin/notifications/mark-all-read`);
       console.log(`✅ CORS: Vercel domains allowed`);
-      console.log(`✅ Questions: /api/admin/questions`);
+      console.log(`✅ Questions OLD: GET/POST/PUT/DELETE /api/admin/questions`);
+      console.log(`🆕 Questions OOP: GET/POST/PUT/DELETE /api/admin/questions-v2`);
+      console.log(`🆕 Statistics: GET /api/admin/questions-v2/stats/all`);
+      console.log(`🆕 Bulk Import: POST /api/admin/questions-v2/bulk`);
       console.log(`✅ Tests CRUD: GET/POST/PUT/DELETE /api/admin/tests`);
       console.log(`✅ CREATE TEST: POST /api/admin/create-test`);
       console.log(`✅ PDF Upload: POST /api/pdf/upload`);
