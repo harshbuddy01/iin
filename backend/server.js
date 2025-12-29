@@ -1,5 +1,4 @@
 // 🚀 IIN Education Platform - Backend Server
-// Force rebuild: 2025-12-29 14:23 IST - Running difficulty migration
 
 import express from 'express';
 import cors from 'cors';
@@ -49,13 +48,13 @@ const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
     })
   : null;
 
-// Import routes
-import adminRoutes from './routes/admin.routes.js';
-import authRoutes from './routes/auth.routes.js';
-import paymentRoutes from './routes/payment.routes.js';
-import examRoutes from './routes/exam.routes.js';
-import testRoutes from './routes/test.routes.js';
-import questionRoutes from './routes/question.routes.js'; // 🔥 NEW OOP Question Routes
+// Import routes - FIXED: Use correct filenames
+import adminRoutes from './routes/adminRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import examRoutes from './routes/examRoutes.js';
+import testRoutes from './routes/testRoutes.js';
+import questionRoutes from './routes/questionRoutes.js'; // 🔥 NEW OOP Question Routes
 
 // Admin API routes (NEW structure with /admin prefix)
 console.log('🔵 Setting up Admin API routes...');
