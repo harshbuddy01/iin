@@ -1,12 +1,20 @@
 import express from 'express';
 import { pool } from '../config/mysql.js';
+import { QuestionService } from '../services/QuestionService.js';
 
 const router = express.Router();
 
-// GET all questions with better error handling
+// Initialize OOP service
+const questionService = new QuestionService();
+
+// =============================================================================
+// OLD ROUTES (Keep working during migration)
+// =============================================================================
+
+// GET all questions with better error handling (OLD - WORKING)
 router.get('/questions', async (req, res) => {
     try {
-        console.log('🔍 [QUESTIONS] Fetching questions from database...');
+        console.log('🔍 [QUESTIONS-OLD] Fetching questions from database...');
         
         const subject = req.query.subject || '';
         const difficulty = req.query.difficulty || '';
@@ -37,7 +45,7 @@ router.get('/questions', async (req, res) => {
         
         const [rows] = await pool.query(query, params);
         
-        console.log(`📊 [QUESTIONS] Found ${rows.length} questions`);
+        console.log(`📊 [QUESTIONS-OLD] Found ${rows.length} questions`);
         
         const questions = rows.map((q, index) => {
             let options = [];
@@ -73,11 +81,11 @@ router.get('/questions', async (req, res) => {
             };
         });
         
-        console.log(`✅ [QUESTIONS] Returning ${questions.length} questions`);
+        console.log(`✅ [QUESTIONS-OLD] Returning ${questions.length} questions`);
         res.json({ questions });
         
     } catch (error) {
-        console.error('❌ [QUESTIONS] Error fetching questions:', error);
+        console.error('❌ [QUESTIONS-OLD] Error fetching questions:', error);
         res.status(500).json({
             questions: [],
             error: error.message,
@@ -86,10 +94,10 @@ router.get('/questions', async (req, res) => {
     }
 });
 
-// POST new question
+// POST new question (OLD - WORKING)
 router.post('/questions', async (req, res) => {
     try {
-        console.log('➕ [QUESTIONS] Adding new question:', req.body);
+        console.log('➕ [QUESTIONS-OLD] Adding new question:', req.body);
         
         const { testId, questionText, options, correctAnswer, section, marks } = req.body;
         
@@ -129,7 +137,7 @@ router.post('/questions', async (req, res) => {
             ]
         );
         
-        console.log(`✅ [QUESTIONS] Question added with ID: ${result.insertId}`);
+        console.log(`✅ [QUESTIONS-OLD] Question added with ID: ${result.insertId}`);
         
         res.status(201).json({
             question: {
@@ -145,15 +153,15 @@ router.post('/questions', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ [QUESTIONS] Error adding question:', error);
+        console.error('❌ [QUESTIONS-OLD] Error adding question:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// PUT update question
+// PUT update question (OLD - WORKING)
 router.put('/questions/:id', async (req, res) => {
     try {
-        console.log(`✏️ [QUESTIONS] Updating question ${req.params.id}`);
+        console.log(`✏️ [QUESTIONS-OLD] Updating question ${req.params.id}`);
         
         const { questionText, options, correctAnswer, section, marks } = req.body;
         
@@ -171,7 +179,7 @@ router.put('/questions/:id', async (req, res) => {
             ]
         );
         
-        console.log(`✅ [QUESTIONS] Question ${req.params.id} updated`);
+        console.log(`✅ [QUESTIONS-OLD] Question ${req.params.id} updated`);
         
         res.json({
             question: {
@@ -181,25 +189,197 @@ router.put('/questions/:id', async (req, res) => {
         });
         
     } catch (error) {
-        console.error(`❌ [QUESTIONS] Error updating question ${req.params.id}:`, error);
+        console.error(`❌ [QUESTIONS-OLD] Error updating question ${req.params.id}:`, error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// DELETE question
+// DELETE question (OLD - WORKING)
 router.delete('/questions/:id', async (req, res) => {
     try {
-        console.log(`🗑️ [QUESTIONS] Deleting question ${req.params.id}`);
+        console.log(`🗑️ [QUESTIONS-OLD] Deleting question ${req.params.id}`);
         
         await pool.query('DELETE FROM questions WHERE id=?', [req.params.id]);
         
-        console.log(`✅ [QUESTIONS] Question ${req.params.id} deleted`);
+        console.log(`✅ [QUESTIONS-OLD] Question ${req.params.id} deleted`);
         
         res.json({ message: 'Question deleted successfully' });
         
     } catch (error) {
-        console.error(`❌ [QUESTIONS] Error deleting question ${req.params.id}:`, error);
+        console.error(`❌ [QUESTIONS-OLD] Error deleting question ${req.params.id}:`, error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+// =============================================================================
+// NEW OOP ROUTES (For testing and gradual migration)
+// =============================================================================
+
+// GET all questions with OOP (NEW - TESTING)
+router.get('/questions-v2', async (req, res) => {
+    try {
+        console.log('🆕 [QUESTIONS-OOP] Fetching questions with OOP service...');
+        
+        const filters = {
+            section: req.query.subject || req.query.section,
+            difficulty: req.query.difficulty,
+            search: req.query.search,
+            limit: parseInt(req.query.limit) || 100,
+            offset: parseInt(req.query.offset) || 0
+        };
+        
+        const result = await questionService.getAllQuestions(filters);
+        
+        console.log(`✅ [QUESTIONS-OOP] Returning ${result.count} questions`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ [QUESTIONS-OOP] Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            questions: []
+        });
+    }
+});
+
+// GET single question by ID (NEW - OOP)
+router.get('/questions-v2/:id', async (req, res) => {
+    try {
+        console.log(`🆕 [QUESTIONS-OOP] Fetching question ${req.params.id}`);
+        
+        const result = await questionService.getQuestionById(req.params.id);
+        
+        console.log(`✅ [QUESTIONS-OOP] Found question ${req.params.id}`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
+        res.status(404).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// POST new question with OOP (NEW - TESTING)
+router.post('/questions-v2', async (req, res) => {
+    try {
+        console.log('🆕 [QUESTIONS-OOP] Creating question with OOP service');
+        
+        const result = await questionService.createQuestion(req.body);
+        
+        console.log(`✅ [QUESTIONS-OOP] Question created: ${result.question.id}`);
+        res.status(201).json(result);
+        
+    } catch (error) {
+        console.error('❌ [QUESTIONS-OOP] Error:', error);
+        res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// PUT update question with OOP (NEW - TESTING)
+router.put('/questions-v2/:id', async (req, res) => {
+    try {
+        console.log(`🆕 [QUESTIONS-OOP] Updating question ${req.params.id}`);
+        
+        const result = await questionService.updateQuestion(req.params.id, req.body);
+        
+        console.log(`✅ [QUESTIONS-OOP] Question updated: ${req.params.id}`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
+        res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// DELETE question with OOP (NEW - TESTING)
+router.delete('/questions-v2/:id', async (req, res) => {
+    try {
+        console.log(`🆕 [QUESTIONS-OOP] Deleting question ${req.params.id}`);
+        
+        const result = await questionService.deleteQuestion(req.params.id);
+        
+        console.log(`✅ [QUESTIONS-OOP] Question deleted: ${req.params.id}`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// GET questions by test ID (NEW - OOP)
+router.get('/questions-v2/test/:testId', async (req, res) => {
+    try {
+        console.log(`🆕 [QUESTIONS-OOP] Fetching questions for test ${req.params.testId}`);
+        
+        const result = await questionService.getQuestionsByTestId(req.params.testId);
+        
+        console.log(`✅ [QUESTIONS-OOP] Found ${result.count} questions for test`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ [QUESTIONS-OOP] Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// GET question statistics (NEW - OOP ONLY)
+router.get('/questions-v2/stats/all', async (req, res) => {
+    try {
+        console.log('🆕 [QUESTIONS-OOP] Getting statistics');
+        
+        const result = await questionService.getStatistics();
+        
+        console.log('✅ [QUESTIONS-OOP] Statistics calculated');
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ [QUESTIONS-OOP] Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// POST bulk import questions (NEW - OOP ONLY)
+router.post('/questions-v2/bulk', async (req, res) => {
+    try {
+        console.log(`🆕 [QUESTIONS-OOP] Bulk importing ${req.body.questions?.length || 0} questions`);
+        
+        if (!req.body.questions || !Array.isArray(req.body.questions)) {
+            return res.status(400).json({
+                success: false,
+                error: 'questions array is required'
+            });
+        }
+        
+        const result = await questionService.bulkImportQuestions(req.body.questions);
+        
+        console.log(`✅ [QUESTIONS-OOP] Bulk import completed`);
+        res.json(result);
+        
+    } catch (error) {
+        console.error('❌ [QUESTIONS-OOP] Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
     }
 });
 
