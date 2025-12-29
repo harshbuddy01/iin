@@ -8,7 +8,267 @@ const router = express.Router();
 const questionService = new QuestionService();
 
 // =============================================================================
-// OLD ROUTES (Keep working during migration)
+// 🎯 NEW UNIFIED API - ADMIN TO STUDENT FLOW
+// =============================================================================
+
+/**
+ * POST /api/admin/questions
+ * 
+ * Admin uploads question → Backend saves to MySQL → Student fetches
+ * 
+ * Expected payload:
+ * {
+ *   testId: "IISER_2025" | "ISI_2025_A" | "NEST_2025",
+ *   examType: "IISER" | "ISI" | "NEST",
+ *   year: "2025",
+ *   paperType: "A" | "B" | null,
+ *   questionNumber: 1,
+ *   questionText: "Question text here...",
+ *   options: ["Option A", "Option B", "Option C", "Option D"],
+ *   correctAnswer: "A" | "B" | "C" | "D",
+ *   section: "Physics" | "Chemistry" | "Mathematics" | "Biology",
+ *   marks: 4,
+ *   difficulty: "Easy" | "Medium" | "Hard",
+ *   topic: "Mechanics" (optional),
+ *   explanation: "Solution explanation" (optional)
+ * }
+ */
+router.post('/questions', async (req, res) => {
+    try {
+        console.log('📥 [ADMIN] Receiving new question...');
+        console.log('📦 Payload:', JSON.stringify(req.body, null, 2));
+        
+        const {
+            testId,
+            examType,
+            year,
+            paperType,
+            questionNumber,
+            questionText,
+            options,
+            correctAnswer,
+            section,
+            marks,
+            difficulty,
+            topic,
+            explanation
+        } = req.body;
+        
+        // ===== VALIDATION =====
+        if (!testId || !examType || !year) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: testId, examType, year'
+            });
+        }
+        
+        if (!questionNumber || !questionText || !section) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: questionNumber, questionText, section'
+            });
+        }
+        
+        if (!Array.isArray(options) || options.length !== 4) {
+            return res.status(400).json({
+                success: false,
+                error: 'Options must be an array of exactly 4 items'
+            });
+        }
+        
+        if (!correctAnswer || !['A', 'B', 'C', 'D'].includes(correctAnswer)) {
+            return res.status(400).json({
+                success: false,
+                error: 'correctAnswer must be A, B, C, or D'
+            });
+        }
+        
+        // Validate exam type
+        if (!['IISER', 'ISI', 'NEST'].includes(examType)) {
+            return res.status(400).json({
+                success: false,
+                error: 'examType must be IISER, ISI, or NEST'
+            });
+        }
+        
+        // For ISI, paperType is required
+        if (examType === 'ISI' && !paperType) {
+            return res.status(400).json({
+                success: false,
+                error: 'paperType (A or B) is required for ISI exams'
+            });
+        }
+        
+        // Check if question number already exists for this test+section
+        const [existingQuestions] = await pool.query(
+            'SELECT id FROM questions WHERE test_id = ? AND question_number = ? AND section = ?',
+            [testId, questionNumber, section]
+        );
+        
+        if (existingQuestions.length > 0) {
+            return res.status(400).json({
+                success: false,
+                error: `Question number ${questionNumber} already exists for ${testId} - ${section}. Please use a different number or update the existing question.`
+            });
+        }
+        
+        // ===== INSERT QUESTION INTO DATABASE =====
+        const [result] = await pool.query(
+            `INSERT INTO questions (
+                test_id, 
+                question_number, 
+                question_text, 
+                options, 
+                correct_answer, 
+                section, 
+                marks_positive,
+                marks_negative,
+                difficulty,
+                topic,
+                input_method,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [
+                testId,
+                questionNumber,
+                questionText,
+                JSON.stringify(options),
+                correctAnswer,
+                section,
+                marks || 4,
+                -1, // Default negative marking
+                difficulty || 'Medium',
+                topic || null,
+                'manual'
+            ]
+        );
+        
+        console.log(`✅ [ADMIN] Question added with ID: ${result.insertId}`);
+        console.log(`📊 Test ID: ${testId}`);
+        console.log(`📝 Question Number: ${questionNumber}`);
+        console.log(`📚 Subject: ${section}`);
+        
+        // Return success response
+        res.status(201).json({
+            success: true,
+            message: 'Question added successfully',
+            question: {
+                id: result.insertId,
+                testId,
+                examType,
+                year,
+                paperType,
+                questionNumber,
+                section,
+                marks: marks || 4,
+                difficulty: difficulty || 'Medium',
+                topic
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ [ADMIN] Error adding question:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            details: 'Failed to add question. Please check server logs.'
+        });
+    }
+});
+
+// =============================================================================
+// 🎓 STUDENT-FACING API - GET QUESTIONS BY TEST ID
+// =============================================================================
+
+/**
+ * GET /api/exam/questions?testId=IISER_2025
+ * 
+ * Student selects exam → Fetches questions for that testId
+ * 
+ * Used by: exam.html
+ */
+router.get('/exam/questions', async (req, res) => {
+    try {
+        const { testId } = req.query;
+        
+        console.log(`🎓 [STUDENT] Fetching questions for testId: ${testId}`);
+        
+        if (!testId) {
+            return res.status(400).json({
+                success: false,
+                error: 'testId parameter is required'
+            });
+        }
+        
+        // Fetch all questions for this test, ordered by question_number
+        const [questions] = await pool.query(
+            `SELECT 
+                id,
+                test_id as testId,
+                question_number as questionNumber,
+                question_text as questionText,
+                options,
+                correct_answer as correctAnswer,
+                section,
+                marks_positive as marks,
+                marks_negative as negativeMarks,
+                difficulty,
+                topic
+            FROM questions 
+            WHERE test_id = ? 
+            ORDER BY question_number ASC`,
+            [testId]
+        );
+        
+        if (questions.length === 0) {
+            console.log(`⚠️ [STUDENT] No questions found for testId: ${testId}`);
+            return res.status(404).json({
+                success: false,
+                error: `No questions found for test: ${testId}`
+            });
+        }
+        
+        // Parse options JSON for each question
+        const parsedQuestions = questions.map(q => {
+            let options = [];
+            try {
+                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+            } catch (e) {
+                console.error(`⚠️ Failed to parse options for question ${q.id}:`, e);
+                options = [];
+            }
+            
+            return {
+                ...q,
+                options: options,
+                optionA: options[0] || '',
+                optionB: options[1] || '',
+                optionC: options[2] || '',
+                optionD: options[3] || ''
+            };
+        });
+        
+        console.log(`✅ [STUDENT] Returning ${parsedQuestions.length} questions for ${testId}`);
+        
+        res.json({
+            success: true,
+            testId: testId,
+            count: parsedQuestions.length,
+            questions: parsedQuestions
+        });
+        
+    } catch (error) {
+        console.error('❌ [STUDENT] Error fetching questions:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            questions: []
+        });
+    }
+});
+
+// =============================================================================
+// OLD ROUTES (Keep for backward compatibility)
 // =============================================================================
 
 // GET all questions with better error handling (OLD - WORKING)
@@ -50,16 +310,12 @@ router.get('/questions', async (req, res) => {
         const questions = rows.map((q, index) => {
             let options = [];
             
-            // Safe JSON parsing with fallback
             try {
                 if (q.options) {
                     if (typeof q.options === 'string') {
                         options = JSON.parse(q.options);
                     } else if (Array.isArray(q.options)) {
                         options = q.options;
-                    } else {
-                        console.warn(`⚠️ Question ${q.id}: Invalid options format`);
-                        options = [];
                     }
                 }
             } catch (parseError) {
@@ -91,70 +347,6 @@ router.get('/questions', async (req, res) => {
             error: error.message,
             message: 'Failed to fetch questions. Please check server logs.'
         });
-    }
-});
-
-// POST new question (OLD - WORKING)
-router.post('/questions', async (req, res) => {
-    try {
-        console.log('➕ [QUESTIONS-OLD] Adding new question:', req.body);
-        
-        const { testId, questionText, options, correctAnswer, section, marks } = req.body;
-        
-        // Validate required fields
-        if (!testId || !questionText || !correctAnswer || !section) {
-            return res.status(400).json({
-                error: 'Missing required fields: testId, questionText, correctAnswer, section'
-            });
-        }
-        
-        if (!Array.isArray(options) || options.length === 0) {
-            return res.status(400).json({
-                error: 'Options must be a non-empty array'
-            });
-        }
-        
-        // Get next question number for this test
-        const [maxQ] = await pool.query(
-            'SELECT MAX(question_number) as max_num FROM questions WHERE test_id = ?',
-            [testId]
-        );
-        const questionNumber = (maxQ[0]?.max_num || 0) + 1;
-        
-        // Insert question
-        const [result] = await pool.query(
-            `INSERT INTO questions 
-             (test_id, question_number, question_text, options, correct_answer, section, marks_positive) 
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [
-                testId,
-                questionNumber,
-                questionText,
-                JSON.stringify(options),
-                correctAnswer,
-                section,
-                marks || 4
-            ]
-        );
-        
-        console.log(`✅ [QUESTIONS-OLD] Question added with ID: ${result.insertId}`);
-        
-        res.status(201).json({
-            question: {
-                id: result.insertId,
-                questionNumber,
-                testId,
-                questionText,
-                options,
-                correctAnswer,
-                section,
-                marks: marks || 4
-            }
-        });
-        
-    } catch (error) {
-        console.error('❌ [QUESTIONS-OLD] Error adding question:', error);
-        res.status(500).json({ error: error.message });
     }
 });
 
@@ -212,7 +404,7 @@ router.delete('/questions/:id', async (req, res) => {
 });
 
 // =============================================================================
-// NEW OOP ROUTES (For testing and gradual migration)
+// OOP ROUTES (For testing and gradual migration)
 // =============================================================================
 
 // GET all questions with OOP (NEW - TESTING)
@@ -239,146 +431,6 @@ router.get('/questions-v2', async (req, res) => {
             success: false,
             error: error.message,
             questions: []
-        });
-    }
-});
-
-// GET single question by ID (NEW - OOP)
-router.get('/questions-v2/:id', async (req, res) => {
-    try {
-        console.log(`🆕 [QUESTIONS-OOP] Fetching question ${req.params.id}`);
-        
-        const result = await questionService.getQuestionById(req.params.id);
-        
-        console.log(`✅ [QUESTIONS-OOP] Found question ${req.params.id}`);
-        res.json(result);
-        
-    } catch (error) {
-        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
-        res.status(404).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// POST new question with OOP (NEW - TESTING)
-router.post('/questions-v2', async (req, res) => {
-    try {
-        console.log('🆕 [QUESTIONS-OOP] Creating question with OOP service');
-        
-        const result = await questionService.createQuestion(req.body);
-        
-        console.log(`✅ [QUESTIONS-OOP] Question created: ${result.question.id}`);
-        res.status(201).json(result);
-        
-    } catch (error) {
-        console.error('❌ [QUESTIONS-OOP] Error:', error);
-        res.status(400).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// PUT update question with OOP (NEW - TESTING)
-router.put('/questions-v2/:id', async (req, res) => {
-    try {
-        console.log(`🆕 [QUESTIONS-OOP] Updating question ${req.params.id}`);
-        
-        const result = await questionService.updateQuestion(req.params.id, req.body);
-        
-        console.log(`✅ [QUESTIONS-OOP] Question updated: ${req.params.id}`);
-        res.json(result);
-        
-    } catch (error) {
-        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
-        res.status(400).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// DELETE question with OOP (NEW - TESTING)
-router.delete('/questions-v2/:id', async (req, res) => {
-    try {
-        console.log(`🆕 [QUESTIONS-OOP] Deleting question ${req.params.id}`);
-        
-        const result = await questionService.deleteQuestion(req.params.id);
-        
-        console.log(`✅ [QUESTIONS-OOP] Question deleted: ${req.params.id}`);
-        res.json(result);
-        
-    } catch (error) {
-        console.error(`❌ [QUESTIONS-OOP] Error:`, error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// GET questions by test ID (NEW - OOP)
-router.get('/questions-v2/test/:testId', async (req, res) => {
-    try {
-        console.log(`🆕 [QUESTIONS-OOP] Fetching questions for test ${req.params.testId}`);
-        
-        const result = await questionService.getQuestionsByTestId(req.params.testId);
-        
-        console.log(`✅ [QUESTIONS-OOP] Found ${result.count} questions for test`);
-        res.json(result);
-        
-    } catch (error) {
-        console.error('❌ [QUESTIONS-OOP] Error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// GET question statistics (NEW - OOP ONLY)
-router.get('/questions-v2/stats/all', async (req, res) => {
-    try {
-        console.log('🆕 [QUESTIONS-OOP] Getting statistics');
-        
-        const result = await questionService.getStatistics();
-        
-        console.log('✅ [QUESTIONS-OOP] Statistics calculated');
-        res.json(result);
-        
-    } catch (error) {
-        console.error('❌ [QUESTIONS-OOP] Error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-// POST bulk import questions (NEW - OOP ONLY)
-router.post('/questions-v2/bulk', async (req, res) => {
-    try {
-        console.log(`🆕 [QUESTIONS-OOP] Bulk importing ${req.body.questions?.length || 0} questions`);
-        
-        if (!req.body.questions || !Array.isArray(req.body.questions)) {
-            return res.status(400).json({
-                success: false,
-                error: 'questions array is required'
-            });
-        }
-        
-        const result = await questionService.bulkImportQuestions(req.body.questions);
-        
-        console.log(`✅ [QUESTIONS-OOP] Bulk import completed`);
-        res.json(result);
-        
-    } catch (error) {
-        console.error('❌ [QUESTIONS-OOP] Error:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
         });
     }
 });
