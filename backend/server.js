@@ -94,11 +94,11 @@ app.get('/', (req, res) => {
 });
 
 // Database connection and server start
-import { testConnection } from './config/mysql.js';
+import { connectDB } from './config/mysql.js';  // ✅ FIXED: Use connectDB not testConnection
 import { runMigrations } from './config/runMigrations.js';
 
 console.log('🔗 Connecting to database...');
-await testConnection();
+await connectDB();  // ✅ FIXED
 
 console.log('🛠️ Running database migrations...');
 await runMigrations();
