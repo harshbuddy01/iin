@@ -1,43 +1,41 @@
-/**
- * Question Service
- * Created: Dec 29, 2025
- * Purpose: Business logic layer for question management
- * 
- * SERVICE LAYER BENEFITS:
- * - Separates business rules from routes
- * - Reusable across different endpoints
- * - Easy to test
- * - Handles validation, error handling, and data transformation
- */
-
 import { QuestionRepository } from '../repositories/QuestionRepository.js';
 import { Question } from '../models/Question.js';
 
+/**
+ * QuestionService - Business Logic Layer
+ * Handles all question-related operations with validation and error handling
+ */
 export class QuestionService {
     constructor() {
         this.repository = new QuestionRepository();
     }
     
     /**
-     * Get all questions with filters
+     * Get all questions with optional filtering
+     * @param {Object} filters - Filter options (section, difficulty, search, limit)
+     * @returns {Object} Success response with questions array
      */
     async getAllQuestions(filters = {}) {
         try {
             console.log('🔍 [QuestionService] Fetching questions with filters:', filters);
-            
             const startTime = Date.now();
-            const questions = await this.repository.findAll(filters);
-            const responseTime = Date.now() - startTime;
             
-            console.log(`✅ [QuestionService] Found ${questions.length} questions in ${responseTime}ms`);
+            // Get questions from repository
+            const questions = await this.repository.findAll(filters);
+            
+            const duration = Date.now() - startTime;
+            console.log(`✅ [QuestionService] Fetched ${questions.length} questions in ${duration}ms`);
             
             return {
                 success: true,
                 questions: questions.map(q => q.toJSON()),
                 count: questions.length,
-                responseTime: `${responseTime}ms`
+                filters: filters,
+                performance: {
+                    duration: `${duration}ms`,
+                    cached: false
+                }
             };
-            
         } catch (error) {
             console.error('❌ [QuestionService] Error fetching questions:', error);
             throw new Error(`Failed to fetch questions: ${error.message}`);
@@ -45,25 +43,26 @@ export class QuestionService {
     }
     
     /**
-     * Get question by ID
+     * Get a single question by ID
+     * @param {number} id - Question ID
+     * @returns {Object} Success response with question data
      */
     async getQuestionById(id) {
         try {
-            console.log(`🔍 [QuestionService] Fetching question ${id}`);
+            console.log(`🔍 [QuestionService] Fetching question ID: ${id}`);
             
             const question = await this.repository.findById(id);
             
             if (!question) {
-                throw new Error('Question not found');
+                throw new Error(`Question with ID ${id} not found`);
             }
             
-            console.log(`✅ [QuestionService] Found question ${id}`);
+            console.log(`✅ [QuestionService] Found question ID: ${id}`);
             
             return {
                 success: true,
                 question: question.toJSON()
             };
-            
         } catch (error) {
             console.error(`❌ [QuestionService] Error fetching question ${id}:`, error);
             throw error;
@@ -71,74 +70,46 @@ export class QuestionService {
     }
     
     /**
-     * Get questions for a specific test
-     */
-    async getQuestionsByTestId(testId) {
-        try {
-            console.log(`🔍 [QuestionService] Fetching questions for test ${testId}`);
-            
-            const questions = await this.repository.findByTestId(testId);
-            
-            console.log(`✅ [QuestionService] Found ${questions.length} questions for test ${testId}`);
-            
-            return {
-                success: true,
-                questions: questions.map(q => q.toJSON()),
-                count: questions.length,
-                testId
-            };
-            
-        } catch (error) {
-            console.error(`❌ [QuestionService] Error fetching questions for test ${testId}:`, error);
-            throw new Error(`Failed to fetch questions for test: ${error.message}`);
-        }
-    }
-    
-    /**
-     * Get questions for exam (without answers)
-     */
-    async getExamQuestions(testId) {
-        try {
-            console.log(`🔍 [QuestionService] Fetching exam questions for test ${testId}`);
-            
-            const questions = await this.repository.findByTestId(testId);
-            
-            console.log(`✅ [QuestionService] Found ${questions.length} exam questions`);
-            
-            return {
-                success: true,
-                questions: questions.map(q => q.toExamFormat()), // No answers
-                count: questions.length,
-                testId
-            };
-            
-        } catch (error) {
-            console.error(`❌ [QuestionService] Error fetching exam questions:`, error);
-            throw new Error(`Failed to fetch exam questions: ${error.message}`);
-        }
-    }
-    
-    /**
-     * Create new question
+     * Create a new question
+     * @param {Object} questionData - Question data
+     * @returns {Object} Success response with created question
      */
     async createQuestion(questionData) {
         try {
-            console.log('➕ [QuestionService] Creating new question');
+            console.log('➕ [QuestionService] Creating new question:', questionData);
             
-            // Create Question object from request data
-            const question = Question.fromRequest(questionData);
-            
-            // Get next question number
-            if (!question.questionNumber || question.questionNumber === 0) {
-                question.questionNumber = await this.repository.getNextQuestionNumber(question.testId);
+            // Validate required fields
+            if (!questionData.testId) {
+                throw new Error('testId is required');
             }
             
-            // Validate
+            if (!questionData.questionText && !questionData.text) {
+                throw new Error('Question text is required');
+            }
+            
+            if (!questionData.section) {
+                throw new Error('Section/subject is required');
+            }
+            
+            // Get next question number for this test
+            const questionNumber = await this.repository.getNextQuestionNumber(questionData.testId);
+            console.log(`📋 [QuestionService] Assigning question number: ${questionNumber}`);
+            
+            // Create Question object
+            const question = new Question({
+                ...questionData,
+                questionNumber,
+                text: questionData.questionText || questionData.text
+            });
+            
+            // Validate question data
             const validation = question.validate();
             if (!validation.isValid) {
                 console.error('❌ [QuestionService] Validation failed:', validation.errors);
                 throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
             }
+            
+            console.log('✅ [QuestionService] Validation passed');
             
             // Save to database
             const savedQuestion = await this.repository.create(question);
@@ -147,10 +118,9 @@ export class QuestionService {
             
             return {
                 success: true,
-                question: savedQuestion.toJSON(),
-                message: 'Question created successfully'
+                message: 'Question created successfully',
+                question: savedQuestion.toJSON()
             };
-            
         } catch (error) {
             console.error('❌ [QuestionService] Error creating question:', error);
             throw error;
@@ -158,46 +128,65 @@ export class QuestionService {
     }
     
     /**
-     * Update existing question
+     * Update an existing question
+     * @param {number} id - Question ID
+     * @param {Object} questionData - Updated question data
+     * @returns {Object} Success response with updated question
      */
     async updateQuestion(id, questionData) {
         try {
-            console.log(`✏️ [QuestionService] Updating question ${id}`);
+            console.log(`✏️ [QuestionService] Updating question ${id}:`, questionData);
             
             // Check if question exists
             const existing = await this.repository.findById(id);
             if (!existing) {
-                throw new Error('Question not found');
+                throw new Error(`Question with ID ${id} not found`);
             }
             
-            // Update fields
-            if (questionData.questionText) existing.text = questionData.questionText;
-            if (questionData.options) existing.options = questionData.options;
-            if (questionData.correctAnswer) existing.correctAnswer = questionData.correctAnswer;
-            if (questionData.section) existing.section = questionData.section;
-            if (questionData.topic) existing.topic = questionData.topic;
-            if (questionData.difficulty) existing.difficulty = questionData.difficulty;
-            if (questionData.marks !== undefined) existing.marks = questionData.marks;
-            if (questionData.negativeMarks !== undefined) existing.negativeMarks = questionData.negativeMarks;
+            console.log(`📋 [QuestionService] Found existing question: ${existing.text.substring(0, 50)}...`);
             
-            // Validate
+            // Update fields
+            if (questionData.questionText || questionData.text) {
+                existing.text = questionData.questionText || questionData.text;
+            }
+            if (questionData.options) {
+                existing.options = questionData.options;
+            }
+            if (questionData.correctAnswer) {
+                existing.correctAnswer = questionData.correctAnswer;
+            }
+            if (questionData.section) {
+                existing.section = questionData.section;
+            }
+            if (questionData.marks) {
+                existing.marks = questionData.marks;
+            }
+            if (questionData.difficulty) {
+                existing.difficulty = questionData.difficulty;
+            }
+            if (questionData.topic) {
+                existing.topic = questionData.topic;
+            }
+            
+            // Validate updated question
             const validation = existing.validate();
             if (!validation.isValid) {
                 console.error('❌ [QuestionService] Validation failed:', validation.errors);
                 throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
             }
             
-            // Save
+            console.log('✅ [QuestionService] Validation passed');
+            
+            // Save to database
             await this.repository.update(id, existing);
             
-            console.log(`✅ [QuestionService] Question ${id} updated`);
+            console.log(`✅ [QuestionService] Question ${id} updated successfully`);
             
             return {
                 success: true,
-                question: existing.toJSON(),
-                message: 'Question updated successfully'
+                message: 'Question updated successfully',
+                question: existing.toJSON()
             };
-            
         } catch (error) {
             console.error(`❌ [QuestionService] Error updating question ${id}:`, error);
             throw error;
@@ -205,7 +194,9 @@ export class QuestionService {
     }
     
     /**
-     * Delete question
+     * Delete a question
+     * @param {number} id - Question ID
+     * @returns {Object} Success response
      */
     async deleteQuestion(id) {
         try {
@@ -214,19 +205,21 @@ export class QuestionService {
             // Check if question exists
             const existing = await this.repository.findById(id);
             if (!existing) {
-                throw new Error('Question not found');
+                throw new Error(`Question with ID ${id} not found`);
             }
             
-            // Delete
+            console.log(`📋 [QuestionService] Found question to delete: ${existing.text.substring(0, 50)}...`);
+            
+            // Delete from database
             await this.repository.delete(id);
             
-            console.log(`✅ [QuestionService] Question ${id} deleted`);
+            console.log(`✅ [QuestionService] Question ${id} deleted successfully`);
             
             return {
                 success: true,
-                message: 'Question deleted successfully'
+                message: 'Question deleted successfully',
+                deletedId: id
             };
-            
         } catch (error) {
             console.error(`❌ [QuestionService] Error deleting question ${id}:`, error);
             throw error;
@@ -234,124 +227,98 @@ export class QuestionService {
     }
     
     /**
-     * Check student answer
+     * Get questions by test ID
+     * @param {string} testId - Test ID
+     * @returns {Object} Success response with questions array
      */
-    async checkAnswer(questionId, studentAnswer) {
+    async getQuestionsByTestId(testId) {
         try {
-            const question = await this.repository.findById(questionId);
+            console.log(`🔍 [QuestionService] Fetching questions for test: ${testId}`);
             
-            if (!question) {
-                throw new Error('Question not found');
-            }
+            const questions = await this.repository.findByTestId(testId);
             
-            const isCorrect = question.checkAnswer(studentAnswer);
-            const marks = question.getMarks(studentAnswer);
+            console.log(`✅ [QuestionService] Found ${questions.length} questions for test ${testId}`);
             
             return {
                 success: true,
-                isCorrect,
-                marks,
-                correctAnswer: isCorrect ? null : question.correctAnswer // Show only if wrong
+                testId,
+                questions: questions.map(q => q.toJSON()),
+                count: questions.length
             };
-            
         } catch (error) {
-            console.error(`❌ [QuestionService] Error checking answer:`, error);
-            throw error;
+            console.error(`❌ [QuestionService] Error fetching questions for test ${testId}:`, error);
+            throw new Error(`Failed to fetch questions for test: ${error.message}`);
         }
     }
     
     /**
      * Bulk import questions
+     * @param {Array} questionsData - Array of question data objects
+     * @returns {Object} Success response with import statistics
      */
-    async bulkImport(questionsData, testId) {
+    async bulkImportQuestions(questionsData) {
         try {
-            console.log(`📥 [QuestionService] Bulk importing ${questionsData.length} questions`);
+            console.log(`📦 [QuestionService] Starting bulk import of ${questionsData.length} questions`);
             
-            const questions = [];
-            const errors = [];
+            const results = {
+                success: 0,
+                failed: 0,
+                errors: []
+            };
             
-            // Validate all questions first
             for (let i = 0; i < questionsData.length; i++) {
                 try {
-                    const question = Question.fromRequest({
-                        ...questionsData[i],
-                        testId,
-                        questionNumber: i + 1
-                    });
-                    
-                    const validation = question.validate();
-                    if (!validation.isValid) {
-                        errors.push({
-                            index: i + 1,
-                            errors: validation.errors
-                        });
-                    } else {
-                        questions.push(question);
-                    }
+                    await this.createQuestion(questionsData[i]);
+                    results.success++;
+                    console.log(`✅ [QuestionService] Imported question ${i + 1}/${questionsData.length}`);
                 } catch (error) {
-                    errors.push({
-                        index: i + 1,
-                        errors: [error.message]
+                    results.failed++;
+                    results.errors.push({
+                        index: i,
+                        question: questionsData[i],
+                        error: error.message
                     });
+                    console.error(`❌ [QuestionService] Failed to import question ${i + 1}:`, error.message);
                 }
             }
             
-            // If any errors, don't import
-            if (errors.length > 0) {
-                throw new Error(`Validation failed for ${errors.length} questions`);
-            }
-            
-            // Import all questions
-            const imported = await this.repository.bulkCreate(questions);
-            
-            console.log(`✅ [QuestionService] Successfully imported ${imported.length} questions`);
+            console.log(`✅ [QuestionService] Bulk import completed: ${results.success} success, ${results.failed} failed`);
             
             return {
                 success: true,
-                imported: imported.length,
-                questions: imported.map(q => q.toJSON()),
-                message: `Successfully imported ${imported.length} questions`
+                message: 'Bulk import completed',
+                statistics: {
+                    total: questionsData.length,
+                    successful: results.success,
+                    failed: results.failed
+                },
+                errors: results.errors
             };
-            
         } catch (error) {
-            console.error('❌ [QuestionService] Error during bulk import:', error);
-            throw error;
+            console.error('❌ [QuestionService] Error in bulk import:', error);
+            throw new Error(`Bulk import failed: ${error.message}`);
         }
     }
     
     /**
      * Get question statistics
+     * @returns {Object} Statistics about questions
      */
-    async getStatistics(filters = {}) {
+    async getStatistics() {
         try {
-            const total = await this.repository.count(filters);
+            console.log('📊 [QuestionService] Calculating statistics');
             
-            const byDifficulty = {
-                Easy: await this.repository.count({ ...filters, difficulty: 'Easy' }),
-                Medium: await this.repository.count({ ...filters, difficulty: 'Medium' }),
-                Hard: await this.repository.count({ ...filters, difficulty: 'Hard' })
-            };
+            const stats = await this.repository.getStatistics();
             
-            const bySection = {
-                Physics: await this.repository.count({ ...filters, section: 'Physics' }),
-                Chemistry: await this.repository.count({ ...filters, section: 'Chemistry' }),
-                Mathematics: await this.repository.count({ ...filters, section: 'Mathematics' })
-            };
+            console.log('✅ [QuestionService] Statistics calculated:', stats);
             
             return {
                 success: true,
-                statistics: {
-                    total,
-                    byDifficulty,
-                    bySection
-                }
+                statistics: stats
             };
-            
         } catch (error) {
-            console.error('❌ [QuestionService] Error getting statistics:', error);
-            throw error;
+            console.error('❌ [QuestionService] Error calculating statistics:', error);
+            throw new Error(`Failed to get statistics: ${error.message}`);
         }
     }
 }
-
-export default QuestionService;
