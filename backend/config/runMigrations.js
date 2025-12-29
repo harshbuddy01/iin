@@ -15,7 +15,8 @@ export const runMigrations = async () => {
       'create_payment_tables.sql',
       'create_exam_tables.sql',
       'alter_scheduled_tests_table.sql',
-      'fix_questions_table_schema.sql'  // 🔥 NEW: Fix missing columns for PDF upload
+      'fix_questions_table_schema.sql',  // 🔥 Fix missing columns for PDF upload
+      'add_difficulty_topic_columns.sql' // 🆕 Add difficulty and topic columns for OOP statistics
     ];
     
     for (const file of migrationFiles) {
