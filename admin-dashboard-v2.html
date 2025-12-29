@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Admin Portal - Dashboard</title>
-    <!-- Last updated: 2025-12-28 21:40 IST - Centralized Config for Hostinger Migration -->
-    <!-- Version: v8 - Migration Ready -->
+    <!-- Last updated: 2025-12-30 03:38 IST - Integrated Admin to Student Flow -->
+    <!-- Version: v9 - Complete Question Upload Flow -->
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=8">
-    <link rel="stylesheet" href="frontend/css/admin-modals.css?v=8">
-    <link rel="stylesheet" href="frontend/css/admin-forms.css?v=8">
-    <link rel="stylesheet" href="frontend/css/header-dropdowns.css?v=8">
+    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=9">
+    <link rel="stylesheet" href="frontend/css/admin-modals.css?v=9">
+    <link rel="stylesheet" href="frontend/css/admin-forms.css?v=9">
+    <link rel="stylesheet" href="frontend/css/header-dropdowns.css?v=9">
     
     <style>
     .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
@@ -156,10 +156,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <!-- 🔥 CENTRALIZED CONFIG - Easy Hostinger Migration -->
-    <script src="frontend/js/config.js?v=8"></script>
+    <script src="frontend/js/config.js?v=9"></script>
     
     <script>
-        console.log('🎯 Admin Panel v8 - Migration Ready');
+        console.log('🎯 Admin Panel v9 - Complete Admin to Student Flow');
         console.log('📍 Environment:', window.APP_CONFIG.ENVIRONMENT);
         console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
         
@@ -194,31 +194,31 @@
         }
     </script>
     
-    <!-- Core utilities with cache busting v8 -->
-    <script src="frontend/js/admin-api-service.js?v=8"></script>
-    <script src="frontend/js/admin-utils.js?v=8"></script>
+    <!-- Core utilities with cache busting v9 -->
+    <script src="frontend/js/admin-api-service.js?v=9"></script>
+    <script src="frontend/js/admin-utils.js?v=9"></script>
     
-    <!-- Feature modules with cache busting v8 -->
-    <script src="frontend/js/create-test.js?v=8"></script>
-    <script src="frontend/js/add-questions.js?v=8"></script>
-    <script src="frontend/js/view-questions.js?v=8"></script>
-    <script src="frontend/js/students.js?v=8"></script>
-    <script src="frontend/js/transactions.js?v=8"></script>
-    <script src="frontend/js/results.js?v=8"></script>
-    <script src="frontend/js/upload-image.js?v=8"></script>
+    <!-- Feature modules with cache busting v9 -->
+    <script src="frontend/js/create-test.js?v=9"></script>
+    <script src="frontend/js/add-questions-v2.js?v=9"></script>
+    <script src="frontend/js/view-questions.js?v=9"></script>
+    <script src="frontend/js/students.js?v=9"></script>
+    <script src="frontend/js/transactions.js?v=9"></script>
+    <script src="frontend/js/results.js?v=9"></script>
+    <script src="frontend/js/upload-image.js?v=9"></script>
     
-    <!-- Test management modules with cache busting v8 -->
-    <script src="frontend/js/test-calendar.js?v=8"></script>
-    <script src="frontend/js/scheduled-tests.js?v=8"></script>
-    <script src="frontend/js/past-tests.js?v=8"></script>
-    <script src="frontend/js/upload-pdf.js?v=8"></script>
+    <!-- Test management modules with cache busting v9 -->
+    <script src="frontend/js/test-calendar.js?v=9"></script>
+    <script src="frontend/js/scheduled-tests.js?v=9"></script>
+    <script src="frontend/js/past-tests.js?v=9"></script>
+    <script src="frontend/js/upload-pdf.js?v=9"></script>
     
-    <!-- Main dashboard controller (must load last) with cache busting v8 -->
-    <script src="frontend/js/admin-dashboard-v2.js?v=8"></script>
+    <!-- Main dashboard controller (must load last) with cache busting v9 -->
+    <script src="frontend/js/admin-dashboard-v2.js?v=9"></script>
     
     <script>
-        console.log('✅ All scripts loaded - v8 - Migration Ready');
-        console.log('🔍 initScheduledTests:', typeof window.initScheduledTests === 'function');
+        console.log('✅ All scripts loaded - v9 - Complete Admin to Student Flow');
+        console.log('🔍 initAddQuestions:', typeof window.initAddQuestions === 'function');
     </script>
 </body>
 </html>
