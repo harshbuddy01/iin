@@ -48,12 +48,12 @@ const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
     })
   : null;
 
-// Import routes - FIXED: Use correct filenames
+// Import routes - Only import files that exist
 import adminRoutes from './routes/adminRoutes.js';
-import authRoutes from './routes/authRoutes.js';
+// import authRoutes from './routes/authRoutes.js';  // TODO: File doesn't exist yet
 import paymentRoutes from './routes/paymentRoutes.js';
 import examRoutes from './routes/examRoutes.js';
-import testRoutes from './routes/testRoutes.js';
+// import testRoutes from './routes/testRoutes.js';  // TODO: File doesn't exist yet
 import questionRoutes from './routes/questionRoutes.js'; // 🔥 NEW OOP Question Routes
 
 // Admin API routes (NEW structure with /admin prefix)
@@ -65,10 +65,10 @@ console.log('✅ Admin API routes mounted');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
-app.use('/api/auth', authRoutes);
+// app.use('/api/auth', authRoutes);  // TODO: Commented out - file doesn't exist
 app.use('/api/payment', paymentRoutes);
 app.use('/api/exam', examRoutes);
-app.use('/api/test', testRoutes);
+// app.use('/api/test', testRoutes);  // TODO: Commented out - file doesn't exist
 
 // Health check
 app.get('/health', (req, res) => {
@@ -87,10 +87,8 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       admin: '/api/admin',
-      auth: '/api/auth',
       payment: '/api/payment',
-      exam: '/api/exam',
-      test: '/api/test'
+      exam: '/api/exam'
     }
   });
 });
