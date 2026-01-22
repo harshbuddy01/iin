@@ -1,0 +1,318 @@
+/* =========================================
+   HOMEPAGE CANVAS - IMMERSIVE SCIENCE BACKGROUND
+   Gateway to Science Visualization
+   ========================================= */
+
+/* Full-screen canvas container */
+#homepage-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Gradient overlay for better text readability */
+.canvas-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        /* Bottom gradient for content sections */
+        linear-gradient(to bottom,
+            transparent 0%,
+            transparent 60%,
+            rgba(0, 0, 0, 0.3) 80%,
+            rgba(0, 0, 0, 0.8) 100%),
+        /* Radial vignette */
+        radial-gradient(ellipse at center,
+            transparent 0%,
+            transparent 50%,
+            rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Hero section enhancements with canvas */
+.hero-with-canvas {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero-with-canvas .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 2rem;
+    max-width: 900px;
+}
+
+/* Glowing headline effect */
+.hero-with-canvas .hero-headline {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: #ffffff;
+    text-shadow:
+        0 0 40px rgba(59, 130, 246, 0.5),
+        0 0 80px rgba(139, 92, 246, 0.3);
+}
+
+.hero-with-canvas .hero-headline .highlight {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 5s ease infinite;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* Subheadline with glow */
+.hero-with-canvas .hero-subheadline {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 650px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Animated CTA buttons */
+.hero-with-canvas .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+}
+
+.hero-with-canvas .btn-primary-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow:
+        0 4px 15px rgba(59, 130, 246, 0.4),
+        0 0 30px rgba(59, 130, 246, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-with-canvas .btn-primary-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.hero-with-canvas .btn-primary-hero:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow:
+        0 8px 25px rgba(59, 130, 246, 0.5),
+        0 0 50px rgba(139, 92, 246, 0.4);
+}
+
+.hero-with-canvas .btn-primary-hero:hover::before {
+    opacity: 1;
+}
+
+.hero-with-canvas .btn-primary-hero span,
+.hero-with-canvas .btn-primary-hero svg {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-with-canvas .btn-secondary-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: transparent;
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hero-with-canvas .btn-secondary-hero:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Trust metrics with glass effect */
+.hero-with-canvas .hero-trust {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-with-canvas .trust-item {
+    text-align: center;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.hero-with-canvas .trust-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(59, 130, 246, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.hero-with-canvas .trust-number {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+}
+
+.hero-with-canvas .trust-label {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Scroll indicator */
+.hero-with-canvas .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: scrollBounce 2s ease-in-out infinite;
+}
+
+.hero-with-canvas .scroll-hint::after {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+    margin: 0.5rem auto 0;
+}
+
+@keyframes scrollBounce {
+
+    0%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: translateX(-50%) translateY(10px);
+        opacity: 1;
+    }
+}
+
+/* Ensure content below hero is above canvas */
+.institute-section,
+.minimal-footer,
+section {
+    position: relative;
+    z-index: 5;
+    background: linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.95) 0%,
+            #000000 10%,
+            #000000 100%);
+}
+
+/* First section after hero needs seamless transition */
+.institute-section:first-of-type {
+    background: linear-gradient(to bottom,
+            transparent 0%,
+            rgba(0, 0, 0, 0.8) 5%,
+            #000000 15%,
+            #000000 100%);
+    padding-top: 80px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .hero-with-canvas .hero-headline {
+        font-size: 2.5rem;
+    }
+
+    .hero-with-canvas .hero-subheadline {
+        font-size: 1rem;
+        padding: 0 1rem;
+    }
+
+    .hero-with-canvas .hero-trust {
+        gap: 1rem;
+    }
+
+    .hero-with-canvas .trust-item {
+        padding: 0.75rem 1rem;
+    }
+
+    .hero-with-canvas .trust-number {
+        font-size: 1.5rem;
+    }
+
+    .hero-with-canvas .btn-primary-hero,
+    .hero-with-canvas .btn-secondary-hero {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .hero-with-canvas .hero-headline .highlight {
+        animation: none;
+    }
+
+    .hero-with-canvas .scroll-hint {
+        animation: none;
+    }
+}

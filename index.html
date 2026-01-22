@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="frontend/css/index.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     <link rel="stylesheet" href="frontend/css/premium-hero.css">
+    <link rel="stylesheet" href="frontend/css/homepage-canvas.css">
 
     <style>
         /* DROPDOWN MENU STYLES */
@@ -410,6 +411,10 @@
 
     <div class="bg-animation"></div>
 
+    <!-- IMMERSIVE SCIENCE VISUALIZATION -->
+    <canvas id="homepage-canvas"></canvas>
+    <div class="canvas-overlay"></div>
+
     <nav class="navbar" id="navbar">
         <div class="logo">IIN<span>.edu</span></div>
         <div class="nav-links">
@@ -442,8 +447,8 @@
         </div>
     </nav>
 
-    <section class="hero" id="hero">
-        <!-- Clean Premium Hero - No Complex 3D -->
+    <section class="hero hero-with-canvas" id="hero">
+        <!-- Immersive 3D Science Background -->
         <div class="hero-content">
             <h1 class="hero-headline">
                 Gateway to <br><span class="highlight">Future Science</span>
@@ -703,6 +708,16 @@
     <script src="frontend/js/user-panel.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/index.js"></script>
+
+    <!-- Three.js for immersive science visualization -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="frontend/js/homepage-canvas.js"></script>
 </body>
 
 </html>
