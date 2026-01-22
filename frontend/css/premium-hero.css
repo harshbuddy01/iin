@@ -18,6 +18,11 @@
     background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0a0a1a 100%);
 }
 
+/* When canvas is active, make background transparent */
+.hero.hero-with-canvas {
+    background: transparent;
+}
+
 /* Animated Gradient Background (Subtle, Not Confusing) */
 .hero::before {
     content: '';
@@ -31,6 +36,11 @@
         radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
     animation: gradientMove 20s ease-in-out infinite;
     z-index: 0;
+}
+
+/* Hide gradient overlay when 3D canvas is active */
+.hero.hero-with-canvas::before {
+    display: none;
 }
 
 @keyframes gradientMove {
