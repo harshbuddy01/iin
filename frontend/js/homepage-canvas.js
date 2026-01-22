@@ -1,18 +1,18 @@
 import * as THREE from 'three';
 
 /**
- * HOMEPAGE CANVAS: "Gateway to Science" Immersive Visualization
+ * MESMERIZING HOMEPAGE VISUALIZATION
  * 
- * A stunning, immediately captivating experience featuring:
- * - Neural Network Constellation (interconnected nodes of knowledge)
- * - Orbital Particle Rings (scientific discovery paths)
- * - DNA Helix Flow (life sciences)
- * - Ambient Cosmic Dust (depth & mystery)
+ * A stunning, love-at-first-sight experience featuring:
+ * - Flowing Aurora/Nebula waves
+ * - Elegant particle constellation
+ * - Smooth, hypnotic animations
+ * - Deep, rich color palette (dark blues, teals, subtle whites)
  * 
- * Designed to WOW visitors the moment they land on the homepage.
+ * Designed to captivate visitors instantly.
  */
 
-class HomepageCanvas {
+class MesmerizingCanvas {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) return;
@@ -25,15 +25,17 @@ class HomepageCanvas {
         });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.setClearColor(0x000000, 1);
+
+        // Deep, rich background - almost black with subtle blue
+        this.renderer.setClearColor(0x030712, 1);
 
         this.camera = new THREE.PerspectiveCamera(
-            60,
+            75,
             window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.camera.position.z = 50;
+        this.camera.position.z = 30;
 
         this.clock = new THREE.Clock();
         this.mouse = new THREE.Vector2(0, 0);
@@ -45,327 +47,216 @@ class HomepageCanvas {
     }
 
     init() {
-        // === NEURAL NETWORK CONSTELLATION ===
-        // Interconnected glowing nodes representing knowledge networks
-        this.createNeuralNetwork();
+        // === FLOWING AURORA WAVES ===
+        this.createAuroraWaves();
 
-        // === ORBITAL RINGS ===
-        // Scientific discovery paths orbiting around center
-        this.createOrbitalRings();
+        // === ELEGANT STAR FIELD ===
+        this.createStarField();
 
-        // === DNA DOUBLE HELIX ===
-        // Life science representation
-        this.createDNAHelix();
+        // === CENTRAL GLOWING ORB ===
+        this.createCentralOrb();
 
-        // === COSMIC BACKGROUND PARTICLES ===
-        // Depth and atmosphere
-        this.createCosmicDust();
+        // === FLOWING PARTICLE STREAMS ===
+        this.createParticleStreams();
 
-        // === CENTRAL ENERGY CORE ===
-        // Glowing nucleus at the center
-        this.createEnergyCore();
-
-        // === LIGHTING ===
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        // === SUBTLE AMBIENT LIGHTING ===
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
         this.scene.add(ambientLight);
-
-        const pointLight1 = new THREE.PointLight(0x3b82f6, 2, 100);
-        pointLight1.position.set(20, 20, 20);
-        this.scene.add(pointLight1);
-        this.pointLight1 = pointLight1;
-
-        const pointLight2 = new THREE.PointLight(0x8b5cf6, 1.5, 100);
-        pointLight2.position.set(-20, -10, 20);
-        this.scene.add(pointLight2);
-        this.pointLight2 = pointLight2;
-
-        const pointLight3 = new THREE.PointLight(0x06b6d4, 1, 80);
-        pointLight3.position.set(0, 30, -20);
-        this.scene.add(pointLight3);
-        this.pointLight3 = pointLight3;
     }
 
-    createNeuralNetwork() {
-        const nodeCount = 80;
-        const nodes = [];
+    createAuroraWaves() {
+        // Create flowing wave meshes that look like aurora borealis
+        this.auroraWaves = [];
+
+        const waveColors = [
+            { color: 0x0ea5e9, emissive: 0x0284c7, opacity: 0.15 }, // Sky blue
+            { color: 0x06b6d4, emissive: 0x0891b2, opacity: 0.12 }, // Cyan
+            { color: 0x14b8a6, emissive: 0x0d9488, opacity: 0.10 }, // Teal
+        ];
+
+        for (let w = 0; w < 3; w++) {
+            const geometry = new THREE.PlaneGeometry(100, 40, 100, 20);
+            const material = new THREE.MeshBasicMaterial({
+                color: waveColors[w].color,
+                transparent: true,
+                opacity: waveColors[w].opacity,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending,
+                wireframe: false
+            });
+
+            const wave = new THREE.Mesh(geometry, material);
+            wave.rotation.x = -Math.PI / 3;
+            wave.position.y = -10 + w * 5;
+            wave.position.z = -30 - w * 10;
+
+            wave.userData = {
+                originalPositions: geometry.attributes.position.array.slice(),
+                speed: 0.3 + w * 0.1,
+                amplitude: 3 - w * 0.5
+            };
+
+            this.auroraWaves.push(wave);
+            this.scene.add(wave);
+        }
+    }
+
+    createStarField() {
+        // Elegant, subtle star field with depth
+        const starCount = 2000;
         const positions = [];
+        const sizes = [];
         const colors = [];
 
-        // Create node positions in a spherical distribution
-        for (let i = 0; i < nodeCount; i++) {
-            const phi = Math.acos(2 * Math.random() - 1);
+        for (let i = 0; i < starCount; i++) {
+            // Distribute stars in a hemisphere in front of camera
+            const radius = 50 + Math.random() * 100;
             const theta = Math.random() * Math.PI * 2;
-            const radius = 20 + Math.random() * 15;
+            const phi = Math.random() * Math.PI * 0.6; // Concentrated toward center
 
             const x = radius * Math.sin(phi) * Math.cos(theta);
-            const y = radius * Math.sin(phi) * Math.sin(theta);
-            const z = radius * Math.cos(phi);
+            const y = radius * Math.sin(phi) * Math.sin(theta) - 20;
+            const z = -radius * Math.cos(phi);
 
-            nodes.push(new THREE.Vector3(x, y, z));
             positions.push(x, y, z);
 
-            // Gradient from blue to cyan to purple
-            const t = i / nodeCount;
-            const r = 0.23 + t * 0.35;
-            const g = 0.51 + t * 0.2;
-            const b = 0.96 - t * 0.1;
-            colors.push(r, g, b);
+            // Vary star sizes - most small, few larger
+            const size = Math.random() < 0.95 ? Math.random() * 0.3 + 0.1 : Math.random() * 0.8 + 0.5;
+            sizes.push(size);
+
+            // Subtle color variation - mostly white/light blue
+            const brightness = 0.7 + Math.random() * 0.3;
+            const blueShift = Math.random() * 0.1;
+            colors.push(brightness, brightness + blueShift * 0.5, brightness + blueShift);
         }
 
-        // Create node points
-        const nodeGeometry = new THREE.BufferGeometry();
-        nodeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        nodeGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
-        const nodeMaterial = new THREE.PointsMaterial({
-            size: 1.5,
+        const material = new THREE.PointsMaterial({
+            size: 0.3,
             vertexColors: true,
             transparent: true,
-            opacity: 0.9,
-            blending: THREE.AdditiveBlending
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true
         });
 
-        this.neuralNodes = new THREE.Points(nodeGeometry, nodeMaterial);
-        this.scene.add(this.neuralNodes);
-
-        // Create connections between nearby nodes
-        const connectionPositions = [];
-        const connectionColors = [];
-        const maxDistance = 15;
-
-        for (let i = 0; i < nodes.length; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-                const distance = nodes[i].distanceTo(nodes[j]);
-                if (distance < maxDistance) {
-                    connectionPositions.push(
-                        nodes[i].x, nodes[i].y, nodes[i].z,
-                        nodes[j].x, nodes[j].y, nodes[j].z
-                    );
-
-                    const alpha = 1 - distance / maxDistance;
-                    connectionColors.push(
-                        0.23, 0.51, 0.96, alpha * 0.3,
-                        0.55, 0.36, 0.96, alpha * 0.3
-                    );
-                }
-            }
-        }
-
-        const lineGeometry = new THREE.BufferGeometry();
-        lineGeometry.setAttribute('position', new THREE.Float32BufferAttribute(connectionPositions, 3));
-
-        const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x3b82f6,
-            transparent: true,
-            opacity: 0.15,
-            blending: THREE.AdditiveBlending
-        });
-
-        this.neuralConnections = new THREE.LineSegments(lineGeometry, lineMaterial);
-        this.scene.add(this.neuralConnections);
-
-        this.nodeData = nodes;
+        this.starField = new THREE.Points(geometry, material);
+        this.scene.add(this.starField);
     }
 
-    createOrbitalRings() {
-        this.orbitalRings = [];
-        const ringColors = [0x3b82f6, 0x8b5cf6, 0x06b6d4, 0x22d3ee];
+    createCentralOrb() {
+        // Glowing central orb that pulses gently
+        const geometry = new THREE.SphereGeometry(3, 64, 64);
 
-        for (let r = 0; r < 4; r++) {
-            const radius = 25 + r * 8;
-            const particleCount = 100 + r * 30;
+        // Inner glow
+        const innerMaterial = new THREE.MeshBasicMaterial({
+            color: 0x0ea5e9,
+            transparent: true,
+            opacity: 0.6,
+        });
+        this.centralOrb = new THREE.Mesh(geometry, innerMaterial);
+        this.centralOrb.position.set(0, 0, -20);
+        this.scene.add(this.centralOrb);
+
+        // Outer glow layers
+        for (let i = 1; i <= 4; i++) {
+            const glowGeometry = new THREE.SphereGeometry(3 + i * 1.5, 32, 32);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x0ea5e9,
+                transparent: true,
+                opacity: 0.15 / i,
+                blending: THREE.AdditiveBlending,
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            glow.position.copy(this.centralOrb.position);
+            this.scene.add(glow);
+        }
+
+        // Light rays emanating from orb
+        this.createLightRays();
+    }
+
+    createLightRays() {
+        const rayCount = 12;
+        this.lightRays = [];
+
+        for (let i = 0; i < rayCount; i++) {
+            const angle = (i / rayCount) * Math.PI * 2;
+            const length = 15 + Math.random() * 10;
+
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array([
+                0, 0, 0,
+                Math.cos(angle) * length, Math.sin(angle) * length * 0.3, 0
+            ]);
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.LineBasicMaterial({
+                color: 0x0ea5e9,
+                transparent: true,
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending
+            });
+
+            const ray = new THREE.Line(geometry, material);
+            ray.position.set(0, 0, -20);
+            ray.userData = { baseOpacity: 0.1 + Math.random() * 0.15, phase: Math.random() * Math.PI * 2 };
+
+            this.lightRays.push(ray);
+            this.scene.add(ray);
+        }
+    }
+
+    createParticleStreams() {
+        // Elegant flowing particles that orbit around
+        const streamCount = 3;
+        this.particleStreams = [];
+
+        const streamColors = [0x0ea5e9, 0x22d3ee, 0x14b8a6];
+
+        for (let s = 0; s < streamCount; s++) {
+            const particleCount = 150;
             const positions = [];
-            const velocities = [];
+            const baseAngles = [];
 
             for (let i = 0; i < particleCount; i++) {
                 const angle = (i / particleCount) * Math.PI * 2;
-                const variance = (Math.random() - 0.5) * 3;
+                const radius = 12 + s * 4 + Math.sin(angle * 3) * 2;
+                const height = Math.sin(angle * 2) * 3;
 
-                const x = Math.cos(angle) * (radius + variance);
-                const y = (Math.random() - 0.5) * 4;
-                const z = Math.sin(angle) * (radius + variance);
-
-                positions.push(x, y, z);
-                velocities.push(angle);
+                positions.push(
+                    Math.cos(angle) * radius,
+                    height,
+                    Math.sin(angle) * radius - 20
+                );
+                baseAngles.push(angle);
             }
 
             const geometry = new THREE.BufferGeometry();
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
             const material = new THREE.PointsMaterial({
-                size: 0.8 - r * 0.1,
-                color: ringColors[r],
+                size: 0.4 - s * 0.1,
+                color: streamColors[s],
                 transparent: true,
-                opacity: 0.7 - r * 0.1,
+                opacity: 0.7 - s * 0.15,
                 blending: THREE.AdditiveBlending
             });
 
-            const ring = new THREE.Points(geometry, material);
-            ring.userData = {
-                radius,
-                velocities,
-                speed: 0.3 - r * 0.05,
-                tilt: (r - 1.5) * 0.15
+            const stream = new THREE.Points(geometry, material);
+            stream.userData = {
+                baseRadius: 12 + s * 4,
+                speed: 0.2 - s * 0.03,
+                baseAngles: baseAngles,
+                verticalOffset: s
             };
-            ring.rotation.x = ring.userData.tilt;
 
-            this.orbitalRings.push(ring);
-            this.scene.add(ring);
+            this.particleStreams.push(stream);
+            this.scene.add(stream);
         }
-    }
-
-    createDNAHelix() {
-        const helixPoints = 200;
-        const positions1 = [];
-        const positions2 = [];
-        const connections = [];
-        const colors = [];
-
-        for (let i = 0; i < helixPoints; i++) {
-            const t = i / helixPoints;
-            const angle = t * Math.PI * 6;
-            const y = (t - 0.5) * 60;
-            const radius = 8;
-
-            // Strand 1
-            const x1 = Math.cos(angle) * radius - 35;
-            const z1 = Math.sin(angle) * radius;
-            positions1.push(x1, y, z1);
-
-            // Strand 2 (opposite phase)
-            const x2 = Math.cos(angle + Math.PI) * radius - 35;
-            const z2 = Math.sin(angle + Math.PI) * radius;
-            positions2.push(x2, y, z2);
-
-            // Base pair connections (every 10 points)
-            if (i % 10 === 0) {
-                connections.push(x1, y, z1, x2, y, z2);
-            }
-
-            // Colors
-            const hue = 0.55 + t * 0.15;
-            colors.push(hue, 0.8, 0.9);
-        }
-
-        // Strand 1
-        const geometry1 = new THREE.BufferGeometry();
-        geometry1.setAttribute('position', new THREE.Float32BufferAttribute(positions1, 3));
-        const material1 = new THREE.PointsMaterial({
-            size: 0.6,
-            color: 0x06b6d4,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
-        });
-        this.dnaStrand1 = new THREE.Points(geometry1, material1);
-        this.scene.add(this.dnaStrand1);
-
-        // Strand 2
-        const geometry2 = new THREE.BufferGeometry();
-        geometry2.setAttribute('position', new THREE.Float32BufferAttribute(positions2, 3));
-        const material2 = new THREE.PointsMaterial({
-            size: 0.6,
-            color: 0x8b5cf6,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
-        });
-        this.dnaStrand2 = new THREE.Points(geometry2, material2);
-        this.scene.add(this.dnaStrand2);
-
-        // Base pair connections
-        const connectionGeometry = new THREE.BufferGeometry();
-        connectionGeometry.setAttribute('position', new THREE.Float32BufferAttribute(connections, 3));
-        const connectionMaterial = new THREE.LineBasicMaterial({
-            color: 0x22d3ee,
-            transparent: true,
-            opacity: 0.3,
-            blending: THREE.AdditiveBlending
-        });
-        this.dnaConnections = new THREE.LineSegments(connectionGeometry, connectionMaterial);
-        this.scene.add(this.dnaConnections);
-
-        // Store original positions for animation
-        this.dnaOriginalPositions1 = positions1.slice();
-        this.dnaOriginalPositions2 = positions2.slice();
-    }
-
-    createCosmicDust() {
-        const particleCount = 1500;
-        const positions = [];
-        const sizes = [];
-        const colors = [];
-
-        for (let i = 0; i < particleCount; i++) {
-            // Spherical distribution with more density at edges
-            const radius = 30 + Math.pow(Math.random(), 0.5) * 70;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-
-            positions.push(
-                radius * Math.sin(phi) * Math.cos(theta),
-                radius * Math.sin(phi) * Math.sin(theta),
-                radius * Math.cos(phi)
-            );
-
-            sizes.push(Math.random() * 0.5 + 0.1);
-
-            // Subtle color variation
-            const brightness = 0.3 + Math.random() * 0.4;
-            colors.push(brightness, brightness * 1.1, brightness * 1.3);
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 0.4,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.6,
-            blending: THREE.AdditiveBlending
-        });
-
-        this.cosmicDust = new THREE.Points(geometry, material);
-        this.scene.add(this.cosmicDust);
-    }
-
-    createEnergyCore() {
-        // Inner glowing sphere
-        const coreGeometry = new THREE.IcosahedronGeometry(5, 3);
-        const coreMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x3b82f6,
-            emissive: 0x1e40af,
-            emissiveIntensity: 0.5,
-            metalness: 0.3,
-            roughness: 0.2,
-            transparent: true,
-            opacity: 0.4,
-            wireframe: true
-        });
-        this.energyCore = new THREE.Mesh(coreGeometry, coreMaterial);
-        this.scene.add(this.energyCore);
-
-        // Outer pulsing shell
-        const shellGeometry = new THREE.IcosahedronGeometry(7, 2);
-        const shellMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x8b5cf6,
-            emissive: 0x6366f1,
-            emissiveIntensity: 0.3,
-            metalness: 0.1,
-            roughness: 0.5,
-            transparent: true,
-            opacity: 0.2,
-            wireframe: true
-        });
-        this.energyShell = new THREE.Mesh(shellGeometry, shellMaterial);
-        this.scene.add(this.energyShell);
-
-        // Store original vertices for morphing
-        this.coreOriginalPositions = coreGeometry.attributes.position.array.slice();
-        this.shellOriginalPositions = shellGeometry.attributes.position.array.slice();
     }
 
     addListeners() {
@@ -373,13 +264,6 @@ class HomepageCanvas {
         window.addEventListener('mousemove', (e) => {
             this.targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             this.targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-
-        // Handle scroll for parallax effect
-        window.addEventListener('scroll', () => {
-            const scrollY = window.scrollY;
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            this.scrollProgress = scrollY / maxScroll;
         });
     }
 
@@ -397,95 +281,78 @@ class HomepageCanvas {
         const time = this.clock.getElapsedTime();
 
         // Smooth mouse interpolation
-        this.mouse.x += (this.targetMouse.x - this.mouse.x) * 0.05;
-        this.mouse.y += (this.targetMouse.y - this.mouse.y) * 0.05;
+        this.mouse.x += (this.targetMouse.x - this.mouse.x) * 0.03;
+        this.mouse.y += (this.targetMouse.y - this.mouse.y) * 0.03;
 
-        // === ANIMATE NEURAL NETWORK ===
-        if (this.neuralNodes) {
-            this.neuralNodes.rotation.y = time * 0.05;
-            this.neuralNodes.rotation.x = Math.sin(time * 0.1) * 0.1;
-        }
-        if (this.neuralConnections) {
-            this.neuralConnections.rotation.y = time * 0.05;
-            this.neuralConnections.rotation.x = Math.sin(time * 0.1) * 0.1;
-        }
+        // === ANIMATE AURORA WAVES ===
+        this.auroraWaves.forEach((wave, index) => {
+            const positions = wave.geometry.attributes.position.array;
+            const original = wave.userData.originalPositions;
+            const speed = wave.userData.speed;
+            const amplitude = wave.userData.amplitude;
 
-        // === ANIMATE ORBITAL RINGS ===
-        this.orbitalRings.forEach((ring, index) => {
-            ring.rotation.y = time * ring.userData.speed * (index % 2 === 0 ? 1 : -1);
-            ring.rotation.z = Math.sin(time * 0.2 + index) * 0.05;
+            for (let i = 0; i < positions.length; i += 3) {
+                const x = original[i];
+                const y = original[i + 1];
+
+                // Create flowing wave motion
+                const waveOffset = Math.sin(x * 0.05 + time * speed) * amplitude;
+                const secondaryWave = Math.sin(x * 0.02 - time * speed * 0.5) * amplitude * 0.5;
+
+                positions[i + 2] = original[i + 2] + waveOffset + secondaryWave;
+            }
+            wave.geometry.attributes.position.needsUpdate = true;
+
+            // Subtle horizontal drift
+            wave.position.x = Math.sin(time * 0.1 + index) * 5;
         });
 
-        // === ANIMATE DNA HELIX ===
-        if (this.dnaStrand1 && this.dnaStrand2) {
-            const twist = time * 0.5;
-            this.dnaStrand1.rotation.y = twist * 0.1;
-            this.dnaStrand2.rotation.y = twist * 0.1;
-            this.dnaConnections.rotation.y = twist * 0.1;
-
-            // Vertical oscillation
-            this.dnaStrand1.position.y = Math.sin(time * 0.3) * 2;
-            this.dnaStrand2.position.y = Math.sin(time * 0.3) * 2;
-            this.dnaConnections.position.y = Math.sin(time * 0.3) * 2;
+        // === ANIMATE STAR FIELD ===
+        if (this.starField) {
+            this.starField.rotation.y = time * 0.01;
+            this.starField.rotation.x = Math.sin(time * 0.05) * 0.02;
         }
 
-        // === ANIMATE COSMIC DUST ===
-        if (this.cosmicDust) {
-            this.cosmicDust.rotation.y = time * 0.01;
-            this.cosmicDust.rotation.x = time * 0.005;
+        // === ANIMATE CENTRAL ORB ===
+        if (this.centralOrb) {
+            // Gentle pulsing
+            const pulse = 1 + Math.sin(time * 1.5) * 0.1;
+            this.centralOrb.scale.set(pulse, pulse, pulse);
+
+            // Subtle rotation
+            this.centralOrb.rotation.y = time * 0.2;
         }
 
-        // === ANIMATE ENERGY CORE ===
-        if (this.energyCore && this.energyShell) {
-            // Rotation
-            this.energyCore.rotation.y = time * 0.3;
-            this.energyCore.rotation.x = time * 0.2;
-            this.energyShell.rotation.y = -time * 0.15;
-            this.energyShell.rotation.z = time * 0.1;
+        // === ANIMATE LIGHT RAYS ===
+        this.lightRays.forEach((ray, i) => {
+            const phase = ray.userData.phase;
+            ray.material.opacity = ray.userData.baseOpacity * (0.5 + Math.sin(time * 2 + phase) * 0.5);
+            ray.rotation.z = time * 0.1;
+        });
 
-            // Pulsing effect on core
-            const pulse = 1 + Math.sin(time * 2) * 0.1;
-            this.energyCore.scale.set(pulse, pulse, pulse);
+        // === ANIMATE PARTICLE STREAMS ===
+        this.particleStreams.forEach((stream, index) => {
+            const positions = stream.geometry.attributes.position.array;
+            const baseRadius = stream.userData.baseRadius;
+            const speed = stream.userData.speed;
+            const baseAngles = stream.userData.baseAngles;
 
-            // Breathing effect on shell
-            const breath = 1 + Math.sin(time * 1.5) * 0.05;
-            this.energyShell.scale.set(breath, breath, breath);
+            for (let i = 0; i < positions.length / 3; i++) {
+                const angle = baseAngles[i] + time * speed;
+                const radiusVariation = Math.sin(angle * 3 + time) * 2;
+                const radius = baseRadius + radiusVariation;
 
-            // Morph core vertices
-            const corePositions = this.energyCore.geometry.attributes.position.array;
-            for (let i = 0; i < corePositions.length; i += 3) {
-                const ox = this.coreOriginalPositions[i];
-                const oy = this.coreOriginalPositions[i + 1];
-                const oz = this.coreOriginalPositions[i + 2];
-                const distance = Math.sqrt(ox * ox + oy * oy + oz * oz);
-                const wave = Math.sin(distance + time * 3) * 0.3;
-
-                corePositions[i] = ox + (ox / distance) * wave;
-                corePositions[i + 1] = oy + (oy / distance) * wave;
-                corePositions[i + 2] = oz + (oz / distance) * wave;
+                positions[i * 3] = Math.cos(angle) * radius;
+                positions[i * 3 + 1] = Math.sin(angle * 2 + time * 0.5) * 3;
+                positions[i * 3 + 2] = Math.sin(angle) * radius - 20;
             }
-            this.energyCore.geometry.attributes.position.needsUpdate = true;
-        }
+            stream.geometry.attributes.position.needsUpdate = true;
+        });
 
-        // === ANIMATE LIGHTS ===
-        if (this.pointLight1) {
-            this.pointLight1.position.x = Math.sin(time * 0.5) * 25;
-            this.pointLight1.position.z = Math.cos(time * 0.5) * 25;
-        }
-        if (this.pointLight2) {
-            this.pointLight2.position.x = Math.sin(time * 0.3 + Math.PI) * 20;
-            this.pointLight2.position.y = Math.cos(time * 0.4) * 15;
-        }
-
-        // === CAMERA MOVEMENT ===
-        // Mouse parallax
-        this.camera.position.x += (this.mouse.x * 8 - this.camera.position.x) * 0.03;
-        this.camera.position.y += (this.mouse.y * 5 - this.camera.position.y) * 0.03;
-
-        // Subtle automatic drift
-        this.camera.position.z = 50 + Math.sin(time * 0.2) * 3;
-
-        this.camera.lookAt(0, 0, 0);
+        // === CAMERA PARALLAX ===
+        this.camera.position.x += (this.mouse.x * 5 - this.camera.position.x) * 0.02;
+        this.camera.position.y += (this.mouse.y * 3 - this.camera.position.y) * 0.02;
+        this.camera.lookAt(0, 0, -20);
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -493,7 +360,7 @@ class HomepageCanvas {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new HomepageCanvas('homepage-canvas');
+    new MesmerizingCanvas('homepage-canvas');
 });
 
-export default HomepageCanvas;
+export default MesmerizingCanvas;
