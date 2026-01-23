@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About | IIN.edu</title>
+    <title>About | Vigyan.prep</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- AOS Library for Scroll Animations -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
+
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']], processEscapes: true }
         };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/pages.css">
@@ -27,129 +30,194 @@
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css">
 
     <style>
-        :root { --blue: #3b82f6; --navy-dark: #020617; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; overflow-x: hidden; }
-        
-        .grid-bg { 
-            position: fixed; 
-            inset: 0; 
-            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); 
-            background-size: 30px 30px; 
-            z-index: -1; 
-            pointer-events: none; 
+        :root {
+            --blue: #3b82f6;
+            --navy-dark: #020617;
         }
-        
-        .hud-text { 
-            font-family: monospace; 
-            font-size: 10px; 
-            color: #475569; 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: white;
+            overflow-x: hidden;
         }
-        
-        .scroll-progress { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            height: 3px; 
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); 
-            z-index: 9999; 
-            width: 0; 
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .hud-text {
+            font-family: monospace;
+            font-size: 10px;
+            color: #475569;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            z-index: 9999;
+            width: 0;
             transition: width 0.1s ease;
         }
-        
-        .gradient-text-animated { 
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #8b5cf6, #3b82f6); 
-            background-size: 200% 100%; 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            background-clip: text; 
-            animation: gradientFlow 4s linear infinite; 
+
+        .gradient-text-animated {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #8b5cf6, #3b82f6);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 4s linear infinite;
         }
-        
-        @keyframes gradientFlow { 
-            to { background-position: 200% center; } 
+
+        @keyframes gradientFlow {
+            to {
+                background-position: 200% center;
+            }
         }
-        
-        .kalam-quote { 
-            border-left: 3px solid var(--blue); 
-            padding-left: 2rem; 
+
+        .kalam-quote {
+            border-left: 3px solid var(--blue);
+            padding-left: 2rem;
         }
-        
+
         .glass-panel {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        
+
         /* Logo link styling */
         .logo a {
             text-decoration: none;
             color: inherit;
             transition: opacity 0.3s ease;
         }
-        
+
         .logo a:hover {
             opacity: 0.8;
         }
-        
+
         /* Custom AOS animations */
         [data-aos="fade-up-scale"] {
             transform: translateY(50px) scale(0.9);
             opacity: 0;
         }
-        
+
         [data-aos="fade-up-scale"].aos-animate {
             transform: translateY(0) scale(1);
             opacity: 1;
         }
-        
+
         [data-aos="glow-in"] {
             opacity: 0;
             box-shadow: 0 0 0 rgba(59, 130, 246, 0);
         }
-        
+
         [data-aos="glow-in"].aos-animate {
             opacity: 1;
             box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
         }
+
+        /* VIGYAN.PREP Premium Logo */
+        .logo .logo-vigyan {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 15%, #f59e0b 30%, #ffffff 50%, #fcd34d 70%, #f59e0b 85%, #fef3c7 100%);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+            animation: vigyanShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes vigyanShimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .logo .logo-dot {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 1rem;
+            color: rgba(148, 163, 184, 0.5);
+            margin-left: 1px;
+        }
+
+        .logo .logo-prep {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: lowercase;
+            color: rgba(148, 163, 184, 0.4);
+        }
     </style>
 </head>
+
 <body>
     <div class="scroll-progress" id="scrollProgress"></div>
     <div class="grid-bg"></div>
 
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
+        id="navbar">
         <div class="logo text-2xl font-black text-white">
-            <a href="index.html">IIN<span class="text-blue-500">.edu</span></a>
+            <a href="index.html" style="display:inline-flex;align-items:baseline;text-decoration:none;"><span
+                    class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span
+                    class="logo-prep">prep</span></a>
         </div>
-        
+
         <div class="nav-links hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
-            
+
             <!-- About Dropdown -->
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">About <i class="fas fa-chevron-down"></i></a>
+                <a href="#"
+                    class="dropdown-trigger text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">About
+                    <i class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="aboutpage.html">About Us</a>
                     <a href="shoutouts.html">Shoutouts</a>
                 </div>
             </div>
-            
+
             <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
             <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
-            
+
             <!-- Future Career Dropdown -->
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i
+                        class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="future.html">Future Career</a>
                     <a href="sciencenews.html">Science News</a>
                 </div>
             </div>
-            
+
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition">
+                <a href="signinpage.html"
+                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition">
                     Login
                 </a>
             </div>
@@ -157,64 +225,47 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 pt-48 pb-20">
-        
+
         <!-- Hero Header -->
-        <header class="mb-32" 
-                data-aos="fade-up" 
-                data-aos-duration="800" 
-                data-aos-once="false">
-            <div class="hud-text mb-4" 
-                 data-aos="fade-down" 
-                 data-aos-delay="50">Core Objective // v2025.04</div>
-            
+        <header class="mb-32" data-aos="fade-up" data-aos-duration="800" data-aos-once="false">
+            <div class="hud-text mb-4" data-aos="fade-down" data-aos-delay="50">Core Objective // v2025.04</div>
+
             <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] uppercase text-white"
-                data-aos="fade-right"
-                data-aos-delay="100"
-                data-aos-duration="800">
+                data-aos="fade-right" data-aos-delay="100" data-aos-duration="800">
                 PIONEERING THE <br>
-                <span class="text-blue-500"
-                      data-aos="fade-left"
-                      data-aos-delay="200"
-                      data-aos-duration="800">TEST REVOLUTION.</span>
+                <span class="text-blue-500" data-aos="fade-left" data-aos-delay="200" data-aos-duration="800">TEST
+                    REVOLUTION.</span>
             </h1>
-            
+
             <p class="text-slate-400 text-lg max-w-2xl leading-relaxed border-l-2 border-blue-500 pl-8"
-               data-aos="fade-up"
-               data-aos-delay="300"
-               data-aos-duration="800">
-                IIN is a response to the dilution of scientific assessment. We provide the most rigorous, conceptual-first test series for India's premier research institutes.
+                data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
+                Vigyan.prep is a response to the dilution of scientific assessment. We provide the most rigorous,
+                conceptual-first test series for India's premier research institutes.
             </p>
         </header>
 
         <!-- Quote & Equation Section -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-40 items-center">
-            <div data-aos="fade-right"
-                 data-aos-duration="800"
-                 data-aos-delay="50">
+            <div data-aos="fade-right" data-aos-duration="800" data-aos-delay="50">
                 <h2 class="text-4xl font-bold mb-8 italic tracking-tight text-white">
                     "A test series should be an <span class="text-blue-500">experiment</span>."
                 </h2>
-                
-                <div class="space-y-6 text-slate-400 leading-relaxed text-sm"
-                     data-aos="fade-up"
-                     data-aos-delay="150">
-                    <p>Like you, I am a student of physics. I realized that the path to institutes like **IISc, TIFR, and IISER** was being gatekept by memorization.</p>
-                    <p>I built IIN to restore **Conceptual Integrity**. Our test series are experiments designed to measure your depth of reasoning.</p>
+
+                <div class="space-y-6 text-slate-400 leading-relaxed text-sm" data-aos="fade-up" data-aos-delay="150">
+                    <p>Like you, I am a student of physics. I realized that the path to institutes like **IISc, TIFR,
+                        and IISER** was being gatekept by memorization.</p>
+                    <p>I built Vigyan.prep to restore **Conceptual Integrity**. Our test series are experiments designed
+                        to measure your depth of reasoning.</p>
                 </div>
             </div>
-            
-            <div class="glass-panel p-12 rounded-3xl relative overflow-hidden"
-                 data-aos="zoom-in"
-                 data-aos-duration="600"
-                 data-aos-delay="100">
-                <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-6"
-                    data-aos="fade-down"
+
+            <div class="glass-panel p-12 rounded-3xl relative overflow-hidden" data-aos="zoom-in"
+                data-aos-duration="600" data-aos-delay="100">
+                <h3 class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-6" data-aos="fade-down"
                     data-aos-delay="200">The Success Matrix</h3>
-                
+
                 <div class="text-2xl font-mono text-white bg-slate-900/40 p-8 rounded-2xl border border-white/5 shadow-2xl"
-                     data-aos="flip-up"
-                     data-aos-delay="250"
-                     data-aos-duration="600">
+                    data-aos="flip-up" data-aos-delay="250" data-aos-duration="600">
                     $$ Success = \int_{Theory}^{Discovery} \frac{d(Clarity)}{d(Time)} $$
                 </div>
             </div>
@@ -222,27 +273,23 @@
 
         <!-- Kalam Quote Section -->
         <section class="mb-40">
-            <h2 class="text-5xl font-black mb-20 tracking-tighter uppercase italic text-white"
-                data-aos="fade-up"
+            <h2 class="text-5xl font-black mb-20 tracking-tighter uppercase italic text-white" data-aos="fade-up"
                 data-aos-duration="800">The Vanguard Legacy</h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-20">
-                <div class="kalam-quote"
-                     data-aos="fade-right"
-                     data-aos-duration="800"
-                     data-aos-delay="100">
+                <div class="kalam-quote" data-aos="fade-right" data-aos-duration="800" data-aos-delay="100">
                     <p class="text-2xl text-slate-200 mb-8 leading-relaxed font-semibold italic">
                         "Dream is not that which you see while sleeping, it is something that does not let you sleep."
                     </p>
-                    <span class="text-blue-500 font-bold uppercase tracking-[0.3em] text-[10px]">— Dr. APJ Abdul Kalam</span>
+                    <span class="text-blue-500 font-bold uppercase tracking-[0.3em] text-[10px]">— Dr. APJ Abdul
+                        Kalam</span>
                 </div>
-                
-                <div class="space-y-8 text-slate-400 text-sm leading-relaxed"
-                     data-aos="fade-left"
-                     data-aos-duration="800"
-                     data-aos-delay="200">
+
+                <div class="space-y-8 text-slate-400 text-sm leading-relaxed" data-aos="fade-left"
+                    data-aos-duration="800" data-aos-delay="200">
                     <p data-aos="fade-up" data-aos-delay="300">
-                        IIN is founded on the principles of India's scientific pioneers. Like **Sarabhai** and **Bhabha**, we believe research is built on its students.
+                        Vigyan.prep is founded on the principles of India's scientific pioneers. Like **Sarabhai** and
+                        **Bhabha**, we believe research is built on its students.
                     </p>
                     <p data-aos="fade-up" data-aos-delay="400">
                         Every question we create is designed to challenge conventional thinking and push boundaries.
@@ -253,53 +300,37 @@
 
         <!-- Stats Cards -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-40">
-            <div class="glass-panel p-8 rounded-2xl text-center"
-                 data-aos="fade-up"
-                 data-aos-delay="50"
-                 data-aos-duration="600">
-                <div class="text-5xl font-black text-blue-500 mb-4"
-                     data-aos="zoom-in"
-                     data-aos-delay="150">1000+</div>
+            <div class="glass-panel p-8 rounded-2xl text-center" data-aos="fade-up" data-aos-delay="50"
+                data-aos-duration="600">
+                <div class="text-5xl font-black text-blue-500 mb-4" data-aos="zoom-in" data-aos-delay="150">1000+</div>
                 <div class="text-sm text-slate-400 uppercase tracking-widest">Questions Curated</div>
             </div>
-            
-            <div class="glass-panel p-8 rounded-2xl text-center"
-                 data-aos="fade-up"
-                 data-aos-delay="100"
-                 data-aos-duration="600">
-                <div class="text-5xl font-black text-purple-500 mb-4"
-                     data-aos="zoom-in"
-                     data-aos-delay="200">95%</div>
+
+            <div class="glass-panel p-8 rounded-2xl text-center" data-aos="fade-up" data-aos-delay="100"
+                data-aos-duration="600">
+                <div class="text-5xl font-black text-purple-500 mb-4" data-aos="zoom-in" data-aos-delay="200">95%</div>
                 <div class="text-sm text-slate-400 uppercase tracking-widest">Conceptual Depth</div>
             </div>
-            
-            <div class="glass-panel p-8 rounded-2xl text-center"
-                 data-aos="fade-up"
-                 data-aos-delay="150"
-                 data-aos-duration="600">
-                <div class="text-5xl font-black text-pink-500 mb-4"
-                     data-aos="zoom-in"
-                     data-aos-delay="250">24/7</div>
+
+            <div class="glass-panel p-8 rounded-2xl text-center" data-aos="fade-up" data-aos-delay="150"
+                data-aos-duration="600">
+                <div class="text-5xl font-black text-pink-500 mb-4" data-aos="zoom-in" data-aos-delay="250">24/7</div>
                 <div class="text-sm text-slate-400 uppercase tracking-widest">Access Available</div>
             </div>
         </section>
 
         <!-- CTA Section -->
-        <section class="text-center glass-panel rounded-[3rem] py-24 px-12 border-blue-500/30"
-                 data-aos="zoom-in-up"
-                 data-aos-duration="800"
-                 data-aos-delay="100">
-            <h2 class="text-5xl md:text-7xl font-black mb-8 uppercase tracking-tighter text-white"
-                data-aos="fade-down"
+        <section class="text-center glass-panel rounded-[3rem] py-24 px-12 border-blue-500/30" data-aos="zoom-in-up"
+            data-aos-duration="800" data-aos-delay="100">
+            <h2 class="text-5xl md:text-7xl font-black mb-8 uppercase tracking-tighter text-white" data-aos="fade-down"
                 data-aos-delay="200">
                 Start the <span class="gradient-text-animated">Experiment.</span>
             </h2>
-            
-            <a href="testfirstpage.html" class="inline-block"
-               data-aos="flip-up"
-               data-aos-delay="300"
-               data-aos-duration="600">
-                <button class="bg-white text-black font-black uppercase tracking-[0.2em] px-14 py-5 rounded-md hover:bg-blue-500 hover:text-white transition-all transform hover:scale-105 shadow-2xl">
+
+            <a href="testfirstpage.html" class="inline-block" data-aos="flip-up" data-aos-delay="300"
+                data-aos-duration="600">
+                <button
+                    class="bg-white text-black font-black uppercase tracking-[0.2em] px-14 py-5 rounded-md hover:bg-blue-500 hover:text-white transition-all transform hover:scale-105 shadow-2xl">
                     Access Test Series
                 </button>
             </a>
@@ -310,7 +341,7 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
-    
+
     <script>
         // Initialize AOS with reduced delays
         AOS.init({
@@ -322,7 +353,7 @@
             delay: 50,
             anchorPlacement: 'top-bottom'
         });
-        
+
         // Scroll progress bar
         window.addEventListener('scroll', () => {
             const winScroll = document.documentElement.scrollTop;
@@ -330,7 +361,7 @@
             const scrolled = (winScroll / height) * 100;
             document.getElementById('scrollProgress').style.width = scrolled + '%';
         });
-        
+
         // Trigger MathJax typesetting after load
         window.addEventListener('load', () => {
             if (window.MathJax && window.MathJax.typesetPromise) {
@@ -339,4 +370,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -3,11 +3,11 @@
 // Execute purchase (Main entry point)
 async function executePurchase(testId, amount) {
     console.log("🔹 Purchase initiated for:", testId);
-    
+
     // Store test info for modal context
     localStorage.setItem("tempTestId", testId);
     localStorage.setItem("tempAmount", amount);
-    
+
     const userEmail = localStorage.getItem("userEmail");
 
     // Show modal to verify status even if email exists
@@ -25,8 +25,8 @@ async function executePurchase(testId, amount) {
 // Handle email modal submission (INTEGRATED VERIFICATION)
 async function handleModalSubmit() {
     const emailInput = document.getElementById("modalUserEmail");
-    const rollInput = document.getElementById("modalRollNumber"); 
-    
+    const rollInput = document.getElementById("modalRollNumber");
+
     const cleanEmail = emailInput.value.trim().toLowerCase();
     const rollNo = rollInput ? rollInput.value.trim() : null;
 
@@ -37,9 +37,9 @@ async function handleModalSubmit() {
 
     try {
         // STEP 1: Deep Verification (Scenario 1, 2, and 3)
-        const verifyRes = await axios.post(`${window.API_BASE_URL}/api/verify-user-full`, { 
+        const verifyRes = await axios.post(`${window.API_BASE_URL}/api/verify-user-full`, {
             email: cleanEmail,
-            rollNumber: rollNo 
+            rollNumber: rollNo
         });
 
         const status = verifyRes.data.status;
@@ -49,7 +49,7 @@ async function handleModalSubmit() {
             const rollGroup = document.getElementById("rollFieldGroup");
             if (rollGroup) {
                 rollGroup.classList.remove("hidden");
-                emailInput.disabled = true; 
+                emailInput.disabled = true;
                 document.getElementById("modalActionBtn").innerText = "Verify & Pay";
                 alert("Existing account found! Please enter your Roll Number to link this purchase.");
             }
@@ -84,12 +84,12 @@ async function startPayment(userEmail, testId, amount) {
     try {
         const { data: { key } } = await axios.get(`${window.API_BASE_URL}/api/getkey`);
         const { data: { order } } = await axios.post(`${window.API_BASE_URL}/api/checkout`, { amount, testId });
-        
+
         const options = {
             key,
             amount: order.amount,
             currency: "INR",
-            name: "IIN Education",
+            name: "Vigyan.prep",
             description: `Unlock ${testId.toUpperCase()} Series`,
             order_id: order.id,
             prefill: { email: userEmail },
@@ -108,17 +108,17 @@ async function startPayment(userEmail, testId, amount) {
                 if (verifyRes.data.success) {
                     const rollNumber = verifyRes.data.rollNumber;
                     const isNewStudent = verifyRes.data.isNewStudent;
-                    
+
                     // Save roll number to localStorage
                     localStorage.setItem("userRollNumber", rollNumber);
-                    
+
                     markAsPurchased(testId);
-                    
+
                     // Refresh Dashboard UI
                     if (window.refreshUserDashboard) {
                         window.refreshUserDashboard();
                     }
-                    
+
                     // FIXED: Display Roll Number in success modal
                     displaySuccessModal(rollNumber, testId, isNewStudent);
                 }
@@ -135,7 +135,7 @@ async function startPayment(userEmail, testId, amount) {
 function displaySuccessModal(rollNumber, testId, isNewStudent) {
     // Create or update success modal with Roll Number
     let successModal = document.getElementById("successModal");
-    
+
     if (!successModal) {
         // Create modal if it doesn't exist
         successModal = document.createElement("div");
@@ -154,7 +154,7 @@ function displaySuccessModal(rollNumber, testId, isNewStudent) {
         `;
         document.body.appendChild(successModal);
     }
-    
+
     successModal.innerHTML = `
         <div style="background: white; padding: 40px; border-radius: 15px; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
             <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
@@ -183,7 +183,7 @@ function displaySuccessModal(rollNumber, testId, isNewStudent) {
             </button>
         </div>
     `;
-    
+
     successModal.style.display = "flex";
 }
 

@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 config();
 
 /**
- * Email Configuration for IIN Platform using SendGrid
+ * Email Configuration for Vigyan.prep Platform using SendGrid
  * PREMIUM MODERN EMAIL TEMPLATES
  * Sends roll numbers and notifications with stunning visual design
  */
@@ -28,7 +28,7 @@ if (SENDGRID_API_KEY) {
  * @param {String} userName - User's name (optional)
  * @param {String} testName - Test/Exam name (optional)
  */
-export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Student', testName = 'IIN.edu Platform') => {
+export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Student', testName = 'Vigyan.prep Platform') => {
   try {
     if (!SENDGRID_API_KEY) {
       console.warn('⚠️  SendGrid not configured, skipping email');
@@ -39,7 +39,7 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
       to: userEmail,
       from: {
         email: SENDER_EMAIL,
-        name: 'IIN.edu Platform'
+        name: 'Vigyan.prep Platform'
       },
       subject: `🎉 Payment Successful - Your Roll Number Inside!`,
       html: `
@@ -306,7 +306,7 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
             <div class="content-section">
               <div class="greeting">Hello! 👋</div>
               <p class="intro-text">
-                Congratulations! Your payment has been processed successfully, and you're all set to begin your examination journey with IIN.edu.
+                Congratulations! Your payment has been processed successfully, and you're all set to begin your examination journey with Vigyan.prep.
               </p>
               
               <!-- PREMIUM ROLL NUMBER CARD -->
@@ -347,13 +347,13 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
             
             <!-- FOOTER -->
             <div class="footer">
-              <div class="footer-brand">IIN<span>.edu</span></div>
+              <div class="footer-brand">Vigyan.prep<span>.edu</span></div>
               <p class="footer-text">Strategic Vanguard in Excellence</p>
               <p class="footer-text" style="margin-top: 16px;">
                 This is an automated notification. Please do not reply to this email.
               </p>
               <p class="footer-text">
-                © ${new Date().getFullYear()} IIN.edu Platform. All rights reserved.
+                © ${new Date().getFullYear()} Vigyan.prep Platform. All rights reserved.
               </p>
             </div>
             
@@ -377,8 +377,8 @@ Access your tests: ${process.env.PLATFORM_URL || 'https://iin-theta.vercel.app'}
 Need help? Contact: ${process.env.SUPPORT_EMAIL || 'support@iin.edu'}
 
 ---
-IIN.edu Platform - Strategic Vanguard in Excellence
-© ${new Date().getFullYear()} IIN.edu. All rights reserved.
+Vigyan.prep Platform - Strategic Vanguard in Excellence
+© ${new Date().getFullYear()} Vigyan.prep. All rights reserved.
       `,
     };
 
@@ -412,7 +412,7 @@ export const sendFeedbackEmail = async (feedbackData) => {
       to: process.env.ADMIN_EMAIL || SENDER_EMAIL,
       from: {
         email: SENDER_EMAIL,
-        name: 'IIN.edu Feedback System'
+        name: 'Vigyan.prep Feedback System'
       },
       subject: `🆕 New Feedback - ${testId.toUpperCase()} | Roll: ${rollNumber}`,
       html: `
@@ -444,7 +444,7 @@ export const sendFeedbackEmail = async (feedbackData) => {
           <div class="container">
             <div class="header">
               <h1>📝 New Feedback Received</h1>
-              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 15px;">IIN.edu Admin Panel</p>
+              <p style="margin: 8px 0 0; opacity: 0.9; font-size: 15px;">Vigyan.prep Admin Panel</p>
             </div>
             
             <div class="content">
@@ -498,7 +498,7 @@ export const sendFeedbackEmail = async (feedbackData) => {
             </div>
             
             <div class="footer">
-              <p><strong>IIN.edu Platform</strong> - Feedback Management System</p>
+              <p><strong>Vigyan.prep Platform</strong> - Feedback Management System</p>
               <p style="margin: 8px 0 0;">Automated notification • Do not reply to this email</p>
             </div>
           </div>
@@ -535,9 +535,9 @@ export const sendUserConfirmation = async (userEmail) => {
       to: userEmail,
       from: {
         email: SENDER_EMAIL,
-        name: 'IIN.edu Platform'
+        name: 'Vigyan.prep Platform'
       },
-      subject: '✅ Thank You for Your Feedback - IIN.edu',
+      subject: '✅ Thank You for Your Feedback - Vigyan.prep',
       html: `
         <!DOCTYPE html>
         <html>
@@ -561,7 +561,7 @@ export const sendUserConfirmation = async (userEmail) => {
               <h2 style="color: #1e293b; margin-bottom: 16px;">Feedback Received Successfully</h2>
               <p style="line-height: 1.7; font-size: 15px;">
                 Thank you for taking the time to share your valuable feedback with us. 
-                Your insights help us continuously improve the IIN.edu platform experience.
+                Your insights help us continuously improve the Vigyan.prep platform experience.
               </p>
               <p style="line-height: 1.7; margin-top: 24px; font-size: 15px;">
                 Our team will carefully review your feedback and implement improvements 
@@ -569,7 +569,7 @@ export const sendUserConfirmation = async (userEmail) => {
               </p>
             </div>
             <div class="footer">
-              <p><strong>IIN.edu</strong> - Strategic Vanguard</p>
+              <p><strong>Vigyan.prep</strong> - Strategic Vanguard</p>
               <p style="margin: 8px 0 0;">Building excellence in education</p>
             </div>
           </div>

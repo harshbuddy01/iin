@@ -9,21 +9,21 @@
 window.APP_CONFIG = {
     // Environment detection
     ENVIRONMENT: window.location.hostname.includes('localhost') ? 'development' : 'production',
-    
+
     // API Base URL - CHANGE THIS ON JAN 2 TO HOSTINGER URL
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
-        
+
         // Local development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:3000';
         }
-        
+
         // Production - Currently Railway (CHANGE TO HOSTINGER ON JAN 2)
         // NEW HOSTINGER URL WILL BE: 'https://api.yourdomain.com'
         return 'https://iin-production.up.railway.app';
     })(),
-    
+
     // Feature flags
     FEATURES: {
         ENABLE_AUTH: false,  // Set to true when authentication is ready
@@ -31,7 +31,7 @@ window.APP_CONFIG = {
         ENABLE_IMAGE_UPLOAD: true,
         DEBUG_MODE: window.location.hostname.includes('localhost')
     },
-    
+
     // API Endpoints
     ENDPOINTS: {
         TESTS: '/api/admin/tests',
@@ -42,14 +42,14 @@ window.APP_CONFIG = {
         UPLOAD_IMAGE: '/api/admin/upload-image',
         AUTH: '/api/admin/auth'
     },
-    
+
     // App metadata
-    APP_NAME: 'IIN Admin Portal',
+    APP_NAME: 'Vigyan.prep Admin Portal',
     VERSION: '1.0.0',
     BUILD_DATE: '2025-12-28',
-    
+
     // Logging
-    log: function(message, type = 'info') {
+    log: function (message, type = 'info') {
         if (this.FEATURES.DEBUG_MODE) {
             const emoji = {
                 'info': 'ℹ️',

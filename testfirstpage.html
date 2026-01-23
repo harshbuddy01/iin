@@ -1,47 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Series Matrix | IIN.edu</title>
+    <title>Test Series Matrix | Vigyan.prep</title>
     <!-- CACHE CLEAR: 2025-12-27 18:02 IST -->
-    
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Cache-busted CSS files -->
     <link rel="stylesheet" href="frontend/css/global.css?v=20251227-1802">
     <link rel="stylesheet" href="frontend/css/navbar.css?v=20251227-1802">
     <link rel="stylesheet" href="frontend/css/pages.css?v=20251227-1802">
     <link rel="stylesheet" href="frontend/css/user-panel.css?v=20251227-1802">
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20251227-1802">
-    
+
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
         window.API_BASE_URL = API_BASE_URL;
     </script>
-    
+
     <style>
-        :root { --blue: #3b82f6; --navy-dark: #020617; }
-        html, body { background-color: var(--navy-dark); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; scroll-behavior: smooth; }
-        
-        .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; z-index: -1; pointer-events: none; }
-        .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2rem; padding: 2.5rem; transition: 0.4s; position: relative; overflow: hidden; }
-        .glass-panel:hover { border-color: var(--blue); transform: translateY(-10px); background: rgba(15, 23, 42, 0.8); box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3); }
-        .buy-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 100%; border-radius: 1rem; color: white; font-weight: 800; padding: 1.25rem; margin-top: 2rem; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; cursor: pointer; border: none; }
-        .buy-btn:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); transform: scale(1.02); }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-content { background: #0f172a; padding: 3rem; border-radius: 2rem; border: 1px solid rgba(59, 130, 246, 0.5); text-align: center; max-width: 450px; width: 90%; box-shadow: 0 0 50px rgba(59, 130, 246, 0.2); }
-        .modal-input { width: 100%; padding: 1rem; margin: 1rem 0; background: #1e293b; border: 1px solid #334155; border-radius: 0.75rem; color: white; text-align: center; font-size: 1.1rem; }
-        .token-display { font-size: 2.5rem; font-weight: 900; color: #3b82f6; letter-spacing: 4px; margin: 1.5rem 0; text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); font-family: monospace; }
-        .error-banner { background: rgba(239, 68, 68, 0.1); color: #f87171; padding: 1rem; border-radius: 0.75rem; margin-top: 1rem; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem; }
-        .hidden { display: none !important; }
-        
+        :root {
+            --blue: #3b82f6;
+            --navy-dark: #020617;
+        }
+
+        html,
+        body {
+            background-color: var(--navy-dark);
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            scroll-behavior: smooth;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            padding: 2.5rem;
+            transition: 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel:hover {
+            border-color: var(--blue);
+            transform: translateY(-10px);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            width: 100%;
+            border-radius: 1rem;
+            color: white;
+            font-weight: 800;
+            padding: 1.25rem;
+            margin-top: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .buy-btn:hover {
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+            transform: scale(1.02);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #0f172a;
+            padding: 3rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .token-display {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #3b82f6;
+            letter-spacing: 4px;
+            margin: 1.5rem 0;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            font-family: monospace;
+        }
+
+        .error-banner {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         /* Calendar Banner */
         .calendar-banner {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
@@ -55,28 +161,35 @@
             backdrop-filter: blur(20px);
             transition: all 0.4s;
         }
-        
+
         .calendar-banner:hover {
             border-color: rgba(16, 185, 129, 0.6);
             box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
             transform: translateY(-4px);
         }
-        
+
         .calendar-icon {
             font-size: 4rem;
             color: #10b981;
             animation: bounce 2s infinite;
         }
-        
+
         @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
-        
+
         .calendar-content {
             flex: 1;
         }
-        
+
         .calendar-title {
             font-size: 1.8rem;
             font-weight: 900;
@@ -85,13 +198,13 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
+
         .calendar-subtitle {
             color: #94a3b8;
             font-size: 1rem;
             line-height: 1.6;
         }
-        
+
         .calendar-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
@@ -109,20 +222,67 @@
             border: none;
             cursor: pointer;
         }
-        
+
         .calendar-btn:hover {
             box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
             transform: scale(1.05);
         }
-        
+
         @media (max-width: 768px) {
             .calendar-banner {
                 flex-direction: column;
                 text-align: center;
             }
         }
+
+        /* VIGYAN.PREP Premium Logo */
+        .logo .logo-vigyan {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 15%, #f59e0b 30%, #ffffff 50%, #fcd34d 70%, #f59e0b 85%, #fef3c7 100%);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+            animation: vigyanShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes vigyanShimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .logo .logo-dot {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 1rem;
+            color: rgba(148, 163, 184, 0.5);
+            margin-left: 1px;
+        }
+
+        .logo .logo-prep {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: lowercase;
+            color: rgba(148, 163, 184, 0.4);
+        }
     </style>
 </head>
+
 <body>
 
     <div class="grid-bg"></div>
@@ -138,8 +298,10 @@
                 <input type="text" id="modalRollNumber" class="modal-input !mt-0" placeholder="Enter Roll Number">
             </div>
             <div id="modalError" class="error-banner hidden"></div>
-            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed to Payment</button>
-            <button onclick="closeEntryModal()" class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
+            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed
+                to Payment</button>
+            <button onclick="closeEntryModal()"
+                class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
         </div>
     </div>
 
@@ -149,71 +311,81 @@
             <div class="text-green-500 text-5xl mb-4">✅</div>
             <h2 class="text-white font-black text-2xl uppercase">Payment Successful!</h2>
             <p class="text-gray-400 text-sm mt-2">Your Roll Number has been generated</p>
-            
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 10px; margin: 20px 0;">
+
+            <div
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 10px; margin: 20px 0;">
                 <p style="color: white; font-size: 14px; margin-bottom: 10px; opacity: 0.9;">Your Roll Number</p>
                 <h1 id="finalTokenDisplay" class="token-display" style="color: white; margin: 0;">--------</h1>
             </div>
-            
+
             <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
                 <p style="margin: 0; font-size: 14px; color: #92400e;">
                     <strong>⚠️ Important:</strong> Save this Roll Number! It has been sent to your email.
                 </p>
             </div>
-            
-            <button onclick="closeSuccessModal()" class="buy-btn" style="background:#10b981; margin-top:0">Get Started with Test 🚀</button>
+
+            <button onclick="closeSuccessModal()" class="buy-btn" style="background:#10b981; margin-top:0">Get Started
+                with Test 🚀</button>
         </div>
     </div>
 
     <!-- Navbar (login placeholder used by user-panel.js) -->
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
-        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'">
-            IIN<span class="text-blue-500">.edu</span>
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
+        id="navbar">
+        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'"
+            style="display:inline-flex;align-items:baseline;">
+            <span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span class="logo-prep">prep</span>
         </div>
-        
+
         <div class="nav-links flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
-            
+
             <!-- About Dropdown -->
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">About <i class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">About <i
+                        class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="aboutpage.html">About Us</a>
                     <a href="shoutouts.html">Shoutouts</a>
                 </div>
             </div>
-            
+
             <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-            <a href="testfirstpage.html" class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
-            
+            <a href="testfirstpage.html"
+                class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
+
             <!-- Future Career Dropdown -->
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i
+                        class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="future.html">Future Career</a>
                     <a href="sciencenews.html">Science News</a>
                 </div>
             </div>
-            
+
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
+                <a href="signinpage.html"
+                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
                     Login
                 </a>
             </div>
         </div>
     </nav>
-    
+
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.0</div>
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.0
+            </div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
-                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam Protocols.</span>
+                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam
+                    Protocols.</span>
             </h1>
             <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-blue-500/50 pl-8 leading-relaxed">
                 Unlock the gateway to India's premier research institutes.
             </p>
         </header>
-        
+
         <!-- Calendar Banner (shows only if user has purchased tests) -->
         <div id="calendarBanner" class="calendar-banner">
             <div class="calendar-icon">
@@ -224,7 +396,8 @@
                     📅 View Your Upcoming Tests
                 </h2>
                 <p class="calendar-subtitle">
-                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased series are shown.
+                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased
+                    series are shown.
                 </p>
             </div>
             <a href="student-calendar.html" class="calendar-btn">
@@ -279,12 +452,12 @@
         window.onload = function () {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-            
+
             // Show calendar banner if user has purchased any tests
             if (purchased.length > 0) {
                 document.getElementById('calendarBanner').style.display = 'flex';
             }
-            
+
             testSeries.forEach(test => {
                 if (purchased.includes(test.id)) markAsPurchased(test.id);
             });
@@ -328,26 +501,26 @@
         // ⚡ ULTRA-FAST: Close modal and render user panel INSTANTLY
         function closeSuccessModal() {
             console.log('⚡ Closing success modal and rendering user panel...');
-            
+
             // Hide success modal
             document.getElementById("successModal").style.display = "none";
-            
+
             // Get the test that was just purchased
             const testId = localStorage.getItem("tempTestId");
-            
+
             // Update the test card to GREEN
             if (testId) {
                 markAsPurchased(testId);
             }
-            
+
             // Show calendar banner
             document.getElementById('calendarBanner').style.display = 'flex';
-            
+
             // 🔥 CRITICAL: Get data from localStorage (already saved during payment)
             const email = localStorage.getItem("userEmail");
             const rollNumber = localStorage.getItem("userRollNumber");
             const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-            
+
             // ⚡ INSTANT RENDER: Call direct render function with data
             if (window.renderUserPanelDirect && email && rollNumber) {
                 console.log('⚡ INSTANT RENDER with data:', { email, rollNumber, tests: purchasedTests });
@@ -365,9 +538,9 @@
             const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
             const rollInput = document.getElementById("modalRollNumber").value.trim();
             const errorDiv = document.getElementById("modalError");
-            
+
             errorDiv.classList.add("hidden");
-            
+
             if (!emailInput || !emailInput.includes("@")) {
                 showModalError("❌ Please enter a valid email address");
                 return;
@@ -376,10 +549,10 @@
             try {
                 console.log('🚀 Sending verify request to:', `${API_BASE_URL}/api/verify-user-full`);
                 console.log('Data:', { email: emailInput, rollNumber: rollInput || null });
-                
-                const verifyRes = await axios.post(`${API_BASE_URL}/api/verify-user-full`, { 
+
+                const verifyRes = await axios.post(`${API_BASE_URL}/api/verify-user-full`, {
                     email: emailInput,
-                    rollNumber: rollInput || null 
+                    rollNumber: rollInput || null
                 }, {
                     timeout: 15000 // 15 second timeout
                 });
@@ -404,9 +577,9 @@
                 }
             } catch (err) {
                 console.error('❌ Error details:', err);
-                
+
                 let errorMessage = "❌ Server connection failed. ";
-                
+
                 if (err.code === 'ECONNABORTED') {
                     errorMessage += "Request timed out. Server may be starting up. Please wait 30 seconds and try again.";
                 } else if (err.response) {
@@ -416,7 +589,7 @@
                 } else {
                     errorMessage += err.message || "Unknown error occurred.";
                 }
-                
+
                 showModalError(errorMessage);
             }
         }
@@ -425,12 +598,12 @@
             try {
                 const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
                 const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
-                
+
                 const options = {
                     key,
                     amount: order.amount,
                     currency: "INR",
-                    name: "IIN Education",
+                    name: "Vigyan.prep",
                     description: `Activate ${testId.toUpperCase()}`,
                     order_id: order.id,
                     prefill: { email: userEmail },
@@ -447,18 +620,18 @@
 
                         if (verifyRes.data.success) {
                             const rollNumber = verifyRes.data.rollNumber;
-                            
+
                             console.log('💾 PAYMENT SUCCESS - Saving to localStorage...');
-                            
+
                             localStorage.setItem("userEmail", userEmail);
                             localStorage.setItem("userRollNumber", rollNumber);
-                            
+
                             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                             if (!purchased.includes(testId)) purchased.push(testId);
                             localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-                            
+
                             console.log('✅ localStorage saved successfully!');
-                            
+
                             closeEntryModal();
 
                             document.getElementById("finalTokenDisplay").innerText = rollNumber;
@@ -474,4 +647,5 @@
         }
     </script>
 </body>
+
 </html>

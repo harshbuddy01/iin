@@ -1,22 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Science News | IIN.edu</title>
-    
+    <title>Global Science News | Vigyan.prep</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css">
-    
+
     <style>
-        :root { --blue: #3b82f6; --navy-dark: #020617; --purple: #8b5cf6; --pink: #ec4899; }
-        
+        :root {
+            --blue: #3b82f6;
+            --navy-dark: #020617;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+        }
+
         body {
             background: #020617;
             color: #f8fafc;
@@ -25,27 +33,27 @@
             margin: 0;
             overflow-x: hidden;
         }
-        
-        .grid-bg { 
-            position: fixed; 
-            inset: 0; 
-            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); 
-            background-size: 30px 30px; 
-            z-index: -1; 
-            pointer-events: none; 
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 30px 30px;
+            z-index: -1;
+            pointer-events: none;
         }
-        
+
         .news-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 140px 20px 50px;
         }
-        
+
         .news-header {
             text-align: center;
             margin-bottom: 40px;
         }
-        
+
         .news-header h1 {
             font-size: clamp(3rem, 8vw, 5.5rem);
             font-weight: 900;
@@ -57,14 +65,14 @@
             letter-spacing: -2px;
             text-transform: uppercase;
         }
-        
+
         .news-header p {
             font-size: 1.2rem;
             color: #94a3b8;
             font-weight: 400;
             margin-bottom: 20px;
         }
-        
+
         .news-stats {
             display: flex;
             justify-content: center;
@@ -72,17 +80,17 @@
             margin-top: 20px;
             flex-wrap: wrap;
         }
-        
+
         .stat-item {
             text-align: center;
         }
-        
+
         .stat-number {
             font-size: 2rem;
             font-weight: 900;
             color: #3b82f6;
         }
-        
+
         .stat-label {
             font-size: 0.85rem;
             color: #64748b;
@@ -90,7 +98,7 @@
             letter-spacing: 1px;
             font-weight: 600;
         }
-        
+
         /* Loading Spinner */
         .loading-container {
             display: flex;
@@ -100,7 +108,7 @@
             min-height: 400px;
             gap: 20px;
         }
-        
+
         .spinner {
             width: 50px;
             height: 50px;
@@ -109,17 +117,19 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            to { transform: rotate(360deg); }  
+            to {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .loading-text {
             font-size: 1.1rem;
             color: #64748b;
             font-weight: 600;
         }
-        
+
         /* Error Message */
         .error-container {
             background: rgba(239, 68, 68, 0.1);
@@ -130,25 +140,25 @@
             margin: 40px auto;
             max-width: 600px;
         }
-        
+
         .error-icon {
             font-size: 3rem;
             color: #ef4444;
             margin-bottom: 15px;
         }
-        
+
         .error-title {
             font-size: 1.5rem;
             font-weight: 700;
             color: #fff;
             margin-bottom: 10px;
         }
-        
+
         .error-message {
             color: #94a3b8;
             margin-bottom: 20px;
         }
-        
+
         .retry-btn {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
@@ -160,11 +170,11 @@
             transition: transform 0.2s;
             margin: 0 10px;
         }
-        
+
         .retry-btn:hover {
             transform: scale(1.05);
         }
-        
+
         /* News Grid */
         .news-grid {
             display: grid;
@@ -172,7 +182,7 @@
             gap: 25px;
             margin-bottom: 50px;
         }
-        
+
         .news-card {
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
@@ -185,36 +195,37 @@
             animation: fadeInUp 0.6s ease-out forwards;
             overflow: hidden;
         }
-        
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .news-card:hover {
             transform: translateY(-10px);
             border-color: rgba(59, 130, 246, 0.4);
             background: rgba(59, 130, 246, 0.05);
             box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
         }
-        
+
         .news-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
             background: linear-gradient(135deg, #1e293b, #334155);
         }
-        
+
         .news-content {
             padding: 20px;
         }
-        
+
         .news-source {
             display: inline-block;
             padding: 6px 14px;
@@ -227,7 +238,7 @@
             margin-bottom: 12px;
             color: white;
         }
-        
+
         .news-card h3 {
             font-size: 1.25rem;
             font-weight: 700;
@@ -239,7 +250,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        
+
         .news-card p {
             font-size: 0.9rem;
             color: #94a3b8;
@@ -250,7 +261,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        
+
         .news-meta {
             display: flex;
             justify-content: space-between;
@@ -260,46 +271,96 @@
             padding-top: 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-        
-        .news-date, .news-author {
+
+        .news-date,
+        .news-author {
             display: flex;
             align-items: center;
             gap: 5px;
         }
-        
+
         .news-author {
             font-weight: 600;
         }
-        
+
         @media (max-width: 768px) {
             .news-header h1 {
                 font-size: 2.5rem;
             }
-            
+
             .news-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
-            
+
             .news-container {
                 padding: 120px 20px 40px;
             }
-            
+
             .news-stats {
                 gap: 20px;
             }
         }
+
+        /* VIGYAN.PREP Premium Logo */
+        .logo .logo-vigyan {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 15%, #f59e0b 30%, #ffffff 50%, #fcd34d 70%, #f59e0b 85%, #fef3c7 100%);
+            background-size: 300% 300%;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4));
+            animation: vigyanShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes vigyanShimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .logo .logo-dot {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 1rem;
+            color: rgba(148, 163, 184, 0.5);
+            margin-left: 1px;
+        }
+
+        .logo .logo-prep {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.7rem;
+            letter-spacing: 1.5px;
+            text-transform: lowercase;
+            color: rgba(148, 163, 184, 0.4);
+        }
     </style>
 </head>
+
 <body>
     <div class="grid-bg"></div>
 
     <!-- CONSISTENT NAVBAR -->
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
-        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'">
-            IIN<span class="text-blue-500">.edu</span>
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
+        id="navbar">
+        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'"
+            style="display:inline-flex;align-items:baseline;">
+            <span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span class="logo-prep">prep</span>
         </div>
-        
+
         <div class="nav-links flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
             <a href="aboutpage.html" class="hover:text-white transition">About</a>
@@ -312,9 +373,10 @@
                     <a href="sciencenews.html" style="color:#3b82f6">Science News</a>
                 </div>
             </div>
-            
+
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
+                <a href="signinpage.html"
+                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
                     Login
                 </a>
             </div>
@@ -325,7 +387,7 @@
         <div class="news-header">
             <h1>🌍 Global Science News</h1>
             <p>Latest discoveries and breakthroughs from around the world</p>
-            
+
             <div class="news-stats">
                 <div class="stat-item">
                     <div class="stat-number" id="articleCount">0</div>
@@ -358,7 +420,7 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
-    
+
     <script>
         // RSS feeds from reputable science news sources
         const RSS_FEEDS = [
@@ -366,14 +428,14 @@
             'https://phys.org/rss-feed/',
             'https://www.sciencenews.org/feeds/latest'
         ];
-        
+
         // Function to format date
         function formatDate(dateString) {
             const date = new Date(dateString);
             const now = new Date();
             const diffTime = Math.abs(now - date);
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (isNaN(diffDays)) return 'Recent';
             if (diffDays === 0) return 'Today';
             if (diffDays === 1) return 'Yesterday';
@@ -388,16 +450,16 @@
             if (item.enclosure && item.enclosure.link) {
                 return item.enclosure.link;
             }
-            
+
             // Try to extract from content
             if (item.content) {
                 const imgMatch = item.content.match(/<img[^>]+src="([^"]+)"/i);
                 if (imgMatch) return imgMatch[1];
             }
-            
+
             // Try thumbnail
             if (item.thumbnail) return item.thumbnail;
-            
+
             // Science-themed default images based on hash
             const defaults = [
                 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
@@ -406,7 +468,7 @@
                 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400&h=200&fit=crop',
                 'https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=400&h=200&fit=crop'
             ];
-            
+
             const hash = item.title.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
             return defaults[Math.abs(hash) % defaults.length];
         }
@@ -416,31 +478,31 @@
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
             const newsGrid = document.getElementById('newsGrid');
-            
+
             loadingState.style.display = 'flex';
             newsGrid.style.display = 'none';
-            
+
             try {
                 // Use RSS2JSON free service (no API key needed, no CORS issues)
                 const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FEEDS[0])}&count=10`;
-                
+
                 console.log('Fetching from:', rss2jsonUrl);
-                
+
                 const response = await fetch(rss2jsonUrl);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('RSS Response:', data);
-                
+
                 if (data.status === 'ok' && data.items && data.items.length > 0) {
                     displayNews(data.items);
                 } else {
                     throw new Error('No articles found');
                 }
-                
+
             } catch (error) {
                 console.error('Error fetching news:', error);
                 displayError(error);
@@ -452,15 +514,15 @@
             const loadingState = document.getElementById('loadingState');
             const newsGrid = document.getElementById('newsGrid');
             const articleCount = document.getElementById('articleCount');
-            
+
             loadingState.style.display = 'none';
             newsGrid.style.display = 'grid';
-            
+
             const articlesHTML = articles.map(article => {
                 const imageUrl = extractImage(article);
                 const description = article.description ? article.description.replace(/<[^>]*>/g, '').substring(0, 200) : 'Click to read the full article';
                 const author = article.author || 'Science Daily';
-                
+
                 return `
                     <div class="news-card" onclick="window.open('${article.link}', '_blank')">
                         <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop'">
@@ -480,7 +542,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             newsGrid.innerHTML = articlesHTML;
             articleCount.textContent = articles.length;
         }
@@ -489,12 +551,12 @@
         function displayError(error) {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
-            
+
             loadingState.style.display = 'none';
             errorState.style.display = 'block';
-            
+
             let errorMessage = error.message || 'Unable to load science news.';
-            
+
             errorState.innerHTML = `
                 <div class="error-container">
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -517,4 +579,5 @@
         });
     </script>
 </body>
+
 </html>

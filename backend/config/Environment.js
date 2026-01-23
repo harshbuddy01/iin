@@ -66,7 +66,7 @@ export class Environment {
         this.email = {
             apiKey: process.env.SENDGRID_API_KEY || '',
             fromEmail: process.env.FROM_EMAIL || 'noreply@iinedu.com',
-            fromName: process.env.FROM_NAME || 'IIN Education',
+            fromName: process.env.FROM_NAME || 'Vigyan.prep',
             enabled: !!process.env.SENDGRID_API_KEY
         };
         

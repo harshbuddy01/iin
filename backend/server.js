@@ -1,4 +1,4 @@
-// 🚀 IIN Education Platform - Backend Server
+// 🚀 Vigyan.prep Platform - Backend Server
 
 import express from 'express';
 import cors from 'cors';
@@ -110,7 +110,7 @@ app.get('/', (req, res) => {
 // 4. API Info endpoint (Moved to /api)
 app.get('/api', (req, res) => {
   res.json({
-    message: 'IIN Education Platform API',
+    message: 'Vigyan.prep Platform API',
     version: '1.0.0',
     endpoints: {
       health: '/health',

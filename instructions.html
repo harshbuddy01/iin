@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IIN - Exam Instructions</title>
+    <title>Vigyan.prep - Exam Instructions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- ⏰ TIME WINDOW VALIDATION - TEMPORARILY DISABLED FOR TESTING -->
     <script>
         /*
@@ -51,22 +52,22 @@
         })();
         */
     </script>
-    
+
     <!-- ACCESS CONTROL -->
     <script>
         (function checkAccess() {
             const userEmail = localStorage.getItem("userEmail");
             const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-            
+
             if (!userEmail || purchasedTests.length === 0) {
                 alert("⚠️ Access Denied! Please purchase a test series first.");
                 window.location.href = "testfirstpage.html";
                 return;
             }
-            
+
             const urlParams = new URLSearchParams(window.location.search);
             const requestedTest = urlParams.get("test") || "iat";
-            
+
             if (!purchasedTests.includes(requestedTest)) {
                 alert(`⚠️ You need to purchase ${requestedTest.toUpperCase()} series to access this test.`);
                 window.location.href = "testfirstpage.html";
@@ -74,7 +75,7 @@
             }
         })();
     </script>
-    
+
     <style>
         * {
             margin: 0;
@@ -409,10 +410,11 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fas fa-graduation-cap"></i> IIN Aptitude Test Series 2025</h1>
+            <h1><i class="fas fa-graduation-cap"></i> Vigyan.prep Aptitude Test Series 2025</h1>
             <p>Instructions - Read Carefully Before Starting</p>
         </div>
 
@@ -441,7 +443,8 @@
                 <h3>Exam Duration & Navigation</h3>
                 <ul class="instruction-list">
                     <li>Total duration of examination is <strong>180 minutes (3 hours)</strong></li>
-                    <li>The clock will be set at the server and countdown timer in the top right corner will display remaining time</li>
+                    <li>The clock will be set at the server and countdown timer in the top right corner will display
+                        remaining time</li>
                     <li>When timer reaches zero, exam will automatically submit</li>
                     <li>You can navigate between questions using the question palette on the right side</li>
                     <li>Use subject tabs (Physics, Chemistry, Mathematics, Biology) to switch between sections</li>
@@ -492,7 +495,8 @@
                 <ul class="instruction-list">
                     <li><strong style="color: #27ae60;">Green (Hexagon):</strong> You have answered the question</li>
                     <li><strong style="color: #e74c3c;">Red (Hexagon):</strong> You have not answered the question</li>
-                    <li><strong style="color: #8e44ad;">Purple (Circle):</strong> You have marked the question for review</li>
+                    <li><strong style="color: #8e44ad;">Purple (Circle):</strong> You have marked the question for
+                        review</li>
                     <li><strong>White (Square):</strong> You have not visited the question yet</li>
                     <li><strong style="color: #0000ff;">Blue Border:</strong> Currently viewing this question</li>
                 </ul>
@@ -511,7 +515,8 @@
 
             <div class="important-note">
                 <strong><i class="fas fa-exclamation-triangle"></i> IMPORTANT:</strong>
-                Make sure to click "Save & Next" after selecting an answer. Simply clicking on an option without saving will NOT record your response.
+                Make sure to click "Save & Next" after selecting an answer. Simply clicking on an option without saving
+                will NOT record your response.
             </div>
 
             <div class="warning-box">
@@ -540,7 +545,8 @@
                 <label>
                     <input type="checkbox" id="agreeCheck">
                     <span>
-                        I have read and understood all the instructions. I agree to abide by the rules and regulations of this examination. 
+                        I have read and understood all the instructions. I agree to abide by the rules and regulations
+                        of this examination.
                         I declare that all information provided is correct and I am ready to begin the test.
                     </span>
                 </label>
@@ -559,7 +565,7 @@
     </div>
 
     <script>
-        window.onload = function() {
+        window.onload = function () {
             const email = localStorage.getItem("userEmail");
             const rollNumber = localStorage.getItem("userToken");
             const urlParams = new URLSearchParams(window.location.search);
@@ -569,7 +575,7 @@
             document.getElementById("candidateRoll").innerText = rollNumber || "N/A";
             document.getElementById("testSeries").innerText = testId.toUpperCase() + " TEST SERIES";
 
-            document.getElementById("agreeCheck").addEventListener("change", function() {
+            document.getElementById("agreeCheck").addEventListener("change", function () {
                 document.getElementById("proceedBtn").disabled = !this.checked;
             });
 
@@ -597,4 +603,5 @@
         }
     </script>
 </body>
+
 </html>

@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IIN - Institute Network</title>
+    <title>Vigyan.prep - Gateway to Future Science</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -113,7 +113,9 @@
             position: relative;
             background: linear-gradient(180deg, #000000 0%, #0a0a15 100%);
             overflow: hidden;
-            margin-top: 100px;
+            margin-top: 0;
+            /* Fixed glitch: removed gap */
+            z-index: 10;
         }
 
         /* Subtle Wave Separator */
@@ -178,20 +180,76 @@
 
         .footer-logo {
             font-size: 2rem;
-            font-weight: 900;
-            letter-spacing: -1.5px;
-            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: baseline;
+            width: fit-content;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .footer-logo .logo-vigyan {
+            font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            font-style: italic;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 25%, #ffffff 50%, #fcd34d 75%, #fef3c7 100%);
+            background-size: 200% 200%;
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-            width: fit-content;
+            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.5));
+            animation: footerShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes footerShimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .footer-logo .logo-dot {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 1.2rem;
+            color: rgba(148, 163, 184, 0.5);
+            margin-left: 2px;
+        }
+
+        .footer-logo .logo-prep {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+            text-transform: lowercase;
+            color: rgba(148, 163, 184, 0.4);
+        }
+
+        .footer-logo::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.6), transparent);
         }
 
         .footer-logo:hover {
             transform: translateY(-2px);
-            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4));
+        }
+
+        .footer-logo:hover .logo-vigyan {
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.7));
         }
 
         .footer-tagline {
@@ -416,7 +474,8 @@
     <div class="canvas-overlay"></div>
 
     <nav class="navbar" id="navbar">
-        <div class="logo">IIN<span>.edu</span></div>
+        <div class="logo"><span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span
+                class="logo-prep">prep</span></div>
         <div class="nav-links">
             <a href="index.html" class="active-link">Home</a>
 
@@ -652,27 +711,29 @@
             <div class="footer-main">
                 <!-- Logo -->
                 <div class="footer-brand">
-                    <div class="footer-logo">IIN.edu</div>
+                    <div class="footer-logo"><span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span
+                            class="logo-prep">prep</span></div>
                     <p class="footer-tagline">Empowering future researchers</p>
                 </div>
 
                 <!-- Social Icons -->
                 <div class="social-icons">
-                    <a href="https://instagram.com/iin.edu" target="_blank" class="social-link instagram"
+                    <a href="https://instagram.com/vigyan.prep" target="_blank" class="social-link instagram"
                         title="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="https://twitter.com/iin_edu" target="_blank" class="social-link twitter" title="Twitter">
+                    <a href="https://twitter.com/vigyanprep" target="_blank" class="social-link twitter"
+                        title="Twitter">
                         <i class="fab fa-twitter"></i>
                     </a>
-                    <a href="https://facebook.com/iin.edu" target="_blank" class="social-link facebook"
+                    <a href="https://facebook.com/vigyanprep" target="_blank" class="social-link facebook"
                         title="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
                     <a href="https://wa.me/919876543210" target="_blank" class="social-link whatsapp" title="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="https://linkedin.com/company/iin-edu" target="_blank" class="social-link linkedin"
+                    <a href="https://linkedin.com/company/vigyanprep" target="_blank" class="social-link linkedin"
                         title="LinkedIn">
                         <i class="fab fa-linkedin-in"></i>
                     </a>
@@ -686,7 +747,7 @@
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
-                        <a href="mailto:contact@iin.edu">contact@iin.edu</a>
+                        <a href="mailto:contact@vigyanprep.com">contact@vigyanprep.com</a>
                     </div>
                 </div>
             </div>
@@ -694,7 +755,7 @@
             <!-- Bottom Section: Copyright + Legal -->
             <div class="footer-bottom">
                 <div class="copyright">
-                    © 2025 IIN.edu • Made with <span class="heart-icon">♥</span> for future researchers
+                    © 2025 Vigyan.prep • Made with <span class="heart-icon">♥</span> for future researchers
                 </div>
                 <div class="legal-links">
                     <a href="frontend/footer/privacy.html" class="legal-link">Privacy</a>

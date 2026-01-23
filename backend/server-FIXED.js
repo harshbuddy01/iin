@@ -72,7 +72,7 @@ app.get('/', (req, res) => {
   console.log('✅ Root endpoint hit!');
   res.status(200).json({ 
     status: 'running',
-    message: 'IIN Backend API is alive',
+    message: 'Vigyan.prep Backend API is alive',
     timestamp: new Date().toISOString()
   });
 });

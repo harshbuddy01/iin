@@ -105,7 +105,7 @@ function updateExamTitles(year) {
     const titles = ['examTitleHeader', 'testNameDisplay'];
     titles.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.textContent = `IIN Aptitude Test Series ${year}`;
+        if (el) el.textContent = `Vigyan.prep Aptitude Test Series ${year}`;
     });
 }
 
@@ -681,7 +681,7 @@ function showResultsPage(results) {
         <div style="max-width: 1000px; margin: 50px auto; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
             <div style="text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 3px solid #e2e8f0;">
                 <h1 style="color: #1565c0; font-size: 2.5rem; margin-bottom: 10px;">🎓 Exam Completed!</h1>
-                <p style="color: #64748b; font-size: 1.1rem;">IIN Aptitude Test Series ${results.examYear}</p>
+                <p style="color: #64748b; font-size: 1.1rem;">Vigyan.prep Aptitude Test Series ${results.examYear}</p>
                 <p style="color: #475569; font-size: 1rem; margin-top: 10px;">Candidate: <strong>${results.userName}</strong></p>
             </div>
             

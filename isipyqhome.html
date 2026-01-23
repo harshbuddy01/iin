@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISI Previous Year Questions - IIN.edu</title>
+    <title>ISI Previous Year Questions - Vigyan.prep</title>
     <style>
         * {
             margin: 0;
@@ -28,14 +29,23 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
             animation: gradientShift 15s ease infinite;
             pointer-events: none;
         }
 
         @keyframes gradientShift {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.1); }
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
         }
 
         /* Navigation */
@@ -58,6 +68,7 @@
                 transform: translateY(-100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -68,10 +79,15 @@
             font-size: 28px;
             font-weight: bold;
             color: white;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-style: italic;
         }
 
         .logo span {
-            color: #7c3aed;
+            color: rgba(148, 163, 184, 0.6);
+            font-style: normal;
+            font-weight: 400;
+            font-size: 0.8em;
         }
 
         .nav-links {
@@ -171,6 +187,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -202,13 +219,27 @@
         }
 
         @keyframes scrollDown {
-            0%, 100% { transform: translate(-50%, 0); opacity: 1; }
-            50% { transform: translate(-50%, 15px); opacity: 0.5; }
+
+            0%,
+            100% {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translate(-50%, 15px);
+                opacity: 0.5;
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         /* Years Container */
@@ -227,20 +258,44 @@
             animation: sectionFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .year-section:nth-child(1) { animation-delay: 0.3s; }
-        .year-section:nth-child(2) { animation-delay: 0.4s; }
-        .year-section:nth-child(3) { animation-delay: 0.5s; }
-        .year-section:nth-child(4) { animation-delay: 0.6s; }
-        .year-section:nth-child(5) { animation-delay: 0.7s; }
-        .year-section:nth-child(6) { animation-delay: 0.8s; }
-        .year-section:nth-child(7) { animation-delay: 0.9s; }
-        .year-section:nth-child(8) { animation-delay: 1s; }
+        .year-section:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .year-section:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .year-section:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+
+        .year-section:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .year-section:nth-child(5) {
+            animation-delay: 0.7s;
+        }
+
+        .year-section:nth-child(6) {
+            animation-delay: 0.8s;
+        }
+
+        .year-section:nth-child(7) {
+            animation-delay: 0.9s;
+        }
+
+        .year-section:nth-child(8) {
+            animation-delay: 1s;
+        }
 
         @keyframes sectionFadeIn {
             from {
                 opacity: 0;
                 transform: translateY(50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -278,8 +333,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5); }
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            }
         }
 
         /* Cards Grid */
@@ -481,10 +545,23 @@
         }
 
         @keyframes floatOrb {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -30px) scale(1.1); }
-            50% { transform: translate(-30px, 30px) scale(0.9); }
-            75% { transform: translate(30px, 30px) scale(1.05); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            25% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+
+            50% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+
+            75% {
+                transform: translate(30px, 30px) scale(1.05);
+            }
         }
 
         /* Responsive */
@@ -528,85 +605,90 @@
                 padding: 30px 25px;
             }
         }
- /* Enhanced Animation for Home and Back links */
-.nav-links a {
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  display: inline-block;
-}
 
-/* Hover effect with lift and glow */
-.nav-links a:hover {
-  transform: translateY(-3px) scale(1.05);
-  color: white !important;
-  text-shadow: 0 0 20px rgba(124, 58, 237, 0.8),
-               0 0 40px rgba(124, 58, 237, 0.4);
-}
+        /* Enhanced Animation for Home and Back links */
+        .nav-links a {
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-block;
+        }
 
-/* Enhanced underline animation - override existing */
-.nav-links a::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #7c3aed, #6366f1, #8b5cf6);
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
-}
+        /* Hover effect with lift and glow */
+        .nav-links a:hover {
+            transform: translateY(-3px) scale(1.05);
+            color: white !important;
+            text-shadow: 0 0 20px rgba(124, 58, 237, 0.8),
+                0 0 40px rgba(124, 58, 237, 0.4);
+        }
 
-.nav-links a:hover::after,
-.nav-links a.active::after {
-  width: 100%;
-}
+        /* Enhanced underline animation - override existing */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #7c3aed, #6366f1, #8b5cf6);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.5);
+        }
 
-/* Click/Active animation */
-.nav-links a:active {
-  transform: translateY(-1px) scale(0.98);
-}
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
 
-/* Subtle breathing animation on idle */
-@keyframes breathe {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-}
+        /* Click/Active animation */
+        .nav-links a:active {
+            transform: translateY(-1px) scale(0.98);
+        }
 
-.nav-links a {
-  animation: breathe 3s ease-in-out infinite;
-}
+        /* Subtle breathing animation on idle */
+        @keyframes breathe {
 
-.nav-links a:hover {
-  animation: none;
-}
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
 
-/* Optional: Ripple effect on click */
-.nav-links a::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(124, 58, 237, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
+            50% {
+                opacity: 0.85;
+                transform: scale(0.98);
+            }
+        }
 
-.nav-links a:active::before {
-  width: 200px;
-  height: 200px;
-}
+        .nav-links a {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        .nav-links a:hover {
+            animation: none;
+        }
+
+        /* Optional: Ripple effect on click */
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(124, 58, 237, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .nav-links a:active::before {
+            width: 200px;
+            height: 200px;
+        }
     </style>
 </head>
+
 <body>
     <!-- Floating orbs -->
     <div class="orb orb1"></div>
@@ -615,7 +697,7 @@
 
     <!-- Navigation -->
     <nav>
-        <div class="logo">IIN<span>.edu</span></div>
+        <div class="logo">Vigyan<span>.prep</span></div>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="subtittlepyq.html">Back</a></li>
@@ -626,7 +708,8 @@
     <div class="hero">
         <h1>ISI Previous Year Questions</h1>
         <h2>Master Your Preparation</h2>
-        <p>Unlocking the premier research institutes of India. Practice with authentic previous year questions from 2018 to 2025.</p>
+        <p>Unlocking the premier research institutes of India. Practice with authentic previous year questions from 2018
+            to 2025.</p>
         <div class="scroll-indicator"></div>
     </div>
 
@@ -719,7 +802,7 @@
             <div class="cards-grid">
                 <div class="paper-card">
                     <div class="paper-type">Paper I</div>
-                   <h3 class="paper-title">ISI PYQ (MCQ)</h3>
+                    <h3 class="paper-title">ISI PYQ (MCQ)</h3>
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">Duration</div>
@@ -758,7 +841,7 @@
             <div class="cards-grid">
                 <div class="paper-card">
                     <div class="paper-type">Paper I</div>
-                   <h3 class="paper-title">ISI PYQ (MCQ)</h3>
+                    <h3 class="paper-title">ISI PYQ (MCQ)</h3>
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">Duration</div>
@@ -890,7 +973,7 @@
                 </div>
                 <div class="paper-card">
                     <div class="paper-type">Paper II</div>
-                   <h3 class="paper-title">ISI PYQ (Subjective) </h3>
+                    <h3 class="paper-title">ISI PYQ (Subjective) </h3>
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">Duration</div>

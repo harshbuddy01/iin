@@ -1,101 +1,382 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IIN Admin Portal - Dashboard</title>
+    <title>Vigyan.prep Admin Portal - Dashboard</title>
     <!-- Last updated: 2025-12-30 03:38 IST - Integrated Admin to Student Flow -->
     <!-- Version: v9 - Complete Question Upload Flow -->
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=9">
     <link rel="stylesheet" href="frontend/css/admin-modals.css?v=9">
     <link rel="stylesheet" href="frontend/css/admin-forms.css?v=9">
     <link rel="stylesheet" href="frontend/css/header-dropdowns.css?v=9">
-    
+
     <style>
-    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
-    .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
-    .data-table thead { background: #f8fafc; }
-    .data-table th { padding: 16px; text-align: left; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase; }
-    .data-table td { padding: 16px; border-top: 1px solid #e2e8f0; }
-    .data-table tbody tr:hover { background: #f8fafc; }
-    .action-btn { padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; margin: 0 4px; transition: all 0.3s; }
-    .action-btn:hover { background: #e2e8f0; }
-    .action-btn.danger:hover { background: #fee2e2; color: #dc2626; }
-    .badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
-    .badge-physics { background: #dbeafe; color: #1e40af; }
-    .badge-mathematics { background: #d1fae5; color: #065f46; }
-    .badge-chemistry { background: #fed7aa; color: #92400e; }
-    .badge-iat { background: #dbeafe; color: #1e40af; }
-    .badge-isi { background: #d1fae5; color: #065f46; }
-    .badge-nest { background: #fed7aa; color: #92400e; }
-    .difficulty-easy { color: #10b981; font-weight: 600; }
-    .difficulty-medium { color: #f59e0b; font-weight: 600; }
-    .difficulty-hard { color: #ef4444; font-weight: 600; }
-    .status-active { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
-    .status-inactive { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
-    .coming-soon { text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 18px; }
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-    .modal-content { background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e2e8f0; }
-    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
-    .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; }
-    .close-btn:hover { background: #f1f5f9; color: #475569; }
-    .modal-actions { display: flex; gap: 12px; padding: 24px; border-top: 1px solid #e2e8f0; justify-content: flex-end; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #334155; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
-    .btn-primary { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); }
-    .btn-secondary { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-secondary:hover { background: #e2e8f0; }
-    .btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-danger:hover { background: #dc2626; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .page-header h1 { font-size: 28px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 12px; }
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .data-table thead {
+            background: #f8fafc;
+        }
+
+        .data-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 0 4px;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .action-btn.danger:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-physics {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-mathematics {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-chemistry {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .badge-iat {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-isi {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-nest {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        .difficulty-easy {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .difficulty-medium {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .difficulty-hard {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .coming-soon {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+            font-size: 18px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #94a3b8;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 24px;
+            border-top: 1px solid #e2e8f0;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
     </style>
 </head>
+
 <body>
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="logo"><i class="fas fa-graduation-cap"></i><span>IIN PORTAL</span></div>
+            <div class="logo"><i class="fas fa-graduation-cap"></i><span>VIGYAN.PREP PORTAL</span></div>
         </div>
         <nav class="sidebar-nav">
-            <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="#" class="nav-link active" data-page="dashboard"><i
+                    class="fas fa-home"></i><span>Dashboard</span></a>
             <div class="nav-section">
                 <div class="nav-section-title">Test Management</div>
-                <a href="#" class="nav-link" data-page="test-calendar"><i class="fas fa-calendar-alt"></i><span>Test Calendar</span></a>
-                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
-                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled Tests</span></a>
-                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past Tests</span></a>
+                <a href="#" class="nav-link" data-page="test-calendar"><i class="fas fa-calendar-alt"></i><span>Test
+                        Calendar</span></a>
+                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create
+                        Test</span></a>
+                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled
+                        Tests</span></a>
+                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past
+                        Tests</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Question Bank</div>
-                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add Questions</span></a>
-                <a href="#" class="nav-link" data-page="view-questions"><i class="fas fa-list"></i><span>View/Edit</span></a>
-                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload PDF</span></a>
-                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image Upload</span></a>
+                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add
+                        Questions</span></a>
+                <a href="#" class="nav-link" data-page="view-questions"><i
+                        class="fas fa-list"></i><span>View/Edit</span></a>
+                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload
+                        PDF</span></a>
+                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image
+                        Upload</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Students</div>
-                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All Students</span></a>
-                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add Student</span></a>
-                <a href="#" class="nav-link" data-page="performance"><i class="fas fa-chart-line"></i><span>Performance</span></a>
+                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All
+                        Students</span></a>
+                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add
+                        Student</span></a>
+                <a href="#" class="nav-link" data-page="performance"><i
+                        class="fas fa-chart-line"></i><span>Performance</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Financial</div>
-                <a href="#" class="nav-link" data-page="transactions"><i class="fas fa-receipt"></i><span>Transactions</span></a>
+                <a href="#" class="nav-link" data-page="transactions"><i
+                        class="fas fa-receipt"></i><span>Transactions</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Results</div>
-                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View Results</span></a>
+                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View
+                        Results</span></a>
             </div>
         </nav>
-        <div class="sidebar-footer"><a href="#" class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+        <div class="sidebar-footer"><a href="#" class="logout-btn" onclick="logout()"><i
+                    class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
     </aside>
 
     <main class="main-content">
@@ -106,17 +387,46 @@
                 <div class="settings-icon"><i class="fas fa-cog"></i></div>
                 <div class="admin-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff" alt="Admin">
-                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super Admin</span></div>
+                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super
+                            Admin</span></div>
                 </div>
             </div>
         </header>
 
         <div class="content-area" id="dashboard-page">
             <div class="stats-grid">
-                <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div class="stat-content"><div class="stat-value">24</div><div class="stat-label">Active Tests</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</div></div></div>
-                <div class="stat-card green"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-content"><div class="stat-value">1,250</div><div class="stat-label">Students</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</div></div></div>
-                <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-content"><div class="stat-value">3</div><div class="stat-label">Today's Exams</div><div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div></div></div>
-                <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-rupee-sign"></i></div><div class="stat-content"><div class="stat-value">₹2.4L</div><div class="stat-label">Revenue</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15%</div></div></div>
+                <div class="stat-card blue">
+                    <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">Active Tests</div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</div>
+                    </div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">1,250</div>
+                        <div class="stat-label">Students</div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</div>
+                    </div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Today's Exams</div>
+                        <div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div>
+                    </div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-value">₹2.4L</div>
+                        <div class="stat-label">Revenue</div>
+                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15%</div>
+                    </div>
+                </div>
             </div>
             <div class="analytics-section">
                 <div class="chart-card">
@@ -143,29 +453,31 @@
         <div class="content-area" id="transactions-page" style="display: none;"></div>
         <div class="content-area" id="view-results-page" style="display: none;"></div>
         <div class="content-area" id="upload-image-page" style="display: none;"></div>
-        
+
         <!-- Test management pages -->
         <div class="content-area" id="test-calendar-page" style="display: none;"></div>
         <div class="content-area" id="scheduled-tests-page" style="display: none;"></div>
         <div class="content-area" id="past-tests-page" style="display: none;"></div>
         <div class="content-area" id="upload-pdf-page" style="display: none;"></div>
-        <div class="content-area" id="performance-page" style="display: none;"><p class="coming-soon">Performance analytics coming soon...</p></div>
+        <div class="content-area" id="performance-page" style="display: none;">
+            <p class="coming-soon">Performance analytics coming soon...</p>
+        </div>
     </main>
 
     <!-- SCRIPTS IN EXACT ORDER -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
+
     <!-- 🔥 CENTRALIZED CONFIG - Easy Hostinger Migration -->
     <script src="frontend/js/config.js?v=9"></script>
-    
+
     <script>
         console.log('🎯 Admin Panel v9 - Complete Admin to Student Flow');
         console.log('📍 Environment:', window.APP_CONFIG.ENVIRONMENT);
         console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
-        
+
         // Utility functions
         window.AdminUtils = {
-            showToast(msg, type = 'info') { 
+            showToast(msg, type = 'info') {
                 console.log(`[${type}] ${msg}`);
                 const toast = document.createElement('div');
                 toast.style.cssText = `
@@ -188,16 +500,16 @@
                 }, 3000);
             }
         };
-        
+
         function logout() {
             if (confirm('Logout?')) window.location.href = 'admin-login.html';
         }
     </script>
-    
+
     <!-- Core utilities with cache busting v9 -->
     <script src="frontend/js/admin-api-service.js?v=9"></script>
     <script src="frontend/js/admin-utils.js?v=9"></script>
-    
+
     <!-- Feature modules with cache busting v9 -->
     <script src="frontend/js/create-test.js?v=9"></script>
     <script src="frontend/js/add-questions-v2.js?v=9"></script>
@@ -206,19 +518,20 @@
     <script src="frontend/js/transactions.js?v=9"></script>
     <script src="frontend/js/results.js?v=9"></script>
     <script src="frontend/js/upload-image.js?v=9"></script>
-    
+
     <!-- Test management modules with cache busting v9 -->
     <script src="frontend/js/test-calendar.js?v=9"></script>
     <script src="frontend/js/scheduled-tests.js?v=9"></script>
     <script src="frontend/js/past-tests.js?v=9"></script>
     <script src="frontend/js/upload-pdf.js?v=9"></script>
-    
+
     <!-- Main dashboard controller (must load last) with cache busting v9 -->
     <script src="frontend/js/admin-dashboard-v2.js?v=9"></script>
-    
+
     <script>
         console.log('✅ All scripts loaded - v9 - Complete Admin to Student Flow');
         console.log('🔍 initAddQuestions:', typeof window.initAddQuestions === 'function');
     </script>
 </body>
+
 </html>
