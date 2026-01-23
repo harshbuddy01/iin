@@ -1,5 +1,6 @@
 import express from 'express';
-import { pool } from '../config/mysql.js';
+// DISABLED FOR MONGODB: import { pool } from '../config/mysql.js';
+import QuestionModel from '../models/question.js';
 import { QuestionService } from '../services/QuestionService.js';
 
 const router = express.Router();
@@ -14,7 +15,7 @@ const questionService = new QuestionService();
 /**
  * POST /api/admin/questions
  * 
- * Admin uploads question → Backend saves to MySQL → Student fetches
+ * Admin uploads question → Backend saves to MongoDB → Student fetches
  * 
  * Expected payload:
  * {
@@ -100,12 +101,13 @@ router.post('/questions', async (req, res) => {
         }
         
         // Check if question number already exists for this test+section
-        const [existingQuestions] = await pool.query(
-            'SELECT id FROM questions WHERE test_id = ? AND question_number = ? AND section = ?',
-            [testId, questionNumber, section]
-        );
+        const existingQuestion = await QuestionModel.findOne({
+            testId: testId,
+            questionNumber: questionNumber,
+            section: section
+        });
         
-        if (existingQuestions.length > 0) {
+        if (existingQuestion) {
             return res.status(400).json({
                 success: false,
                 error: `Question number ${questionNumber} already exists for ${testId} - ${section}. Please use a different number or update the existing question.`
@@ -113,37 +115,17 @@ router.post('/questions', async (req, res) => {
         }
         
         // ===== INSERT QUESTION INTO DATABASE =====
-        const [result] = await pool.query(
-            `INSERT INTO questions (
-                test_id, 
-                question_number, 
-                question_text, 
-                options, 
-                correct_answer, 
-                section, 
-                marks_positive,
-                marks_negative,
-                difficulty,
-                topic,
-                input_method,
-                created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-            [
-                testId,
-                questionNumber,
-                questionText,
-                JSON.stringify(options),
-                correctAnswer,
-                section,
-                marks || 4,
-                -1, // Default negative marking
-                difficulty || 'Medium',
-                topic || null,
-                'manual'
-            ]
-        );
+        const newQuestion = new QuestionModel({
+            testId,
+            questionText,
+            options,
+            correctAnswer,
+            subject: section
+        });
         
-        console.log(`✅ [ADMIN] Question added with ID: ${result.insertId}`);
+        const savedQuestion = await newQuestion.save();
+        
+        console.log(`✅ [ADMIN] Question added with ID: ${savedQuestion._id}`);
         console.log(`📊 Test ID: ${testId}`);
         console.log(`📝 Question Number: ${questionNumber}`);
         console.log(`📚 Subject: ${section}`);
@@ -153,7 +135,7 @@ router.post('/questions', async (req, res) => {
             success: true,
             message: 'Question added successfully',
             question: {
-                id: result.insertId,
+                id: savedQuestion._id,
                 testId,
                 examType,
                 year,
@@ -200,25 +182,10 @@ router.get('/exam/questions', async (req, res) => {
             });
         }
         
-        // Fetch all questions for this test, ordered by question_number
-        const [questions] = await pool.query(
-            `SELECT 
-                id,
-                test_id as testId,
-                question_number as questionNumber,
-                question_text as questionText,
-                options,
-                correct_answer as correctAnswer,
-                section,
-                marks_positive as marks,
-                marks_negative as negativeMarks,
-                difficulty,
-                topic
-            FROM questions 
-            WHERE test_id = ? 
-            ORDER BY question_number ASC`,
-            [testId]
-        );
+        // Fetch all questions for this test, sorted by question number
+        const questions = await QuestionModel.find({
+            testId: testId
+        }).sort({ questionNumber: 1 });
         
         if (questions.length === 0) {
             console.log(`⚠️ [STUDENT] No questions found for testId: ${testId}`);
@@ -232,15 +199,20 @@ router.get('/exam/questions', async (req, res) => {
         const parsedQuestions = questions.map(q => {
             let options = [];
             try {
-                options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options;
+                options = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? JSON.parse(q.options) : []);
             } catch (e) {
-                console.error(`⚠️ Failed to parse options for question ${q.id}:`, e);
+                console.error(`⚠️ Failed to parse options for question ${q._id}:`, e);
                 options = [];
             }
             
             return {
-                ...q,
+                _id: q._id,
+                testId: q.testId,
+                questionNumber: q.questionNumber || 0,
+                questionText: q.questionText,
                 options: options,
+                correctAnswer: q.correctAnswer,
+                subject: q.subject,
                 optionA: options[0] || '',
                 optionB: options[1] || '',
                 optionC: options[2] || '',
@@ -268,46 +240,40 @@ router.get('/exam/questions', async (req, res) => {
 });
 
 // =============================================================================
-// OLD ROUTES (Keep for backward compatibility)
+// REFACTORED ROUTES (MongoDB versions)
 // =============================================================================
 
-// GET all questions with better error handling (OLD - WORKING)
+// GET all questions with better error handling
 router.get('/questions', async (req, res) => {
     try {
-        console.log('🔍 [QUESTIONS-OLD] Fetching questions from database...');
+        console.log('🔍 [QUESTIONS] Fetching questions from database...');
         
         const subject = req.query.subject || '';
         const difficulty = req.query.difficulty || '';
         const search = req.query.search || '';
         
-        let query = 'SELECT * FROM questions';
-        let conditions = [];
-        let params = [];
+        let filter = {};
         
         if (subject) {
-            conditions.push('section = ?');
-            params.push(subject);
+            filter.subject = subject;
         }
         if (difficulty) {
-            conditions.push('difficulty = ?');
-            params.push(difficulty);
+            filter.difficulty = difficulty;
         }
         if (search) {
-            conditions.push('(question_text LIKE ? OR test_id LIKE ?)');
-            params.push(`%${search}%`, `%${search}%`);
+            filter.$or = [
+                { questionText: { $regex: search, $options: 'i' } },
+                { testId: { $regex: search, $options: 'i' } }
+            ];
         }
         
-        if (conditions.length > 0) {
-            query += ' WHERE ' + conditions.join(' AND ');
-        }
+        const questions = await QuestionModel.find(filter)
+            .sort({ _id: -1 })
+            .limit(100);
         
-        query += ' ORDER BY id DESC LIMIT 100';
+        console.log(`📊 [QUESTIONS] Found ${questions.length} questions`);
         
-        const [rows] = await pool.query(query, params);
-        
-        console.log(`📊 [QUESTIONS-OLD] Found ${rows.length} questions`);
-        
-        const questions = rows.map((q, index) => {
+        const formattedQuestions = questions.map((q) => {
             let options = [];
             
             try {
@@ -319,29 +285,29 @@ router.get('/questions', async (req, res) => {
                     }
                 }
             } catch (parseError) {
-                console.error(`❌ Question ${q.id}: Failed to parse options:`, parseError.message);
+                console.error(`❌ Question ${q._id}: Failed to parse options:`, parseError.message);
                 options = [];
             }
             
             return {
-                id: q.id,
-                subject: q.section || 'Physics',
+                id: q._id,
+                subject: q.subject || 'Physics',
                 topic: q.topic || 'General',
                 difficulty: q.difficulty || 'Medium',
-                marks: q.marks_positive || 4,
-                question: q.question_text || '',
+                marks: q.marks || 4,
+                question: q.questionText || '',
                 type: 'MCQ',
                 options: options,
-                answer: q.correct_answer || '',
-                testId: q.test_id || 'UNKNOWN'
+                answer: q.correctAnswer || '',
+                testId: q.testId || 'UNKNOWN'
             };
         });
         
-        console.log(`✅ [QUESTIONS-OLD] Returning ${questions.length} questions`);
-        res.json({ questions });
+        console.log(`✅ [QUESTIONS] Returning ${formattedQuestions.length} questions`);
+        res.json({ questions: formattedQuestions });
         
     } catch (error) {
-        console.error('❌ [QUESTIONS-OLD] Error fetching questions:', error);
+        console.error('❌ [QUESTIONS] Error fetching questions:', error);
         res.status(500).json({
             questions: [],
             error: error.message,
@@ -350,56 +316,75 @@ router.get('/questions', async (req, res) => {
     }
 });
 
-// PUT update question (OLD - WORKING)
+// PUT update question
 router.put('/questions/:id', async (req, res) => {
     try {
-        console.log(`✏️ [QUESTIONS-OLD] Updating question ${req.params.id}`);
+        console.log(`✏️ [QUESTIONS] Updating question ${req.params.id}`);
         
-        const { questionText, options, correctAnswer, section, marks } = req.body;
+        const { questionText, options, correctAnswer, subject, marks } = req.body;
         
-        await pool.query(
-            `UPDATE questions 
-             SET question_text=?, options=?, correct_answer=?, section=?, marks_positive=? 
-             WHERE id=?`,
-            [
+        const updatedQuestion = await QuestionModel.findByIdAndUpdate(
+            req.params.id,
+            {
                 questionText,
-                JSON.stringify(options),
+                options,
                 correctAnswer,
-                section,
-                marks,
-                req.params.id
-            ]
+                subject,
+                marks
+            },
+            { new: true }
         );
         
-        console.log(`✅ [QUESTIONS-OLD] Question ${req.params.id} updated`);
+        if (!updatedQuestion) {
+            return res.status(404).json({
+                success: false,
+                error: 'Question not found'
+            });
+        }
+        
+        console.log(`✅ [QUESTIONS] Question ${req.params.id} updated`);
         
         res.json({
-            question: {
-                id: parseInt(req.params.id),
-                ...req.body
-            }
+            success: true,
+            question: updatedQuestion
         });
         
     } catch (error) {
-        console.error(`❌ [QUESTIONS-OLD] Error updating question ${req.params.id}:`, error);
-        res.status(500).json({ error: error.message });
+        console.error(`❌ [QUESTIONS] Error updating question ${req.params.id}:`, error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
-// DELETE question (OLD - WORKING)
+// DELETE question
 router.delete('/questions/:id', async (req, res) => {
     try {
-        console.log(`🗑️ [QUESTIONS-OLD] Deleting question ${req.params.id}`);
+        console.log(`🗑️ [QUESTIONS] Deleting question ${req.params.id}`);
         
-        await pool.query('DELETE FROM questions WHERE id=?', [req.params.id]);
+        const deletedQuestion = await QuestionModel.findByIdAndDelete(req.params.id);
         
-        console.log(`✅ [QUESTIONS-OLD] Question ${req.params.id} deleted`);
+        if (!deletedQuestion) {
+            return res.status(404).json({
+                success: false,
+                error: 'Question not found'
+            });
+        }
         
-        res.json({ message: 'Question deleted successfully' });
+        console.log(`✅ [QUESTIONS] Question ${req.params.id} deleted`);
+        
+        res.json({ 
+            success: true,
+            message: 'Question deleted successfully' 
+        });
         
     } catch (error) {
-        console.error(`❌ [QUESTIONS-OLD] Error deleting question ${req.params.id}:`, error);
-        res.status(500).json({ error: error.message });
+        console.error(`❌ [QUESTIONS] Error deleting question ${req.params.id}:`, error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
@@ -407,7 +392,7 @@ router.delete('/questions/:id', async (req, res) => {
 // OOP ROUTES (For testing and gradual migration)
 // =============================================================================
 
-// GET all questions with OOP (NEW - TESTING)
+// GET all questions with OOP
 router.get('/questions-v2', async (req, res) => {
     try {
         console.log('🆕 [QUESTIONS-OOP] Fetching questions with OOP service...');
