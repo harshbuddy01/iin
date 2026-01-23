@@ -1,4 +1,8 @@
-import { pool } from "../config/mysql.js";
+// DISABLED FOR MONGODB: import { pool } from "../config/mysql.js";
+import { StudentPayment } from "../models/StudentPayment.js";
+import { PurchasedTest } from "../models/PurchasedTest.js";
+import { Question } from "../models/Question.js";
+import { StudentAttempt } from "../models/StudentAttempt.js";
 
 // Helper function to safely parse JSON
 const safeJsonParse = (jsonString, fallback = null) => {
@@ -22,39 +26,32 @@ export const getUserInfo = async (req, res) => {
       });
     }
 
-    // Find student by email or roll number in MySQL
-    let query, params;
+    // Find student in MongoDB
+    let student;
     
     if (email) {
-      query = "SELECT * FROM students_payments WHERE email = ?";
-      params = [email.toLowerCase().trim()];
+      student = await StudentPayment.findOne({ email: email.toLowerCase().trim() });
     } else {
-      query = "SELECT * FROM students_payments WHERE roll_number = ?";
-      params = [rollNumber];
+      student = await StudentPayment.findOne({ roll_number: rollNumber });
     }
-    
-    const [students] = await pool.query(query, params);
 
-    if (students.length === 0) {
+    if (!student) {
       return res.status(404).json({ 
         success: false, 
         message: "Student not found" 
       });
     }
-
-    const student = students[0];
     
     // Get purchased tests
-    const [purchasedTests] = await pool.query(
-      "SELECT test_id FROM purchased_tests WHERE email = ?",
-      [student.email]
-    );
+    const purchasedTestDocs = await PurchasedTest.find({
+      email: student.email
+    });
 
     res.status(200).json({
       success: true,
       email: student.email,
       rollNumber: student.roll_number,
-      purchasedTests: purchasedTests.map(t => t.test_id)
+      purchasedTests: purchasedTestDocs.map(t => t.test_id)
     });
     
   } catch (error) {
@@ -77,13 +74,13 @@ export const startTest = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase().trim();
     
-    // Find student in MySQL
-    const [students] = await pool.query(
-      "SELECT * FROM students_payments WHERE email = ? AND roll_number = ?",
-      [normalizedEmail, rollNumber]
-    );
+    // Find student in MongoDB
+    const student = await StudentPayment.findOne({
+      email: normalizedEmail,
+      roll_number: rollNumber
+    });
 
-    if (students.length === 0) {
+    if (!student) {
       return res.status(404).json({ 
         success: false, 
         message: "Invalid Roll Number or Email" 
@@ -91,16 +88,15 @@ export const startTest = async (req, res) => {
     }
 
     // Get purchased tests
-    const [purchasedTests] = await pool.query(
-      "SELECT test_id FROM purchased_tests WHERE email = ?",
-      [normalizedEmail]
-    );
+    const purchasedTestDocs = await PurchasedTest.find({
+      email: normalizedEmail
+    });
 
     // Return purchased tests
     res.status(200).json({ 
       success: true, 
-      purchasedTests: purchasedTests.map(t => t.test_id),
-      rollNumber: students[0].roll_number
+      purchasedTests: purchasedTestDocs.map(t => t.test_id),
+      rollNumber: student.roll_number
     });
     
   } catch (error) {
@@ -128,13 +124,12 @@ export const submitExam = async (req, res) => {
     let finalRollNumber = rollNumber;
     
     if (!finalRollNumber) {
-      const [students] = await pool.query(
-        "SELECT roll_number FROM students_payments WHERE email = ?",
-        [normalizedEmail]
-      );
+      const student = await StudentPayment.findOne({
+        email: normalizedEmail
+      });
       
-      if (students.length > 0) {
-        finalRollNumber = students[0].roll_number;
+      if (student) {
+        finalRollNumber = student.roll_number;
       } else {
         finalRollNumber = "N/A";
       }
@@ -146,11 +141,10 @@ export const submitExam = async (req, res) => {
     let wrongAnswers = 0;
     let unanswered = 0;
     
-    // Get correct answers from questions table
-    const [questions] = await pool.query(
-      "SELECT question_number, correct_answer FROM questions WHERE test_id = ? ORDER BY question_number",
-      [testId]
-    );
+    // Get correct answers from questions collection
+    const questions = await Question.find({
+      test_id: testId
+    }).sort({ question_number: 1 });
     
     if (questions.length === 0) {
       return res.status(404).json({ 
@@ -159,7 +153,7 @@ export const submitExam = async (req, res) => {
       });
     }
     
-    // ✅ FIXED: Create a map for easier lookup by question number
+    // Create a map for easier lookup by question number
     const correctAnswersMap = {};
     questions.forEach(q => {
       correctAnswersMap[q.question_number] = q.correct_answer;
@@ -204,31 +198,25 @@ export const submitExam = async (req, res) => {
     const score = correctAnswers;
     const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
     
-    // Save to student_attempts table
-    await pool.query(
-      `INSERT INTO student_attempts 
-       (email, roll_number, test_id, test_name, total_questions, attempted_questions, 
-        correct_answers, wrong_answers, unanswered, score, percentage, time_taken, 
-        answers, question_wise_results, started_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        normalizedEmail,
-        finalRollNumber,
-        testId,
-        testName || testId,
-        totalQuestions,
-        totalQuestions - unanswered,
-        correctAnswers,
-        wrongAnswers,
-        unanswered,
-        score,
-        percentage.toFixed(2),
-        timeTaken || 0,
-        JSON.stringify(userResponses),
-        JSON.stringify(questionWiseResults),
-        startedAt || new Date()
-      ]
-    );
+    // Save to student_attempts collection
+    const attempt = await StudentAttempt.create({
+      email: normalizedEmail,
+      roll_number: finalRollNumber,
+      test_id: testId,
+      test_name: testName || testId,
+      total_questions: totalQuestions,
+      attempted_questions: totalQuestions - unanswered,
+      correct_answers: correctAnswers,
+      wrong_answers: wrongAnswers,
+      unanswered: unanswered,
+      score: score,
+      percentage: parseFloat(percentage.toFixed(2)),
+      time_taken: timeTaken || 0,
+      answers: userResponses,
+      question_wise_results: questionWiseResults,
+      started_at: startedAt || new Date(),
+      submitted_at: new Date()
+    });
 
     res.status(200).json({ 
       success: true, 
@@ -261,11 +249,10 @@ export const getQuestions = async (req, res) => {
       });
     }
     
-    // Get questions from MySQL - REMOVED 'difficulty' and 'topic' columns
-    const [questions] = await pool.query(
-      "SELECT id, test_id, question_number, question_text, options FROM questions WHERE test_id = ? ORDER BY question_number",
-      [testId]
-    );
+    // Get questions from MongoDB
+    const questions = await Question.find({
+      test_id: testId
+    }).sort({ question_number: 1 });
     
     if (questions.length === 0) {
       return res.status(404).json({ 
@@ -274,13 +261,13 @@ export const getQuestions = async (req, res) => {
       });
     }
     
-    // Parse JSON options field with safe parsing
+    // Format response
     const formattedQuestions = questions.map(q => ({
-      _id: q.id,
+      _id: q._id,
       testId: q.test_id,
       questionNumber: q.question_number,
       questionText: q.question_text,
-      options: safeJsonParse(q.options, []) // ✅ Safe parsing
+      options: Array.isArray(q.options) ? q.options : safeJsonParse(q.options, [])
     }));
     
     res.status(200).json({ 
@@ -306,23 +293,21 @@ export const getStudentResults = async (req, res) => {
       });
     }
     
-    let query, params;
+    let query = {};
     
     if (email) {
-      query = "SELECT * FROM student_attempts WHERE email = ? ORDER BY submitted_at DESC";
-      params = [email.toLowerCase().trim()];
+      query = { email: email.toLowerCase().trim() };
     } else {
-      query = "SELECT * FROM student_attempts WHERE roll_number = ? ORDER BY submitted_at DESC";
-      params = [rollNumber];
+      query = { roll_number: rollNumber };
     }
     
-    const [attempts] = await pool.query(query, params);
+    const attempts = await StudentAttempt.find(query).sort({ submitted_at: -1 });
     
-    // Parse JSON fields with safe parsing
+    // Format response
     const formattedAttempts = attempts.map(attempt => ({
-      ...attempt,
-      answers: safeJsonParse(attempt.answers, []), // ✅ Safe parsing
-      question_wise_results: safeJsonParse(attempt.question_wise_results, []) // ✅ Safe parsing
+      ...attempt.toObject(),
+      answers: Array.isArray(attempt.answers) ? attempt.answers : safeJsonParse(attempt.answers, []),
+      question_wise_results: Array.isArray(attempt.question_wise_results) ? attempt.question_wise_results : safeJsonParse(attempt.question_wise_results, [])
     }));
     
     res.status(200).json({ 
