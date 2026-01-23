@@ -19,12 +19,18 @@ console.log('🔵 Creating Express app...');
 
 const PORT = process.env.PORT || 8080;
 
-// CORS configuration
+// CORS configuration - Updated for Hostinger deployment
 console.log('🔵 Setting up CORS...');
 app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
+    'https://vigyanprep.com',
+    'http://vigyanprep.com',
+    'https://www.vigyanprep.com',
+    'http://www.vigyanprep.com',
+    'https://31.97.101.169',
+    'http://31.97.101.169',
     'https://iinedu.vercel.app',
     'https://api.iinedu.com',
     process.env.FRONTEND_URL
