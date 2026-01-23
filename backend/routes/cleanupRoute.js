@@ -1,112 +1,70 @@
-/**
- * CLEANUP ROUTE
- * Provides admin endpoint to cleanup corrupted questions
- * Access: GET /api/admin/cleanup-questions
- * Date: 2025-12-29
- */
-
 import express from 'express';
-import { pool } from '../config/mysql.js';
+// DISABLED FOR MONGODB: import { pool } from '../config/mysql.js';
 
 const router = express.Router();
 
-// Cleanup corrupted questions endpoint
+/**
+ * DEPRECATED ROUTE - Cleanup Helper (MySQL Only)
+ * 
+ * This route was used for administrative cleanup of corrupted questions in MySQL.
+ * Since we've migrated to MongoDB, this endpoint is no longer needed.
+ * 
+ * MongoDB automatically handles data validation and schema enforcement.
+ * 
+ * If you need to cleanup questions in MongoDB:
+ * 1. Use MongoDB validation rules
+ * 2. Use MongoDB aggregation pipeline
+ * 3. Contact DevOps for data cleanup
+ */
+
 router.get('/cleanup-questions', async (req, res) => {
-    try {
-        console.log('🧹 [CLEANUP] Starting questions cleanup...');
-        
-        // Count total before cleanup
-        const [beforeCount] = await pool.query('SELECT COUNT(*) as count FROM questions');
-        const before = beforeCount[0]?.count || 0;
-        console.log(`📊 [CLEANUP] Questions before cleanup: ${before}`);
-        
-        // Delete questions with invalid test_id
-        const [deleted1] = await pool.query(`
-            DELETE FROM questions 
-            WHERE test_id IS NULL 
-               OR test_id = '' 
-               OR test_id = '0'
-               OR (CAST(test_id AS CHAR) REGEXP '^[0-9]+$' AND CAST(test_id AS UNSIGNED) < 1000)
-        `);
-        console.log(`🗑️ [CLEANUP] Deleted ${deleted1.affectedRows} questions with invalid test_id`);
-        
-        // Delete questions with NULL or empty correct_answer
-        const [deleted2] = await pool.query(`
-            DELETE FROM questions 
-            WHERE correct_answer IS NULL 
-               OR correct_answer = ''
-        `);
-        console.log(`🗑️ [CLEANUP] Deleted ${deleted2.affectedRows} questions with empty answers`);
-        
-        // Delete questions with NULL or invalid options
-        const [deleted3] = await pool.query(`
-            DELETE FROM questions 
-            WHERE options IS NULL 
-               OR options = '' 
-               OR options = '[]'
-        `);
-        console.log(`🗑️ [CLEANUP] Deleted ${deleted3.affectedRows} questions with empty options`);
-        
-        // Count remaining questions
-        const [afterCount] = await pool.query('SELECT COUNT(*) as count FROM questions');
-        const after = afterCount[0]?.count || 0;
-        console.log(`📊 [CLEANUP] Questions after cleanup: ${after}`);
-        
-        // Get remaining questions for verification
-        const [remaining] = await pool.query(
-            'SELECT id, test_id, section, correct_answer FROM questions ORDER BY id DESC LIMIT 10'
-        );
-        
-        const summary = {
-            success: true,
-            message: 'Cleanup completed successfully',
-            stats: {
-                before,
-                after,
-                deleted: before - after,
-                deletedByInvalidTestId: deleted1.affectedRows,
-                deletedByEmptyAnswer: deleted2.affectedRows,
-                deletedByEmptyOptions: deleted3.affectedRows
-            },
-            remainingQuestions: remaining
-        };
-        
-        console.log('✅ [CLEANUP] Cleanup completed!');
-        console.log('📋 [CLEANUP] Summary:', summary);
-        
-        res.json(summary);
-        
-    } catch (error) {
-        console.error('❌ [CLEANUP] Error during cleanup:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message,
-            message: 'Cleanup failed. Please check server logs.'
-        });
-    }
+  try {
+    console.log('\u26a0\ufe0f [DEPRECATED] Cleanup route called but disabled for MongoDB');
+    
+    res.status(410).json({
+      success: false,
+      status: 'deprecated',
+      message: 'This cleanup endpoint is deprecated. MongoDB migration is complete.',
+      information: {
+        reason: 'MySQL admin helper - no longer needed for MongoDB',
+        migration_status: 'Complete - All data migrated to MongoDB',
+        next_steps: [
+          'MongoDB schema validation is automatically enforced',
+          'Use MongoDB Atlas for data cleanup',
+          'Use aggregation pipeline for bulk operations',
+          'Contact DevOps if manual cleanup needed'
+        ]
+      }
+    });
+
+  } catch (error) {
+    console.error('\u274c Cleanup route error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'This endpoint is deprecated and no longer functional',
+      message: error.message
+    });
+  }
 });
 
-// Optional: Delete ALL questions (use with caution!)
 router.delete('/cleanup-questions/all', async (req, res) => {
-    try {
-        console.log('⚠️ [CLEANUP] Deleting ALL questions...');
-        
-        const [result] = await pool.query('DELETE FROM questions');
-        console.log(`🗑️ [CLEANUP] Deleted ${result.affectedRows} questions`);
-        
-        res.json({
-            success: true,
-            message: 'All questions deleted successfully',
-            deletedCount: result.affectedRows
-        });
-        
-    } catch (error) {
-        console.error('❌ [CLEANUP] Error deleting all questions:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
+  try {
+    console.log('\u26a0\ufe0f [DEPRECATED] Bulk delete attempted but disabled');
+    
+    res.status(410).json({
+      success: false,
+      status: 'deprecated',
+      message: 'This bulk delete endpoint is disabled',
+      warning: 'This is a destructive operation and is not allowed through the API'
+    });
+
+  } catch (error) {
+    console.error('\u274c Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'This endpoint is deprecated and no longer functional'
+    });
+  }
 });
 
 export default router;
