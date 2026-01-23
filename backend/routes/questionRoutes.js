@@ -1,6 +1,6 @@
 import express from 'express';
 // DISABLED FOR MONGODB: import { pool } from '../config/mysql.js';
-import QuestionModel from '../models/question.js';
+import QuestionModel from '../schemas/QuestionSchema.js';
 import { QuestionService } from '../services/QuestionService.js';
 
 const router = express.Router();
@@ -120,7 +120,7 @@ router.post('/questions', async (req, res) => {
             questionText,
             options,
             correctAnswer,
-            subject: section
+            section: section
         });
         
         const savedQuestion = await newQuestion.save();
@@ -212,7 +212,7 @@ router.get('/exam/questions', async (req, res) => {
                 questionText: q.questionText,
                 options: options,
                 correctAnswer: q.correctAnswer,
-                subject: q.subject,
+                section: q.section,
                 optionA: options[0] || '',
                 optionB: options[1] || '',
                 optionC: options[2] || '',
@@ -248,14 +248,14 @@ router.get('/questions', async (req, res) => {
     try {
         console.log('🔍 [QUESTIONS] Fetching questions from database...');
         
-        const subject = req.query.subject || '';
+        const section = req.query.section || '';
         const difficulty = req.query.difficulty || '';
         const search = req.query.search || '';
         
         let filter = {};
         
-        if (subject) {
-            filter.subject = subject;
+        if (section) {
+            filter.section = section;
         }
         if (difficulty) {
             filter.difficulty = difficulty;
@@ -291,7 +291,7 @@ router.get('/questions', async (req, res) => {
             
             return {
                 id: q._id,
-                subject: q.subject || 'Physics',
+                section: q.section || 'Physics',
                 topic: q.topic || 'General',
                 difficulty: q.difficulty || 'Medium',
                 marks: q.marks || 4,
@@ -321,7 +321,7 @@ router.put('/questions/:id', async (req, res) => {
     try {
         console.log(`✏️ [QUESTIONS] Updating question ${req.params.id}`);
         
-        const { questionText, options, correctAnswer, subject, marks } = req.body;
+        const { questionText, options, correctAnswer, section, marks } = req.body;
         
         const updatedQuestion = await QuestionModel.findByIdAndUpdate(
             req.params.id,
@@ -329,7 +329,7 @@ router.put('/questions/:id', async (req, res) => {
                 questionText,
                 options,
                 correctAnswer,
-                subject,
+                section,
                 marks
             },
             { new: true }
@@ -398,7 +398,7 @@ router.get('/questions-v2', async (req, res) => {
         console.log('🆕 [QUESTIONS-OOP] Fetching questions with OOP service...');
         
         const filters = {
-            section: req.query.subject || req.query.section,
+            section: req.query.section || req.query.subject,
             difficulty: req.query.difficulty,
             search: req.query.search,
             limit: parseInt(req.query.limit) || 100,
