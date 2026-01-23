@@ -1,5 +1,6 @@
 import express from 'express';
 import Student from '../models/Student.js';
+import { isMongoDBConnected } from '../config/mongodb.js';
 
 const router = express.Router();
 
@@ -8,24 +9,43 @@ router.post('/verify-user-full', async (req, res) => {
   const { email, rollNumber } = req.body;
   
   try {
+    // Check if MongoDB is connected
+    if (!isMongoDBConnected) {
+      console.error('❌ MongoDB not connected');
+      return res.status(503).json({ 
+        error: 'Database connection unavailable',
+        message: 'Service temporarily unavailable. Please try again in a moment.'
+      });
+    }
+
     // Validate email
     if (!email || !email.includes('@')) {
       return res.status(400).json({ 
-        error: 'Invalid email format' 
+        error: 'Invalid email format',
+        message: 'Please provide a valid email address'
       });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    console.log(`🔵 Verifying user: ${normalizedEmail}`);
+
+    // Set timeout for database operations
+    const startTime = Date.now();
 
     // Check if student exists
-    let student = await Student.findOne({ email: normalizedEmail });
+    let student = await Student.findOne({ email: normalizedEmail })
+      .maxTimeMS(5000) // 5 second max query time
+      .lean();
 
     if (student) {
-      // Update last login
-      student.lastLoginAt = new Date();
-      await student.save();
+      // Update last login (fire and forget)
+      Student.updateOne(
+        { _id: student._id },
+        { lastLoginAt: new Date() }
+      ).catch(err => console.error('Failed to update lastLoginAt:', err));
 
-      console.log(`✅ Existing user verified: ${normalizedEmail}`);
+      const duration = Date.now() - startTime;
+      console.log(`✅ Existing user verified: ${normalizedEmail} (${duration}ms)`);
 
       return res.json({
         success: true,
@@ -43,7 +63,8 @@ router.post('/verify-user-full', async (req, res) => {
       lastLoginAt: new Date()
     });
 
-    console.log(`✅ New student created: ${normalizedEmail}`);
+    const duration = Date.now() - startTime;
+    console.log(`✅ New student created: ${normalizedEmail} (${duration}ms)`);
 
     res.json({
       success: true,
@@ -54,11 +75,38 @@ router.post('/verify-user-full', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Email verification error:', error);
+    
+    // Handle timeout errors
+    if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
+      return res.status(504).json({ 
+        error: 'Database timeout',
+        message: 'Request took too long. Please try again.'
+      });
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return res.status(409).json({ 
+        error: 'Duplicate entry',
+        message: 'This email is already registered'
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Server error during verification',
-      message: error.message 
+      message: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
+});
+
+// Quick health check for auth system
+router.get('/auth-health', (req, res) => {
+  res.json({
+    status: 'ok',
+    mongoConnected: isMongoDBConnected,
+    timestamp: new Date().toISOString()
+  });
 });
 
 export default router;
