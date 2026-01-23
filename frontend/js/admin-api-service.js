@@ -1,18 +1,19 @@
 /**
  * Admin API Service - Complete Backend Integration
- * Backend: Railway (https://iin-production.up.railway.app)
+ * Backend: Hostinger (https://vigyanprep.com:3000)
+ * Updated: 2026-01-23
  */
 
 const AdminAPI = {
-    // 🚀 PRODUCTION Railway Backend URL
+    // 🚀 PRODUCTION Hostinger Backend URL
     get baseURL() {
         // If running locally, use local backend
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             return 'http://localhost:8080';
         }
         
-        // ✅ RAILWAY BACKEND URL (confirmed from deployment)
-        return 'https://iin-production.up.railway.app';
+        // ✅ HOSTINGER BACKEND URL (Node.js on port 3000)
+        return 'https://vigyanprep.com:3000';
     },
     
     // Helper method for API calls
