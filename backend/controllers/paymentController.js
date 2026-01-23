@@ -1,7 +1,10 @@
 import crypto from "crypto";
 import { instance } from "../server.js";
-import { pool } from "../config/mysql.js";
+// DISABLED FOR MONGODB MIGRATION: import { pool } from "../config/mysql.js";
 import nodemailer from "nodemailer";
+import { StudentPayment } from "../models/StudentPayment.js";
+import { PurchasedTest } from "../models/PurchasedTest.js";
+import { PaymentTransaction } from "../models/PaymentTransaction.js";
 
 // Create Nodemailer transporter with Hostinger SMTP
 const transporter = nodemailer.createTransport({
@@ -77,7 +80,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION (USING MYSQL + NODEMAILER)
+// 3. PAYMENT VERIFICATION (USING MONGODB + NODEMAILER)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -122,30 +125,26 @@ export const paymentVerification = async (req, res) => {
     // Payment verified! Now handle roll number logic
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if student already exists in MySQL
-    const [existingStudents] = await pool.query(
-      "SELECT * FROM students_payments WHERE email = ?",
-      [normalizedEmail]
-    );
+    // Check if student already exists in MongoDB
+    let existingStudent = await StudentPayment.findOne({ email: normalizedEmail });
 
     let rollNumber;
     let isNewStudent = false;
     let purchasedTests = [];
 
-    if (existingStudents.length > 0) {
+    if (existingStudent) {
       // EXISTING STUDENT - Use their existing roll number
-      const student = existingStudents[0];
-      rollNumber = student.roll_number;
+      rollNumber = existingStudent.roll_number;
 
       console.log(`👤 Existing student found: ${normalizedEmail}`);
 
       // Check if they already purchased this test
-      const [existingPurchase] = await pool.query(
-        "SELECT * FROM purchased_tests WHERE email = ? AND test_id = ?",
-        [normalizedEmail, testId]
-      );
+      const existingPurchase = await PurchasedTest.findOne({
+        email: normalizedEmail,
+        test_id: testId
+      });
 
-      if (existingPurchase.length > 0) {
+      if (existingPurchase) {
         console.log(`⚠️ Student already purchased ${testId}`);
         return res.status(400).json({
           success: false,
@@ -154,24 +153,26 @@ export const paymentVerification = async (req, res) => {
       }
 
       // Add new test to their purchased tests
-      await pool.query(
-        "INSERT INTO purchased_tests (email, test_id) VALUES (?, ?)",
-        [normalizedEmail, testId]
-      );
+      await PurchasedTest.create({
+        email: normalizedEmail,
+        test_id: testId,
+        purchased_at: new Date()
+      });
 
       // Add payment to history
-      await pool.query(
-        `INSERT INTO payment_transactions 
-         (email, razorpay_order_id, razorpay_payment_id, razorpay_signature, test_id, amount, status) 
-         VALUES (?, ?, ?, ?, ?, ?, 'paid')`,
-        [normalizedEmail, razorpay_order_id, razorpay_payment_id, razorpay_signature, testId, amount || 199]
-      );
+      await PaymentTransaction.create({
+        email: normalizedEmail,
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        test_id: testId,
+        amount: amount || 199,
+        status: 'paid',
+        created_at: new Date()
+      });
 
       // Get all purchased tests
-      const [tests] = await pool.query(
-        "SELECT test_id FROM purchased_tests WHERE email = ?",
-        [normalizedEmail]
-      );
+      const tests = await PurchasedTest.find({ email: normalizedEmail });
       purchasedTests = tests.map(t => t.test_id);
 
       console.log(`✅ Updated existing student: ${normalizedEmail}, Roll: ${rollNumber}`);
@@ -184,24 +185,30 @@ export const paymentVerification = async (req, res) => {
       console.log(`🆕 New Student. Generated Roll Number: ${rollNumber}`);
 
       // Create new student record
-      await pool.query(
-        "INSERT INTO students_payments (email, roll_number) VALUES (?, ?)",
-        [normalizedEmail, rollNumber]
-      );
+      await StudentPayment.create({
+        email: normalizedEmail,
+        roll_number: rollNumber,
+        created_at: new Date()
+      });
 
       // Add purchased test
-      await pool.query(
-        "INSERT INTO purchased_tests (email, test_id) VALUES (?, ?)",
-        [normalizedEmail, testId]
-      );
+      await PurchasedTest.create({
+        email: normalizedEmail,
+        test_id: testId,
+        purchased_at: new Date()
+      });
 
       // Add payment transaction
-      await pool.query(
-        `INSERT INTO payment_transactions 
-         (email, razorpay_order_id, razorpay_payment_id, razorpay_signature, test_id, amount, status) 
-         VALUES (?, ?, ?, ?, ?, ?, 'paid')`,
-        [normalizedEmail, razorpay_order_id, razorpay_payment_id, razorpay_signature, testId, amount || 199]
-      );
+      await PaymentTransaction.create({
+        email: normalizedEmail,
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        test_id: testId,
+        amount: amount || 199,
+        status: 'paid',
+        created_at: new Date()
+      });
 
       purchasedTests = [testId];
 
