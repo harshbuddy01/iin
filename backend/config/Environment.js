@@ -1,13 +1,12 @@
 /**
  * Environment Configuration Class
- * Created: Dec 29, 2025
- * Purpose: Centralized environment management for Railway → Hostinger migration
+ * Updated: Jan 23, 2026 - MongoDB Migration
+ * Purpose: Centralized environment management
  * 
- * BENEFITS:
- * - Single source of truth for all configs
- * - Easy switching between Railway and Hostinger (just change .env)
- * - Validates required environment variables on startup
- * - No code changes needed during migration
+ * CHANGES:
+ * - Removed MySQL validation
+ * - Added MongoDB URI validation
+ * - Updated for MongoDB-first architecture
  */
 
 import dotenv from 'dotenv';
@@ -25,28 +24,25 @@ export class Environment {
         this.isDevelopment = this.env === 'development';
         this.port = parseInt(process.env.PORT) || 3000;
         
-        // Database Configuration
-        // Works with both Railway and Hostinger MySQL
-        this.database = {
-            host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-            user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-            password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-            database: process.env.MYSQL_DATABASE || process.env.DB_NAME || 'railway',
-            port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT || '3306'),
-            waitForConnections: true,
-            connectionLimit: 10,
-            queueLimit: 0
+        // MongoDB Configuration (NEW)
+        this.mongodb = {
+            uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/vigyanprep',
+            options: {
+                maxPoolSize: 10,
+                serverSelectionTimeoutMS: 5000,
+                socketTimeoutMS: 45000
+            }
         };
         
         // API URLs - Automatically switches based on environment
         this.apiUrl = this.isProduction 
-            ? (process.env.API_URL || 'https://api.iinedu.com')  // Hostinger
-            : (process.env.API_URL || 'https://iin-production.up.railway.app'); // Railway
+            ? (process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com')
+            : (process.env.API_URL || 'http://localhost:3000');
         
         // Frontend URLs
         this.frontendUrl = this.isProduction
-            ? 'https://iinedu.vercel.app'
-            : 'http://localhost:3000';
+            ? (process.env.FRONTEND_URL || 'https://vigyanprep.com')
+            : 'http://localhost:5173';
         
         // File Upload Configuration
         this.upload = {
@@ -57,15 +53,15 @@ export class Environment {
         
         // Payment Gateway (Razorpay)
         this.razorpay = {
-            keyId: process.env.RAZORPAY_KEY_ID || '',
-            keySecret: process.env.RAZORPAY_KEY_SECRET || '',
-            enabled: !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET)
+            keyId: process.env.RAZORPAY_API_KEY || '',
+            keySecret: process.env.RAZORPAY_API_SECRET || '',
+            enabled: !!(process.env.RAZORPAY_API_KEY && process.env.RAZORPAY_API_SECRET)
         };
         
-        // Email Configuration (SendGrid)
+        // Email Configuration
         this.email = {
             apiKey: process.env.SENDGRID_API_KEY || '',
-            fromEmail: process.env.FROM_EMAIL || 'noreply@iinedu.com',
+            fromEmail: process.env.FROM_EMAIL || 'noreply@vigyanprep.com',
             fromName: process.env.FROM_NAME || 'Vigyan.prep',
             enabled: !!process.env.SENDGRID_API_KEY
         };
@@ -77,11 +73,11 @@ export class Environment {
             bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS) || 10
         };
         
-        // Feature Flags - Easy enable/disable features
+        // Feature Flags
         this.features = {
-            useOOPQuestions: process.env.USE_OOP_QUESTIONS === 'true',
-            useOOPTests: process.env.USE_OOP_TESTS === 'true',
-            useOOPStudents: process.env.USE_OOP_STUDENTS === 'true',
+            useOOPQuestions: process.env.USE_OOP_QUESTIONS !== 'false', // Default true
+            useOOPTests: process.env.USE_OOP_TESTS !== 'false',
+            useOOPStudents: process.env.USE_OOP_STUDENTS !== 'false',
             enablePayments: process.env.ENABLE_PAYMENTS !== 'false',
             enableEmailNotifications: process.env.ENABLE_EMAIL !== 'false'
         };
@@ -96,39 +92,24 @@ export class Environment {
     
     /**
      * Validate that all required environment variables are present
-     * Call this at server startup
      */
     validate() {
-        const required = [
-            'MYSQLHOST',
-            'MYSQLUSER', 
-            'MYSQLPASSWORD',
-            'MYSQL_DATABASE'
-        ];
-        
-        const missing = required.filter(key => 
-            !process.env[key] && !process.env[key.replace('MYSQL', 'DB_')]
-        );
-        
-        if (missing.length > 0) {
-            throw new Error(
-                `❌ Missing required environment variables: ${missing.join(', ')}\n` +
-                `Please check your .env file.`
-            );
+        // Only MongoDB URI is truly required now
+        if (!process.env.MONGODB_URI && this.isProduction) {
+            console.warn('⚠️ Email credentials not configured - email functionality disabled');
         }
         
-        // Warn about optional but recommended variables
+        // Warn about missing optional variables
         const recommended = [
-            'RAZORPAY_KEY_ID',
-            'SENDGRID_API_KEY',
+            'MONGODB_URI',
+            'RAZORPAY_API_KEY',
             'JWT_SECRET'
         ];
         
-        const missingRecommended = recommended.filter(key => !process.env[key]);
-        if (missingRecommended.length > 0 && this.isProduction) {
+        const missing = recommended.filter(key => !process.env[key]);
+        if (missing.length > 0 && this.isProduction) {
             console.warn(
-                `⚠️  Missing recommended environment variables: ${missingRecommended.join(', ')}\n` +
-                `Some features may not work properly.`
+                `⚠️ Missing recommended environment variables: ${missing.join(', ')}`
             );
         }
         
@@ -139,6 +120,8 @@ export class Environment {
      * Print current configuration (safe - no passwords shown)
      */
     printConfig() {
+        if (!this.logging.enableConsole) return;
+        
         console.log('\n' + '='.repeat(60));
         console.log('📋 ENVIRONMENT CONFIGURATION');
         console.log('='.repeat(60));
@@ -147,15 +130,13 @@ export class Environment {
         console.log(`API URL: ${this.apiUrl}`);
         console.log(`Frontend URL: ${this.frontendUrl}`);
         console.log('\n📊 DATABASE:');
-        console.log(`  Host: ${this.database.host}`);
-        console.log(`  Database: ${this.database.database}`);
-        console.log(`  User: ${this.database.user}`);
-        console.log(`  Port: ${this.database.port}`);
+        console.log(`  Type: MongoDB`);
+        console.log(`  Connected: ${this.mongodb.uri ? '✅' : '❌'}`);
         console.log('\n💳 PAYMENT:');
         console.log(`  Razorpay Enabled: ${this.razorpay.enabled ? '✅' : '❌'}`);
         console.log('\n📧 EMAIL:');
         console.log(`  SendGrid Enabled: ${this.email.enabled ? '✅' : '❌'}`);
-        console.log('\n🎛️  FEATURE FLAGS:');
+        console.log('\n🏛️  FEATURE FLAGS:');
         console.log(`  OOP Questions: ${this.features.useOOPQuestions ? '✅' : '❌'}`);
         console.log(`  OOP Tests: ${this.features.useOOPTests ? '✅' : '❌'}`);
         console.log(`  OOP Students: ${this.features.useOOPStudents ? '✅' : '❌'}`);
@@ -163,10 +144,10 @@ export class Environment {
     }
     
     /**
-     * Get database connection config
+     * Get MongoDB URI
      */
-    getDatabaseConfig() {
-        return { ...this.database };
+    getMongoDBUri() {
+        return this.mongodb.uri;
     }
     
     /**
@@ -177,10 +158,10 @@ export class Environment {
     }
 }
 
-// Singleton instance - import this in your code
+// Singleton instance
 export const env = new Environment();
 
-// Validate on module load (catches errors early)
+// Validate on module load (non-blocking for MongoDB)
 try {
     env.validate();
     if (env.logging.enableConsole) {
@@ -188,7 +169,10 @@ try {
     }
 } catch (error) {
     console.error('❌ Environment configuration error:', error.message);
-    process.exit(1);
+    // Don't exit in production - let MongoDB connection handle it
+    if (env.isDevelopment) {
+        process.exit(1);
+    }
 }
 
 export default env;
