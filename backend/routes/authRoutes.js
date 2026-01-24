@@ -113,6 +113,7 @@ router.get('/auth-health', async (req, res) => {
 
   res.json({
     status: 'ok',
+    version: 'DEBUG-V1-DEPLOYED', // Check this to confirm code update
     mongo_var_connected: isMongoDBConnected,
     mongo_uri_configured: !!process.env.MONGODB_URI,
     last_error: lastConnectionError,
