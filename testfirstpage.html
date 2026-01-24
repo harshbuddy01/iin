@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2025-12-27 18:02 IST -->
+    <!-- CACHE CLEAR: 2026-01-24 15:33 IST - CRITICAL FIX -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,22 +16,36 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20251227-1802">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20251227-1802">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20251227-1802">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20251227-1802">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20251227-1802">
+    <!-- Cache-busted CSS files - UPDATED TIMESTAMPS -->
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260124-1533">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260124-1533">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260124-1533">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260124-1533">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260124-1533">
+
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
 
     <script>
-        // 🔧 FIXED: Changed from Railway to Hostinger
+        // 🔧 CRITICAL FIX: Changed from Railway to Hostinger (January 24, 2026)
+        // DO NOT EVER CHANGE BACK - Use Hostinger ONLY
         const API_BASE_URL = "https://backend-vigyanprep.vigyanprep.com";
         const PAYMENT_API_URL = "https://backend-vigyanprep.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
         window.PAYMENT_API_URL = PAYMENT_API_URL;
-        console.log('✅ API Endpoints Configured:');
-        console.log('   API_BASE_URL:', API_BASE_URL);
-        console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
+        
+        // 🔴 VERIFICATION - If not Hostinger, something went wrong
+        if (!API_BASE_URL.includes("backend-vigyanprep")) {
+            console.error('🔴 CRITICAL ERROR: API_BASE_URL is not pointing to Hostinger!');
+            console.error('Current URL:', API_BASE_URL);
+            alert('⚠️ SYSTEM ERROR: Backend URL not configured correctly. Please contact support.');
+        } else {
+            console.log('✅ API Endpoints Configured (HOSTINGER):');
+            console.log('   API_BASE_URL:', API_BASE_URL);
+            console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
+            console.log('✅ Configuration verified - READY FOR PAYMENT');
+        }
     </script>
 
     <style>
@@ -415,9 +429,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20251227-1802"></script>
-    <script src="frontend/js/auth.js?v=20251227-1802"></script>
-    <script src="frontend/js/user-panel.js?v=20251227-1802"></script>
+    <script src="frontend/js/config.js?v=20260124-1533"></script>
+    <script src="frontend/js/auth.js?v=20260124-1533"></script>
+    <script src="frontend/js/user-panel.js?v=20260124-1533"></script>
 
     <script>
         const testSeries = [
