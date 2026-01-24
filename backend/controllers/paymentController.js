@@ -58,9 +58,18 @@ export const getApiKey = (req, res) => {
 // 2. CHECKOUT
 export const checkout = async (req, res) => {
   try {
+    // 🔴 FIX #1: CHECK IF RAZORPAY IS CONFIGURED
+    if (!instance) {
+      console.error('❌ Razorpay instance not configured - missing API credentials');
+      return res.status(500).json({
+        success: false,
+        message: "Payment gateway not configured. Please contact support."
+      });
+    }
+
     const { amount } = req.body;
 
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({
         success: false,
         message: "Valid amount is required"
@@ -86,6 +95,15 @@ export const paymentVerification = async (req, res) => {
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
 
   try {
+    // 🔴 FIX #2: CHECK IF RAZORPAY IS CONFIGURED
+    if (!instance) {
+      console.error('❌ Razorpay instance not configured for payment verification');
+      return res.status(500).json({
+        success: false,
+        message: "Payment gateway not configured"
+      });
+    }
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, testId, amount } = req.body;
 
     console.log(`🔹 Email: ${email}`);
@@ -131,6 +149,7 @@ export const paymentVerification = async (req, res) => {
     let rollNumber;
     let isNewStudent = false;
     let purchasedTests = [];
+    let emailWarning = null;
 
     if (existingStudent) {
       // EXISTING STUDENT - Use their existing roll number
@@ -345,15 +364,19 @@ export const paymentVerification = async (req, res) => {
 
       } catch (emailError) {
         console.error("❌ Nodemailer Email Error:", emailError.message);
-        // Don't fail the payment if email fails
+        // 🔴 FIX #3: REPORT EMAIL ERROR TO USER
+        emailWarning = "Email notification could not be sent, but your registration is complete";
       }
     } else {
       console.warn('⚠️ Email sending skipped - Email credentials not configured');
+      // 🔴 FIX #3: INFORM USER ABOUT MISSING EMAIL CONFIG
+      emailWarning = "Email notifications are currently disabled";
     }
 
     console.log("✅ Sending success response to frontend...");
-    // Return success with roll number and purchased tests
-    res.status(200).json({
+    
+    // 🔴 FIX #3: RETURN WARNING IF EMAIL FAILED
+    const responseData = {
       success: true,
       rollNumber,
       isNewStudent,
@@ -361,11 +384,18 @@ export const paymentVerification = async (req, res) => {
       message: isNewStudent
         ? "Payment successful! Your Roll Number has been sent to your email."
         : "Payment successful! Test added to your account."
-    });
+    };
+
+    if (emailWarning) {
+      responseData.warning = emailWarning;
+      console.warn(`⚠️ Response includes email warning: ${emailWarning}`);
+    }
+
+    res.status(200).json(responseData);
 
   } catch (error) {
     console.error("❌ Payment Verification Error:", error.message);
     console.error("❌ Error Stack:", error.stack);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
   }
 };
