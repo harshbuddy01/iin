@@ -45,6 +45,7 @@ const validateEnvironmentVariables = () => {
     console.error('\n⚠️ WARNING: Missing environment variables:');
     missingVars.forEach((v, i) => console.error(`   ${i + 1}. ${v}`));
     console.error('\n📝 Some features may not work correctly.');
+    console.warn('⚠️  Hostinger Tip: Ensure variables are set in the Hosting Panel, NOT just in .env');
     console.error('📚 See .env.example for reference\n');
     // Continue running instead of exiting - let individual features fail gracefully
   } else {
