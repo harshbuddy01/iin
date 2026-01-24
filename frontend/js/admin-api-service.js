@@ -1,7 +1,7 @@
 /**
  * Admin API Service - Complete Backend Integration
- * Backend: Hostinger (https://vigyanprep.com:3000)
- * Updated: 2026-01-23
+ * Backend: Hostinger (https://backend-vigyanpreap.vigyanprep.com)
+ * Updated: 2026-01-24
  */
 
 const AdminAPI = {
@@ -11,11 +11,11 @@ const AdminAPI = {
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             return 'http://localhost:8080';
         }
-        
-        // ✅ HOSTINGER BACKEND URL (Node.js on port 3000)
-        return 'https://vigyanprep.com:3000';
+
+        // ✅ HOSTINGER BACKEND URL (subdomain)
+        return 'https://backend-vigyanpreap.vigyanprep.com';
     },
-    
+
     // Helper method for API calls
     async request(endpoint, options = {}) {
         const defaultOptions = {
@@ -24,25 +24,25 @@ const AdminAPI = {
                 'Authorization': `Bearer ${this.getAuthToken()}`
             }
         };
-        
+
         try {
             const fullURL = `${this.baseURL}${endpoint}`;
             console.log(`🔗 API Request: ${fullURL}`);
-            
+
             const response = await fetch(fullURL, {
                 ...defaultOptions,
                 ...options,
                 headers: { ...defaultOptions.headers, ...options.headers }
             });
-            
+
             console.log(`📊 Response Status: ${response.status} ${response.statusText}`);
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('❌ Response Error:', errorText);
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
+
             const data = await response.json();
             console.log('✅ API Response:', data);
             return data;
@@ -54,29 +54,29 @@ const AdminAPI = {
             throw error;
         }
     },
-    
+
     getAuthToken() {
         const auth = sessionStorage.getItem('adminAuth') || localStorage.getItem('adminAuth');
         return auth ? JSON.parse(auth).token || 'demo-token' : 'demo-token';
     },
-    
+
     // ==================== DASHBOARD ====================
     async getDashboardStats() {
         return await this.request('/api/admin/dashboard/stats');
     },
-    
+
     async getPerformanceData(period = '7d') {
         return await this.request(`/api/admin/dashboard/performance?period=${period}`);
     },
-    
+
     async getUpcomingTests() {
         return await this.request('/api/admin/dashboard/upcoming-tests');
     },
-    
+
     async getRecentActivity() {
         return await this.request('/api/admin/dashboard/recent-activity');
     },
-    
+
     // ==================== TESTS ====================
     async createTest(testData) {
         return await this.request('/api/admin/tests', {
@@ -84,29 +84,29 @@ const AdminAPI = {
             body: JSON.stringify(testData)
         });
     },
-    
+
     async getTests(filters = {}) {
         const params = new URLSearchParams(filters);
         return await this.request(`/api/admin/tests?${params}`);
     },
-    
+
     async getTest(testId) {
         return await this.request(`/api/admin/tests/${testId}`);
     },
-    
+
     async updateTest(testId, testData) {
         return await this.request(`/api/admin/tests/${testId}`, {
             method: 'PUT',
             body: JSON.stringify(testData)
         });
     },
-    
+
     async deleteTest(testId) {
         return await this.request(`/api/admin/tests/${testId}`, {
             method: 'DELETE'
         });
     },
-    
+
     // ==================== QUESTIONS ====================
     async addQuestion(questionData) {
         return await this.request('/api/admin/questions', {
@@ -114,29 +114,29 @@ const AdminAPI = {
             body: JSON.stringify(questionData)
         });
     },
-    
+
     async getQuestions(filters = {}) {
         const params = new URLSearchParams(filters);
         return await this.request(`/api/admin/questions?${params}`);
     },
-    
+
     async getQuestion(questionId) {
         return await this.request(`/api/admin/questions/${questionId}`);
     },
-    
+
     async updateQuestion(questionId, questionData) {
         return await this.request(`/api/admin/questions/${questionId}`, {
             method: 'PUT',
             body: JSON.stringify(questionData)
         });
     },
-    
+
     async deleteQuestion(questionId) {
         return await this.request(`/api/admin/questions/${questionId}`, {
             method: 'DELETE'
         });
     },
-    
+
     // ==================== STUDENTS ====================
     async addStudent(studentData) {
         return await this.request('/api/admin/students', {
@@ -144,77 +144,77 @@ const AdminAPI = {
             body: JSON.stringify(studentData)
         });
     },
-    
+
     async getStudents(search = '') {
         return await this.request(`/api/admin/students?search=${encodeURIComponent(search)}`);
     },
-    
+
     async getStudent(studentId) {
         return await this.request(`/api/admin/students/${studentId}`);
     },
-    
+
     async updateStudent(studentId, studentData) {
         return await this.request(`/api/admin/students/${studentId}`, {
             method: 'PUT',
             body: JSON.stringify(studentData)
         });
     },
-    
+
     async deleteStudent(studentId) {
         return await this.request(`/api/admin/students/${studentId}`, {
             method: 'DELETE'
         });
     },
-    
+
     // ==================== TRANSACTIONS ====================
     async getTransactions(filters = {}) {
         const params = new URLSearchParams(filters);
         return await this.request(`/api/admin/transactions?${params}`);
     },
-    
+
     async getTransaction(transactionId) {
         return await this.request(`/api/admin/transactions/${transactionId}`);
     },
-    
+
     // ==================== RESULTS ====================
     async getResults(filters = {}) {
         const params = new URLSearchParams(filters);
         return await this.request(`/api/admin/results?${params}`);
     },
-    
+
     async getResult(resultId) {
         return await this.request(`/api/admin/results/${resultId}`);
     },
-    
+
     async getStudentResults(studentId) {
         return await this.request(`/api/admin/students/${studentId}/results`);
     },
-    
+
     // ==================== FILE UPLOADS ====================
     async uploadPDF(file, metadata) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('metadata', JSON.stringify(metadata));
-        
+
         return await this.request('/api/admin/upload/pdf', {
             method: 'POST',
             body: formData,
             headers: {} // Let browser set Content-Type for FormData
         });
     },
-    
+
     async uploadImage(file, metadata) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('metadata', JSON.stringify(metadata));
-        
+
         return await this.request('/api/admin/upload/image', {
             method: 'POST',
             body: formData,
             headers: {} // Let browser set Content-Type for FormData
         });
     },
-    
+
     // ==================== HEALTH CHECK ====================
     async checkHealth() {
         try {

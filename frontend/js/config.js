@@ -18,8 +18,8 @@ window.APP_CONFIG = {
             return 'http://localhost:3000';
         }
 
-        // PRODUCTION: Always use Hostinger backend - NEVER Railway
-        return 'https://backend-vigyanprep.vigyanprep.com';
+        // PRODUCTION: Always use Hostinger backend
+        return 'https://backend-vigyanpreap.vigyanprep.com';
     })(),
 
     // Feature flags

@@ -62,14 +62,14 @@ console.log('🔵 Setting up environment injection middleware...');
 app.use((req, res, next) => {
   // Only intercept HTML file requests
   if (req.path.endsWith('.html') || req.path === '/' || !req.path.includes('.')) {
-    const filePath = req.path === '/' 
+    const filePath = req.path === '/'
       ? path.join(__dirname, '../index.html')
       : path.join(__dirname, `..${req.path}`);
-    
+
     try {
       if (fs.existsSync(filePath)) {
         let html = fs.readFileSync(filePath, 'utf8');
-        
+
         const envScript = `
     <script>
       window.__ENV__ = {
@@ -79,7 +79,7 @@ app.use((req, res, next) => {
       };
       console.log('🔧 Environment loaded:', window.__ENV__);
     </script>`;
-        
+
         html = html.replace('</head>', envScript + '\n</head>');
         return res.send(html);
       }
@@ -147,7 +147,7 @@ app.get('/api/config', (req, res) => {
     RAZORPAY_KEY_ID: process.env.RAZORPAY_API_KEY || '',
     NODE_ENV: process.env.NODE_ENV || 'production',
     // 🔴 FIX #5: CORRECTED TYPO - "vigyanpreap" -> "vigyanprep"
-    API_URL: process.env.API_URL || 'https://backend-vigyanprep.vigyanprep.com',
+    API_URL: process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com',
     FRONTEND_URL: process.env.FRONTEND_URL || 'https://vigyanprep.com'
   });
 });
@@ -226,7 +226,7 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
   try {
     console.log('🔗 Connecting to MongoDB...');
     const dbConnected = await connectDB();
-    
+
     if (!dbConnected) {
       console.warn('⚠️  MongoDB not connected - running in limited mode');
       console.warn('🔗 Some features will not work without MongoDB');
@@ -238,7 +238,7 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
     if (!app._router || app._router.stack.length < 10) {
       console.warn('⚠️  Warning: Some routes may not be properly mounted');
     }
-    
+
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
