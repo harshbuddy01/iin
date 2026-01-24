@@ -24,11 +24,14 @@
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20251227-1802">
 
     <script>
-        const API_BASE_URL = "https://iin-production.up.railway.app";
-        // 🔧 FIX: Corrected typo - was "vigyanpreap" now "vigyanprep"
+        // 🔧 FIXED: Changed from Railway to Hostinger
+        const API_BASE_URL = "https://backend-vigyanprep.vigyanprep.com";
         const PAYMENT_API_URL = "https://backend-vigyanprep.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
         window.PAYMENT_API_URL = PAYMENT_API_URL;
+        console.log('✅ API Endpoints Configured:');
+        console.log('   API_BASE_URL:', API_BASE_URL);
+        console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
     </script>
 
     <style>
