@@ -76,6 +76,18 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
+
+// 🔧 EXPLICIT OPTIONS HANDLER - For preflight requests (Express 5 compatible)
+// Use :path(*) to match all routes since '*' is no longer supported
+app.options('/:path(*)', cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
 console.log('✅ CORS configured for:', allowedOrigins.join(', '));
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
