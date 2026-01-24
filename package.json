@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "calculator.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",

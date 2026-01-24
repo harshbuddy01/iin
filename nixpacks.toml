@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs_20", "python311", "python311Packages.pip"]
+nixPkgs = ["nodejs_20"]
 
 [phases.install]
-cmds = [
-    "pip3 install --break-system-packages PyPDF2 || echo 'PyPDF2 install failed'",
-    "npm install"
-]
+cmds = ["npm install"]
 
 [phases.build]
 cmds = ["echo 'Build phase complete'"]

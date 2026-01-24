@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { instance } from "../server.js";
+import razorpayInstance from "../config/razorpay.js";
 // DISABLED FOR MONGODB MIGRATION: import { pool } from "../config/mysql.js";
 import nodemailer from "nodemailer";
 import { StudentPayment } from "../models/StudentPayment.js";
@@ -59,7 +59,7 @@ export const getApiKey = (req, res) => {
 export const checkout = async (req, res) => {
   try {
     // 🔴 FIX #1: CHECK IF RAZORPAY IS CONFIGURED
-    if (!instance) {
+    if (!razorpayInstance) {
       console.error('❌ Razorpay instance not configured - missing API credentials');
       return res.status(500).json({
         success: false,
@@ -81,7 +81,7 @@ export const checkout = async (req, res) => {
       currency: "INR",
     };
 
-    const order = await instance.orders.create(options);
+    const order = await razorpayInstance.orders.create(options);
     res.status(200).json({ success: true, order });
   } catch (error) {
     console.error('Checkout error:', error);
@@ -96,7 +96,7 @@ export const paymentVerification = async (req, res) => {
 
   try {
     // 🔴 FIX #2: CHECK IF RAZORPAY IS CONFIGURED
-    if (!instance) {
+    if (!razorpayInstance) {
       console.error('❌ Razorpay instance not configured for payment verification');
       return res.status(500).json({
         success: false,
@@ -374,7 +374,7 @@ export const paymentVerification = async (req, res) => {
     }
 
     console.log("✅ Sending success response to frontend...");
-    
+
     // 🔴 FIX #3: RETURN WARNING IF EMAIL FAILED
     const responseData = {
       success: true,

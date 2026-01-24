@@ -1,0 +1,51 @@
+✅ Admin routes configured with /admin prefix
+⚠️ MySQL-based endpoints temporarily disabled for MongoDB migration
+⚠️ Email credentials not configured - email functionality disabled
+❌ Missing MONGODB_URI environment variable!
+🔵 Please set MONGODB_URI in your .env file or hosting environment
+⚠️  Using development fallback (MongoDB not required for testing)
+🔵 Loading environment variables...
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+🔵 Creating Express app...
+⚠️  Email credentials not configured - email notifications will be disabled
+
+⚠️ WARNING: Missing environment variables:
+   1. RAZORPAY_API_KEY (Payment gateway (Razorpay) API Key)
+   2. RAZORPAY_API_SECRET (Payment gateway (Razorpay) API Secret)
+   3. MONGODB_URI (MongoDB database connection URI)
+   4. NODE_ENV (Application environment (development/production))
+
+📝 Some features may not work correctly.
+📚 See .env.example for reference
+
+🔵 Setting up CORS (FIRST)...
+✅ CORS configured for: http://localhost:5173, http://localhost:3000, https://vigyanprep.com, http://vigyanprep.com, https://www.vigyanprep.com, http://www.vigyanprep.com
+🔵 Setting up environment injection middleware...
+✅ Environment injection middleware ready
+🔵 Setting up body parsers...
+🔵 Initializing Razorpay...
+⚠️ Razorpay not initialized - Missing API credentials
+🔵 Setting up Admin API routes...
+✅ Question routes mounted (OLD + NEW OOP routes)
+✅ Admin API routes mounted
+✅ Migration endpoint mounted
+🔵 Mounting API routes...
+✅ Auth routes mounted - /api/verify-user-full
+🔵 Configuring static file serving...
+🔗 Connecting to MongoDB...
+⚠️  MONGODB_URI not configured - running in limited mode
+🔗 Set MONGODB_URI environment variable to enable MongoDB features
+⚠️  MongoDB not connected - running in limited mode
+🔗 Some features will not work without MongoDB
+⚠️  Warning: Some routes may not be properly mounted
+(node:11854) [MONGOOSE] Warning: Duplicate schema index on {"email":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+✅ Server running on port 3000
+📊 Database: MongoDB (Not Connected)
+📏 Environment: development
+🌐 API URL: http://localhost:3000
+🔗 Frontend URL: http://localhost:5173
+
+🟢 Server is ready to accept requests
+

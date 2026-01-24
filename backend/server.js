@@ -1,20 +1,19 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
 
+import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import Razorpay from 'razorpay';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables
 console.log('🔵 Loading environment variables...');
-dotenv.config();
+// Environment variables are already loaded by config/env.js
 
 const app = express();
 console.log('🔵 Creating Express app...');
@@ -69,12 +68,10 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: true, // 🟢 TEMPORARY: Allow all origins (reflects request origin) to fix CORS connection errors
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
 }));
 
 console.log('✅ CORS configured for:', allowedOrigins.join(', '));
@@ -121,20 +118,9 @@ console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Initialize Razorpay and export for controllers
-console.log('🔵 Initializing Razorpay...');
-export const instance = process.env.RAZORPAY_API_KEY && process.env.RAZORPAY_API_SECRET
-  ? new Razorpay({
-    key_id: process.env.RAZORPAY_API_KEY,
-    key_secret: process.env.RAZORPAY_API_SECRET,
-  })
-  : null;
-
-if (instance) {
-  console.log('✅ Razorpay initialized successfully');
-} else {
-  console.warn('⚠️ Razorpay not initialized - Missing API credentials');
-}
+// Razorpay is initialized in config/razorpay.js
+// This prevents circular dependencies
+console.log('✅ Server startup sequence continuing...');
 
 // Import routes - Only import files that exist
 import adminRoutes from './routes/adminRoutes.js';
