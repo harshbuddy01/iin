@@ -16,12 +16,12 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Cache-busted CSS files - UPDATED TIMESTAMPS -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260124-1533">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260124-1533">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260124-1533">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260124-1533">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260124-1533">
+    <!-- Cache-busted CSS files - FIXED CONFIG.JS ISSUE (2026-01-24 16:45) -->
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260124-1645">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260124-1645">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260124-1645">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260124-1645">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260124-1645">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -34,7 +34,7 @@
         const PAYMENT_API_URL = "https://backend-vigyanprep.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
         window.PAYMENT_API_URL = PAYMENT_API_URL;
-        
+
         // 🔴 VERIFICATION - If not Hostinger, something went wrong
         if (!API_BASE_URL.includes("backend-vigyanprep")) {
             console.error('🔴 CRITICAL ERROR: API_BASE_URL is not pointing to Hostinger!');
@@ -429,9 +429,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260124-1533"></script>
-    <script src="frontend/js/auth.js?v=20260124-1533"></script>
-    <script src="frontend/js/user-panel.js?v=20260124-1533"></script>
+    <script src="frontend/js/config.js?v=20260124-1645"></script>
+    <script src="frontend/js/auth.js?v=20260124-1645"></script>
+    <script src="frontend/js/user-panel.js?v=20260124-1645"></script>
 
     <script>
         const testSeries = [
