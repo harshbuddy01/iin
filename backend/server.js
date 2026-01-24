@@ -21,7 +21,7 @@ console.log('🔵 Creating Express app...');
 
 const PORT = process.env.PORT || 3000;
 
-// 🔴 FIX #4: VALIDATE CRITICAL ENVIRONMENT VARIABLES AT STARTUP
+// 🔴 VALIDATE ENVIRONMENT VARIABLES (non-fatal - logs warnings instead of exiting)
 const validateEnvironmentVariables = () => {
   const requiredVars = {
     'RAZORPAY_API_KEY': 'Payment gateway (Razorpay) API Key',
@@ -43,14 +43,14 @@ const validateEnvironmentVariables = () => {
   }
 
   if (missingVars.length > 0) {
-    console.error('\n❌ FATAL: Missing required environment variables:');
+    console.error('\n⚠️ WARNING: Missing environment variables:');
     missingVars.forEach((v, i) => console.error(`   ${i + 1}. ${v}`));
-    console.error('\n📝 Please set these variables in your .env file or hosting environment');
+    console.error('\n📝 Some features may not work correctly.');
     console.error('📚 See .env.example for reference\n');
-    process.exit(1); // Stop the server
+    // Continue running instead of exiting - let individual features fail gracefully
+  } else {
+    console.log('✅ All required environment variables are configured');
   }
-
-  console.log('✅ All required environment variables are configured');
 };
 
 // Validate env vars before starting
