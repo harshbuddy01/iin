@@ -1,6 +1,7 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
 // 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
+// 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -138,17 +139,20 @@ const corsOptions = {
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 600, // Cache preflight for 10 minutes
   preflightContinue: false,
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 200  // 🔥 FIX: Changed from 204 to 200 for better compatibility
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
 
-// 🔥 REMOVED: Broken line that caused PathError
-// app.options('*', cors());  // ❌ This breaks Express routing in some versions
+// 🔥 PAYMENT FIX: Explicit preflight handling for payment endpoint
+app.options('/api/payment/checkout', cors(corsOptions));
+app.options('/api/payment/paymentverification', cors(corsOptions));
+app.options('/api/payment/getkey', cors(corsOptions));
 
 console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
 console.log('✅ CORS: Allowing all vigyanprep.com subdomains');
+console.log('✅ Payment endpoints have explicit preflight handling');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
@@ -243,8 +247,11 @@ console.log('🔵 Mounting API routes...');
 app.use('/api', authRoutes);
 console.log('✅ Auth routes mounted - /api/verify-user-full');
 app.use('/api/payment', paymentRoutes);
+console.log('✅ Payment routes mounted - /api/payment/*');
 app.use('/api/exam', examRoutes);
+console.log('✅ Exam routes mounted - /api/exam/*');
 app.use('/api/news', newsRoutes);
+console.log('✅ News routes mounted - /api/news/*');
 
 // Health check
 app.get('/health', (req, res) => {
@@ -322,7 +329,8 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
       logStartup(msg);
       logStartup(`Database: ${isMongoDBConnected ? 'Connected' : 'Not Connected'}`);
       console.log(`\n${msg}`);
-      console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
+      console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
       console.log('\n🟢 Server is ready to accept requests\n');
