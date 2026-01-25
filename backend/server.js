@@ -183,6 +183,12 @@ import migrationRoute from './routes/migrationRoute.js';
 import newsRoutes from './routes/newsRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 
+// ✅ NEW ADMIN ROUTES - Added Jan 25, 2026
+import adminDashboardRoutes from './routes/adminDashboardRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
+import resultRoutes from './routes/resultRoutes.js';
+
 // 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
 app.get('/api/config', (req, res) => {
   res.json({
@@ -201,6 +207,16 @@ app.use('/api/admin', adminRoutes);
 console.log('✅ Admin API routes mounted');
 app.use('/api/admin', migrationRoute);
 console.log('✅ Migration endpoint mounted');
+
+// ✅ NEW ADMIN ROUTES - Full Admin Panel Support
+app.use('/api/admin', adminDashboardRoutes);
+console.log('✅ Admin Dashboard routes mounted (stats, notifications, profile)');
+app.use('/api/admin', studentRoutes);
+console.log('✅ Student routes mounted (CRUD operations)');
+app.use('/api/admin', transactionRoutes);
+console.log('✅ Transaction routes mounted (payment viewing & stats)');
+app.use('/api/admin', resultRoutes);
+console.log('✅ Result routes mounted (results, analytics, top performers)');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
