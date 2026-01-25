@@ -5,16 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vigyan.prep Admin Portal - Dashboard</title>
-    <!-- Clean Dark Theme + Smooth Animations -->
+    <!-- Dark Theme + Animations + Modern Clock -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* Dark Theme Colors */
             --bg-primary: #0f1419;
             --bg-secondary: #1a1f2e;
             --bg-card: #1e293b;
@@ -42,7 +41,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle Animated Background */
         body::before {
             content: '';
             position: fixed;
@@ -62,7 +60,6 @@
             50% { opacity: 0.6; }
         }
 
-        /* Floating particles - very subtle */
         body::after {
             content: '';
             position: fixed;
@@ -82,7 +79,6 @@
             50% { background-position: 100% 100%; }
         }
 
-        /* Sidebar with backdrop blur */
         .sidebar {
             position: fixed;
             left: 0; top: 0;
@@ -169,9 +165,7 @@
             transition: transform 0.3s;
         }
 
-        .nav-link:hover i {
-            transform: scale(1.1);
-        }
+        .nav-link:hover i { transform: scale(1.1); }
 
         .sidebar-footer {
             position: absolute;
@@ -208,7 +202,6 @@
             z-index: 1;
         }
 
-        /* Header with backdrop blur */
         .top-header {
             background: rgba(26, 31, 46, 0.95);
             backdrop-filter: blur(20px);
@@ -229,7 +222,49 @@
             color: var(--text-primary);
         }
 
-        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .header-actions { 
+            display: flex; 
+            gap: 16px; 
+            align-items: center; 
+        }
+
+        /* Modern Digital Clock Widget */
+        .digital-clock {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            min-width: 200px;
+        }
+
+        .clock-time {
+            font-family: 'Orbitron', 'Inter', monospace;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--blue);
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .clock-date {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .clock-day {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
         .settings-icon {
             width: 40px; height: 40px;
@@ -284,7 +319,6 @@
 
         .content-area { padding: 32px; }
 
-        /* Animated Stat Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -304,14 +338,11 @@
             overflow: hidden;
         }
 
-        /* Subtle glow on hover */
         .stat-card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.4s;
@@ -348,9 +379,7 @@
         .stat-card.orange .stat-icon { background: var(--orange); }
         .stat-card.purple .stat-icon { background: var(--purple); }
 
-        .stat-card:hover .stat-icon {
-            transform: scale(1.15) rotate(5deg);
-        }
+        .stat-card:hover .stat-icon { transform: scale(1.15) rotate(5deg); }
 
         .stat-value {
             font-size: 32px;
@@ -360,9 +389,7 @@
             transition: transform 0.3s;
         }
 
-        .stat-card:hover .stat-value {
-            transform: scale(1.05);
-        }
+        .stat-card:hover .stat-value { transform: scale(1.05); }
 
         .stat-label {
             font-size: 14px;
@@ -382,21 +409,10 @@
             transition: all 0.3s;
         }
 
-        .stat-trend.up {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--green);
-        }
+        .stat-trend.up { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+        .stat-trend.neutral { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
+        .stat-card:hover .stat-trend { transform: scale(1.05); }
 
-        .stat-trend.neutral {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--orange);
-        }
-
-        .stat-card:hover .stat-trend {
-            transform: scale(1.05);
-        }
-
-        /* Animated Chart Card */
         .chart-card {
             background: rgba(30, 41, 59, 0.8);
             backdrop-filter: blur(20px);
@@ -459,7 +475,6 @@
             font-weight: 500;
         }
 
-        /* Smooth staggered animations */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -470,7 +485,6 @@
         .stat-card:nth-child(2) { animation-delay: 0.2s; }
         .stat-card:nth-child(3) { animation-delay: 0.3s; }
         .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
         .chart-card { animation: fadeInUp 0.6s ease 0.5s backwards; }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -523,6 +537,13 @@
         <header class="top-header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
+                <!-- Modern Digital Clock -->
+                <div class="digital-clock">
+                    <div class="clock-time" id="clockTime">00:00:00</div>
+                    <div class="clock-date" id="clockDate">Loading...</div>
+                    <div class="clock-day" id="clockDay">Loading...</div>
+                </div>
+                
                 <div class="settings-icon"><i class="fas fa-cog"></i></div>
                 <div class="admin-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="Admin">
@@ -600,7 +621,33 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="frontend/js/config.js"></script>
     <script>
-        console.log('✨ Dark Theme + Smooth Animations');
+        // Modern Digital Clock Function
+        function updateClock() {
+            const now = new Date();
+            
+            // Time (HH:MM:SS)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clockTime').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // Date (DD Mon YYYY)
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            document.getElementById('clockDate').textContent = `${day} ${month} ${year}`;
+            
+            // Day of Week
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            document.getElementById('clockDay').textContent = days[now.getDay()];
+        }
+        
+        // Update clock immediately and then every second
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        console.log('⏰ Dark Theme + Animations + Digital Clock');
         window.AdminUtils = {
             showToast(msg, type = 'info') {
                 const toast = document.createElement('div');
