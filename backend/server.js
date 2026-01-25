@@ -1,6 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔄 DEPLOYMENT TRIGGER: Force fresh rebuild - Jan 25, 2026 4:11 PM IST
+// 🔄 DEPLOYMENT TRIGGER: Fix CORS and trust proxy - Jan 25, 2026 4:49 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -41,6 +41,10 @@ console.log('🔵 Loading environment variables...');
 const app = express();
 console.log('🔵 Creating Express app...');
 
+// 🔧 CRITICAL FIX #1: Enable trust proxy for Hostinger (fixes rate-limit warnings)
+app.set('trust proxy', true);
+console.log('✅ Trust proxy enabled for Hostinger');
+
 const PORT = process.env.PORT || 3000;
 
 // 🔴 VALIDATE ENVIRONMENT VARIABLES (non-fatal - logs warnings instead of exiting)
@@ -79,8 +83,8 @@ const validateEnvironmentVariables = () => {
 // Validate env vars before starting
 validateEnvironmentVariables();
 
-// 🔧 CORS MUST BE FIRST - Before any other middleware!
-console.log('🔵 Setting up CORS (FIRST)...');
+// 🔧 CRITICAL FIX #2: CORS Configuration - MUST BE FIRST middleware!
+console.log('🔵 Setting up CORS...');
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -92,10 +96,23 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: true, // 🟢 TEMPORARY: Allow all origins (reflects request origin) to fix CORS connection errors
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, or same-origin)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // 🔧 FIX: Allow all origins in production for Hostinger
+      console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
+      callback(null, true);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600, // Cache preflight for 10 minutes
 }));
 
 console.log('✅ CORS configured for:', allowedOrigins.join(', '));
@@ -135,8 +152,6 @@ app.use((req, res, next) => {
 });
 console.log('✅ Environment injection middleware ready');
 
-// NOTE: CORS is configured at the TOP of this file (before env injection)
-
 // Body parsing middleware
 console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: '50mb' }));
@@ -160,7 +175,6 @@ app.get('/api/config', (req, res) => {
   res.json({
     RAZORPAY_KEY_ID: process.env.RAZORPAY_API_KEY || '',
     NODE_ENV: process.env.NODE_ENV || 'production',
-    // 🔴 FIX #5: CORRECTED TYPO - "vigyanpreap" -> "vigyanprep"
     API_URL: process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com',
     FRONTEND_URL: process.env.FRONTEND_URL || 'https://vigyanprep.com'
   });
