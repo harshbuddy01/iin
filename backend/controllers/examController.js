@@ -1,6 +1,7 @@
 // DISABLED FOR MONGODB: import { pool } from "../config/mysql.js";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
+import { ScheduledTest } from "../models/ScheduledTest.js";
 import QuestionModel from "../schemas/QuestionSchema.js";
 import { StudentAttempt } from "../models/StudentAttempt.js";
 
@@ -11,6 +12,47 @@ const safeJsonParse = (jsonString, fallback = null) => {
   } catch (error) {
     console.error('JSON Parse Error:', error.message);
     return fallback;
+  }
+};
+
+// 🆕 List all scheduled tests (for admin calendar)
+export const listScheduledTests = async (req, res) => {
+  try {
+    console.log('📋 Fetching scheduled tests...');
+    const { status, type } = req.query;
+    
+    // Build filter
+    const filter = {};
+    if (status) filter.status = status;
+    if (type) filter.test_type = type;
+    
+    const tests = await ScheduledTest.find(filter).sort({ exam_date: 1 });
+    
+    console.log(`✅ Retrieved ${tests.length} scheduled tests`);
+    res.status(200).json({
+      success: true,
+      tests: tests.map(test => ({
+        id: test._id,
+        test_id: test._id,
+        test_name: test.test_name,
+        testName: test.test_name,
+        test_type: test.test_type,
+        testType: test.test_type,
+        exam_date: test.exam_date,
+        date: test.exam_date,
+        duration: test.duration,
+        total_questions: test.total_questions,
+        totalQuestions: test.total_questions,
+        status: test.status
+      }))
+    });
+  } catch (error) {
+    console.error('❌ Error listing scheduled tests:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve scheduled tests',
+      error: error.message
+    });
   }
 };
 
