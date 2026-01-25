@@ -1,4 +1,5 @@
 // Upload PDF Module with Backend Integration
+// FIXED: 2026-01-25 - Using window.API_BASE_URL
 (function() {
     'use strict';
 
@@ -155,8 +156,8 @@
     let selectedFile = null;
 
     function loadUploadHistory() {
-        // Load history from backend
-        fetch('/api/pdf/history')
+        // ✅ FIXED: Using window.API_BASE_URL from config
+        fetch(`${window.API_BASE_URL}/api/pdf/history`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -278,7 +279,8 @@
                 }
             }, 200);
 
-            const response = await fetch('/api/pdf/upload', {
+            // ✅ FIXED: Using window.API_BASE_URL from config
+            const response = await fetch(`${window.API_BASE_URL}/api/pdf/upload`, {
                 method: 'POST',
                 body: formData
             });
@@ -405,7 +407,8 @@
         if (!confirm('Delete this upload record?')) return;
         
         try {
-            const response = await fetch(`/api/pdf/delete/${uploadId}`, {
+            // ✅ FIXED: Using window.API_BASE_URL from config
+            const response = await fetch(`${window.API_BASE_URL}/api/pdf/delete/${uploadId}`, {
                 method: 'DELETE'
             });
             
