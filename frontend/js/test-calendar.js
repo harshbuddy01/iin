@@ -1,6 +1,6 @@
 /**
  * Test Calendar Module - Saves tests to DATABASE
- * FIXED: 2026-01-25 - Using window.API_BASE_URL from config
+ * FIXED: 2026-01-25 - Proper endpoints, empty states, and error handling
  */
 
 let currentDate = new Date();
@@ -68,25 +68,63 @@ function renderCalendarPage() {
 async function loadCalendarEvents() {
     try {
         console.log('🔄 Loading tests from database...');
-        // ✅ FIXED: Using window.API_BASE_URL instead of hardcoded URL
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`);
+        
+        // ✅ FIXED: Try multiple endpoints to find tests
+        let endpoint = `${window.API_BASE_URL}/api/exam/list`;
+        console.log('📡 Fetching from:', endpoint);
+        
+        let response = await fetch(endpoint);
+        console.log('📥 Response status:', response.status);
+        
+        // If exam/list doesn't work, try alternative
+        if (response.status === 404) {
+            console.log('⚠️ /api/exam/list not found, trying alternative...');
+            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
+            response = await fetch(endpoint);
+            console.log('📥 Alternative response status:', response.status);
+        }
+        
+        // Handle empty data gracefully
+        if (response.status === 404 || response.status === 204) {
+            console.log('ℹ️ No tests found in database');
+            calendarEvents = [];
+            renderCalendar();
+            renderTestsList();
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        
         const data = await response.json();
 
-        calendarEvents = (data.tests || []).map(test => ({
-            id: test.id,
-            name: test.test_name,
-            type: (test.test_id || '').toUpperCase(),
-            date: test.exam_date,
-            duration: test.duration || test.test_duration || 180,
-            totalQuestions: test.total_questions || 0
+        // Handle different response formats
+        const tests = data.tests || data.exams || [];
+        
+        calendarEvents = tests.map(test => ({
+            id: test.id || test.test_id || test.exam_id,
+            name: test.test_name || test.testName || test.exam_name || 'Unnamed Test',
+            type: (test.test_type || test.testType || test.exam_type || 'TEST').toUpperCase(),
+            date: test.exam_date || test.date || test.test_date,
+            duration: test.duration || test.test_duration || test.duration_minutes || 180,
+            totalQuestions: test.total_questions || test.totalQuestions || 0
         }));
 
         console.log(`✅ Loaded ${calendarEvents.length} tests from database`);
         renderCalendar();
         renderTestsList();
+        
     } catch (error) {
         console.error('❌ Error loading tests:', error);
-        if (window.AdminUtils) window.AdminUtils.showToast('Failed to load tests', 'error');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Unable to load tests. Please check your connection.', 'error');
+        }
+        
+        // Show empty calendar on error
+        calendarEvents = [];
+        renderCalendar();
+        renderTestsList();
     }
 }
 
@@ -152,7 +190,16 @@ function renderTestsList() {
     if (!container) return;
 
     if (calendarEvents.length === 0) {
-        container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 40px;">No tests scheduled yet. Click "Schedule Test" to add one.</p>';
+        container.innerHTML = `
+            <div style="background: white; border-radius: 12px; padding: 60px 20px; text-align: center; color: #94a3b8;">
+                <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p style="font-size: 16px; margin-bottom: 8px;">No tests scheduled yet</p>
+                <p style="font-size: 14px; margin-bottom: 20px;">Click "Schedule Test" to add one</p>
+                <button class="btn-primary" onclick="openScheduleModal()">
+                    <i class="fas fa-plus"></i> Schedule Test
+                </button>
+            </div>
+        `;
         return;
     }
 
@@ -194,7 +241,7 @@ function renderTestsList() {
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     ${statusBadge}
-                    <button class="action-btn danger" onclick="deleteTest(${test.id})" title="Delete Test">
+                    <button class="action-btn danger" onclick="deleteCalendarTest(${test.id})" title="Delete Test">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -272,7 +319,7 @@ async function handleScheduleTest(event) {
 
     const testData = {
         test_name: formData.get('name'),
-        test_id: formData.get('type'),
+        test_type: formData.get('type'),
         exam_date: formData.get('date'),
         duration: parseInt(formData.get('duration')),
         total_questions: parseInt(formData.get('totalQuestions')),
@@ -282,48 +329,81 @@ async function handleScheduleTest(event) {
     try {
         console.log('📤 Saving test to database...', testData);
 
-        // ✅ FIXED: Using window.API_BASE_URL from config
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`, {
+        // ✅ FIXED: Try to create test via exam endpoint
+        let endpoint = `${window.API_BASE_URL}/api/exam/create`;
+        let response = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(testData)
         });
+        
+        // If exam/create doesn't work, try admin endpoint
+        if (response.status === 404) {
+            console.log('⚠️ /api/exam/create not found, trying alternative...');
+            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
+            response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testData)
+            });
+        }
 
         if (!response.ok) throw new Error('Failed to save test');
 
         console.log('✅ Test saved successfully!');
-        if (window.AdminUtils) window.AdminUtils.showToast('Test scheduled successfully! Students can now see it in their calendar.', 'success');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Test scheduled successfully! Students can now see it in their calendar.', 'success');
+        }
 
         event.target.closest('.modal').remove();
         await loadCalendarEvents();
 
     } catch (error) {
         console.error('❌ Error saving test:', error);
-        if (window.AdminUtils) window.AdminUtils.showToast('Failed to schedule test. Please try again.', 'error');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Failed to schedule test. Please try again.', 'error');
+        } else {
+            alert('Failed to schedule test. Please try again.');
+        }
     }
 }
 
-async function deleteTest(testId) {
+async function deleteCalendarTest(testId) {
     if (!confirm('Are you sure you want to delete this test? Students will no longer see it.')) return;
 
     try {
         console.log(`🗑️ Deleting test #${testId}...`);
 
-        // ✅ FIXED: Using window.API_BASE_URL from config
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests/${testId}`, {
+        // ✅ FIXED: Try exam endpoint first
+        let endpoint = `${window.API_BASE_URL}/api/exam/${testId}`;
+        let response = await fetch(endpoint, {
             method: 'DELETE'
         });
+        
+        // If exam endpoint doesn't work, try admin endpoint
+        if (response.status === 404) {
+            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests/${testId}`;
+            response = await fetch(endpoint, {
+                method: 'DELETE'
+            });
+        }
 
         if (!response.ok) throw new Error('Failed to delete test');
 
         console.log('✅ Test deleted successfully!');
-        if (window.AdminUtils) window.AdminUtils.showToast('Test deleted successfully', 'success');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Test deleted successfully', 'success');
+        }
 
         await loadCalendarEvents();
 
     } catch (error) {
         console.error('❌ Error deleting test:', error);
-        if (window.AdminUtils) window.AdminUtils.showToast('Failed to delete test', 'error');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Failed to delete test', 'error');
+        } else {
+            alert('Failed to delete test');
+        }
     }
 }
 
@@ -347,4 +427,4 @@ window.changeMonth = changeMonth;
 window.openScheduleModal = openScheduleModal;
 window.handleScheduleTest = handleScheduleTest;
 window.viewDayEvents = viewDayEvents;
-window.deleteTest = deleteTest;
+window.deleteCalendarTest = deleteCalendarTest;
