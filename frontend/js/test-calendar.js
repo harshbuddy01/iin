@@ -1,5 +1,6 @@
 /**
  * Test Calendar Module - Saves tests to DATABASE
+ * FIXED: 2026-01-25 - Using window.API_BASE_URL from config
  */
 
 let currentDate = new Date();
@@ -67,7 +68,8 @@ function renderCalendarPage() {
 async function loadCalendarEvents() {
     try {
         console.log('🔄 Loading tests from database...');
-        const response = await fetch('https://backend-vigyanpreap.vigyanprep.com/api/admin/tests');
+        // ✅ FIXED: Using window.API_BASE_URL instead of hardcoded URL
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`);
         const data = await response.json();
 
         calendarEvents = (data.tests || []).map(test => ({
@@ -280,7 +282,8 @@ async function handleScheduleTest(event) {
     try {
         console.log('📤 Saving test to database...', testData);
 
-        const response = await fetch('https://backend-vigyanpreap.vigyanprep.com/api/admin/tests', {
+        // ✅ FIXED: Using window.API_BASE_URL from config
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(testData)
@@ -306,7 +309,8 @@ async function deleteTest(testId) {
     try {
         console.log(`🗑️ Deleting test #${testId}...`);
 
-        const response = await fetch(`https://backend-vigyanpreap.vigyanprep.com/api/admin/tests/${testId}`, {
+        // ✅ FIXED: Using window.API_BASE_URL from config
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/tests/${testId}`, {
             method: 'DELETE'
         });
 
