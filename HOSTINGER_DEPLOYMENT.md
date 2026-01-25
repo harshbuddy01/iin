@@ -1,218 +1,588 @@
-# 🚀 HOSTINGER DEPLOYMENT GUIDE
+# 🚀 Hostinger Deployment Guide - Admin Login System
 
-## 🎯 Current Situation
-
-You're using **Hostinger** but the error shows **Railway** URL:
-```
-https://iin-production.up.railway.app/api/verify-user-full
-```
-
-**Problem:** Frontend is pointing to the wrong backend URL!
+**Date:** January 26, 2026, 1:20 AM IST  
+**For:** Live Hostinger Website  
+**Time Required:** 10-15 minutes
 
 ---
 
-## ✅ IMMEDIATE FIX NEEDED
+## 📋 WHAT YOU'LL DO:
 
-### Step 1: Find Your Hostinger Backend URL
-
-1. **Login to Hostinger hPanel:** [https://hpanel.hostinger.com](https://hpanel.hostinger.com)
-2. Go to **Websites** → Select your Node.js app
-3. Copy your backend URL (should look like):
-   ```
-   https://backend-vigyanprep.vigyanprep.com
-   OR
-   https://api.vigyanprep.com
-   OR  
-   https://vigyanprep.com:3000
-   ```
-
-### Step 2: Update Frontend to Use Hostinger Backend
-
-Find the file that sets `API_URL` - likely in:
-- `testfirstpage.html`
-- `config.js`
-- Or inline JavaScript
-
-Change from:
-```javascript
-const API_URL = 'https://iin-production.up.railway.app';
-```
-
-To:
-```javascript
-const API_URL = 'https://YOUR-HOSTINGER-BACKEND-URL';
-```
+1. Connect to your Hostinger via SSH
+2. Navigate to your project folder
+3. Pull latest code from GitHub
+4. Install bcryptjs package
+5. Edit 2 files on server
+6. Restart your Node.js application
+7. Test the login page
 
 ---
 
-## 🔧 HOSTINGER DEPLOYMENT OPTIONS
+## 🔧 STEP-BY-STEP INSTRUCTIONS
 
-### Option A: Using Hostinger Node.js Web App
+### **STEP 1: Connect to Hostinger via SSH** ⏱️ 2 minutes
 
-**Available on:**
-- Business Web Hosting
-- Cloud Startup/Professional/Enterprise
+#### Option A: Using Terminal (Mac/Linux) or CMD (Windows)
 
-**Steps:**
+1. **Get your SSH details from Hostinger:**
+   - Login to [Hostinger Panel](https://hpanel.hostinger.com)
+   - Go to **VPS** → Your VPS → **SSH Access**
+   - Copy the SSH command (looks like: `ssh root@123.45.67.89`)
 
-1. **Login to hPanel**
-2. **Websites** → **Add Website** → **Node.js Apps**
-3. **Import from GitHub:**
-   - Connect your GitHub account
-   - Select `harshbuddy01/vigyan` repository
-   - Set build folder: `backend`
-   - Build command: `npm install`
-   - Start command: `node server.js`
-4. **Set Environment Variables:**
-   ```env
-   MONGODB_URI=mongodb+srv://...
-   RAZORPAY_API_KEY=rzp_test_...
-   RAZORPAY_API_SECRET=...
-   NODE_ENV=production
-   PORT=3000
-   ```
-5. **Deploy** → Wait 5 minutes
-6. **Copy the deployed URL**
-
----
-
-### Option B: Using Hostinger VPS (Manual Setup)
-
-**If you have VPS plan:**
+2. **Open Terminal/CMD and connect:**
 
 ```bash
-# 1. SSH into your VPS
-ssh root@your-vps-ip
+# Paste your SSH command from Hostinger
+ssh root@YOUR_VPS_IP
 
-# 2. Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt-get install -y nodejs
-
-# 3. Install PM2 (Process Manager)
-npm install -g pm2
-
-# 4. Clone your repository
-cd /var/www
-git clone https://github.com/harshbuddy01/vigyan.git
-cd vigyan/backend
-
-# 5. Install dependencies
-npm install
-
-# 6. Create .env file
-nano .env
-# Paste your environment variables
-# Ctrl+X, Y, Enter to save
-
-# 7. Start with PM2
-pm2 start server.js --name vigyan-backend
-pm2 save
-pm2 startup
-
-# 8. Setup Nginx reverse proxy
-nano /etc/nginx/sites-available/vigyan-api
+# Enter password when prompted (you set this during VPS setup)
 ```
 
-**Nginx config:**
-```nginx
-server {
-    listen 80;
-    server_name api.vigyanprep.com;
+**Expected output:**
+```
+Welcome to Ubuntu 22.04.x LTS
+root@vps-xxxxx:~#
+```
 
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
+✅ **You're now connected to Hostinger!**
+
+#### Option B: Using PuTTY (Windows)
+
+1. Download [PuTTY](https://www.putty.org/)
+2. Open PuTTY
+3. Enter your VPS IP address
+4. Port: 22
+5. Click "Open"
+6. Login as: `root`
+7. Enter password
+
+---
+
+### **STEP 2: Navigate to Your Project Folder** ⏱️ 1 minute
+
+```bash
+# Find your project location
+# Common locations:
+# - /home/vigyanprep/public_html
+# - /var/www/vigyanprep.com
+# - ~/vigyan
+
+# Example (adjust based on your setup):
+cd /home/vigyanprep/public_html
+
+# OR if your project is in root:
+cd ~/vigyan
+
+# Verify you're in the right place:
+ls -la
+
+# You should see:
+# - backend/
+# - frontend/
+# - admin-login.html
+# - admin-dashboard-v2.html
+```
+
+**Can't find your project?** Try:
+```bash
+find / -name "admin-dashboard-v2.html" 2>/dev/null
+```
+
+---
+
+### **STEP 3: Pull Latest Code from GitHub** ⏱️ 1 minute
+
+```bash
+# Make sure you're in project root
+pwd
+
+# Pull latest changes
+git pull origin main
+
+# If you get "fatal: not a git repository":
+git init
+git remote add origin https://github.com/harshbuddy01/vigyan.git
+git pull origin main
+```
+
+**Expected output:**
+```
+Updating abc1234..def5678
+Fast-forward
+ admin-login.html                          | 150 +++++
+ frontend/js/admin-session-manager.js      | 230 +++++
+ backend/routes/adminAuthRoutes.js         | 180 +++++
+ SETUP_STEPS.md                            | 290 +++++
+ 4 files changed, 850 insertions(+)
+```
+
+✅ **New files downloaded!**
+
+---
+
+### **STEP 4: Install bcryptjs Package** ⏱️ 2 minutes
+
+```bash
+# Go to backend folder
+cd backend
+
+# Check if npm is installed
+npm -v
+
+# If npm not found, install Node.js:
+# curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+# sudo apt-get install -y nodejs
+
+# Install bcryptjs
+npm install bcryptjs
+
+# Wait for installation...
+```
+
+**Expected output:**
+```
+added 1 package, and audited 120 packages in 3s
+
+found 0 vulnerabilities
+```
+
+✅ **bcryptjs installed!**
+
+**Verify installation:**
+```bash
+npm list bcryptjs
+```
+
+Should show:
+```
+vigyan-backend@1.0.0 /path/to/backend
+└── bcryptjs@2.4.3
+```
+
+---
+
+### **STEP 5: Edit server.js File** ⏱️ 3 minutes
+
+**Option A: Using nano editor (Recommended for beginners)**
+
+```bash
+# Open server.js
+nano server.js
+```
+
+**Add these lines:**
+
+1. **Find the imports section** (around line 86):
+   - Press `Ctrl + W` and search for: `import authRoutes`
+   - You'll see:
+     ```javascript
+     import authRoutes from './routes/authRoutes.js';
+     import newsRoutes from './routes/newsRoutes.js';
+     ```
+
+2. **Add this line after it:**
+   ```javascript
+   import adminAuthRoutes from './routes/adminAuthRoutes.js';
+   ```
+
+3. **Find the routes mounting section** (around line 145):
+   - Press `Ctrl + W` and search for: `app.use('/api', authRoutes)`
+   - You'll see:
+     ```javascript
+     app.use('/api', authRoutes);
+     console.log('✅ Auth routes mounted');
+     ```
+
+4. **Add these lines after it:**
+   ```javascript
+   app.use('/api/admin/auth', adminAuthRoutes);
+   console.log('✅ Admin auth routes mounted - /api/admin/auth/*');
+   ```
+
+5. **Save and exit:**
+   - Press `Ctrl + X`
+   - Press `Y` (Yes to save)
+   - Press `Enter` (confirm filename)
+
+✅ **server.js updated!**
+
+**Option B: Using vi/vim editor**
+
+```bash
+vi server.js
+
+# Press 'i' to enter INSERT mode
+# Make the changes above
+# Press 'Esc' to exit INSERT mode
+# Type ':wq' and press Enter to save and quit
+```
+
+---
+
+### **STEP 6: Edit admin-dashboard-v2.html** ⏱️ 2 minutes
+
+```bash
+# Go back to project root
+cd ..
+
+# Open the file
+nano admin-dashboard-v2.html
+```
+
+**Add session manager script:**
+
+1. **Find config.js line:**
+   - Press `Ctrl + W` and search for: `config.js?v=10`
+   - You'll see:
+     ```html
+     <script src="frontend/js/config.js?v=10"></script>
+     ```
+
+2. **Add this line RIGHT AFTER it:**
+   ```html
+   <script src="frontend/js/admin-session-manager.js?v=11"></script>
+   ```
+
+3. **Update logout function:**
+   - Press `Ctrl + W` and search for: `function logout()`
+   - You'll see:
+     ```javascript
+     function logout() {
+         if (confirm('Logout?')) window.location.href = 'admin-login.html';
+     }
+     ```
+
+4. **Replace with:**
+   ```javascript
+   function logout() {
+       if (confirm('Are you sure you want to logout?')) {
+           window.SessionManager.logout('Manual logout');
+       }
+   }
+   ```
+
+5. **Save and exit:**
+   - Press `Ctrl + X`
+   - Press `Y`
+   - Press `Enter`
+
+✅ **admin-dashboard-v2.html updated!**
+
+---
+
+### **STEP 7: Restart Node.js Application** ⏱️ 2 minutes
+
+**If using PM2 (most common):**
+
+```bash
+# Check current PM2 processes
+pm2 list
+
+# Restart your app (replace 'app-name' with your actual process name)
+pm2 restart vigyan-backend
+
+# OR restart all:
+pm2 restart all
+
+# Check logs to verify:
+pm2 logs vigyan-backend --lines 50
+```
+
+**Look for these lines in logs:**
+```
+🔐 Admin Auth routes loaded
+👤 Admin username: admin
+✅ Admin auth routes mounted - /api/admin/auth/*
+✅ Server running on port 3000
+```
+
+**If NOT using PM2:**
+
+```bash
+# Find and kill existing Node process
+pkill -f "node server.js"
+
+# Start server in background
+cd backend
+nohup node server.js > server.log 2>&1 &
+
+# Check if running:
+ps aux | grep node
+
+# View logs:
+tail -f server.log
+```
+
+✅ **Server restarted!**
+
+---
+
+### **STEP 8: Test Everything** ⏱️ 3 minutes
+
+#### Test 1: Check if auth endpoint is working
+
+```bash
+# From your Hostinger SSH:
+curl http://localhost:3000/api/admin/auth/test
+
+# OR from your local computer:
+curl https://backend-vigyanpreap.vigyanprep.com/api/admin/auth/test
+```
+
+**Expected response:**
+```json
+{
+  "success": true,
+  "message": "Admin auth routes are working!",
+  "timestamp": "2026-01-26T...",
+  "defaultCredentials": {
+    "username": "admin",
+    "password": "admin123"
+  }
 }
 ```
 
-```bash
-# Enable site
-ln -s /etc/nginx/sites-available/vigyan-api /etc/nginx/sites-enabled/
-nginx -t
-systemctl reload nginx
+✅ **API is working!**
 
-# Setup SSL (free)
-apt-get install certbot python3-certbot-nginx
-certbot --nginx -d api.vigyanprep.com
+#### Test 2: Test login endpoint
+
+```bash
+curl -X POST https://backend-vigyanpreap.vigyanprep.com/api/admin/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
+
+**Expected response:**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "username": "admin",
+    "role": "admin",
+    "loginTime": "2026-01-26T..."
+  }
+}
+```
+
+✅ **Login API working!**
+
+#### Test 3: Test in browser
+
+1. Open: `https://vigyanprep.com/admin-login.html`
+2. Enter:
+   - Username: `admin`
+   - Password: `admin123`
+3. Click "Sign In"
+4. Should redirect to dashboard!
+
+✅ **Login page working!**
+
+---
+
+## 🔐 CHANGE DEFAULT PASSWORD (IMPORTANT!)
+
+**Step 1: Generate new password hash**
+
+```bash
+# From SSH:
+curl -X POST http://localhost:3000/api/admin/auth/generate-hash \
+  -H "Content-Type: application/json" \
+  -d '{"password": "YourNewStrongPassword123!"}'
+```
+
+**Step 2: Copy the hash from response**
+
+Response will show:
+```json
+{
+  "success": true,
+  "hash": "$2a$10$abc123xyz..."
+}
+```
+
+**Step 3: Update .env file**
+
+```bash
+# Edit .env file
+cd backend
+nano .env
+
+# Add or update these lines:
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=$2a$10$abc123xyz...
+
+# Save: Ctrl + X, Y, Enter
+```
+
+**Step 4: Restart server**
+
+```bash
+pm2 restart vigyan-backend
+```
+
+**Step 5: Test new password**
+
+```bash
+curl -X POST http://localhost:3000/api/admin/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"YourNewStrongPassword123!"}'
+```
+
+✅ **Password changed!**
+
+---
+
+## 🐛 TROUBLESHOOTING
+
+### Problem: "Cannot find module 'bcryptjs'"
+
+**Solution:**
+```bash
+cd backend
+npm install bcryptjs
+pm2 restart all
+```
+
+### Problem: "Cannot GET /api/admin/auth/login"
+
+**Solution:**
+```bash
+# Check if server.js has the imports:
+grep -n "adminAuthRoutes" backend/server.js
+
+# Should show 2 lines with line numbers
+# If not found, add them manually
+```
+
+### Problem: Login page shows but login fails
+
+**Check backend logs:**
+```bash
+pm2 logs vigyan-backend --lines 100
+
+# Look for errors when you try to login
+```
+
+**Check if API is reachable:**
+```bash
+curl https://backend-vigyanpreap.vigyanprep.com/api/admin/auth/test
+```
+
+### Problem: Session timeout not working
+
+**Verify session manager is loaded:**
+```bash
+# Check if file exists:
+ls -la frontend/js/admin-session-manager.js
+
+# Check if referenced in HTML:
+grep "admin-session-manager" admin-dashboard-v2.html
+```
+
+### Problem: Can't connect via SSH
+
+**Enable SSH in Hostinger:**
+1. Login to Hostinger hPanel
+2. Go to **VPS** → **SSH Access**
+3. Click **Enable**
+4. Copy SSH command and try again
+
+---
+
+## 📊 VERIFICATION CHECKLIST
+
+- [ ] Connected to Hostinger via SSH
+- [ ] Pulled latest code from GitHub
+- [ ] Installed bcryptjs package
+- [ ] Added import to server.js
+- [ ] Added route registration to server.js
+- [ ] Added session manager to HTML
+- [ ] Updated logout function in HTML
+- [ ] Restarted Node.js application
+- [ ] Tested /api/admin/auth/test endpoint
+- [ ] Tested /api/admin/auth/login endpoint
+- [ ] Tested login page in browser
+- [ ] Changed default password
+- [ ] Tested new password
+
+---
+
+## 🎯 QUICK REFERENCE
+
+### Default Credentials:
+```
+Username: admin
+Password: admin123
+```
+
+### Important URLs:
+```
+Login Page: https://vigyanprep.com/admin-login.html
+Dashboard: https://vigyanprep.com/admin-dashboard-v2.html
+API Test: https://backend-vigyanpreap.vigyanprep.com/api/admin/auth/test
+```
+
+### Common PM2 Commands:
+```bash
+pm2 list                    # Show all processes
+pm2 restart vigyan-backend  # Restart your app
+pm2 logs vigyan-backend     # View logs
+pm2 stop vigyan-backend     # Stop app
+pm2 start vigyan-backend    # Start app
+```
+
+### File Locations:
+```
+Project Root: /home/vigyanprep/public_html (or ~/vigyan)
+Backend: /home/vigyanprep/public_html/backend
+Frontend: /home/vigyanprep/public_html/frontend
+Login Page: /home/vigyanprep/public_html/admin-login.html
 ```
 
 ---
 
-## 📍 WHERE IS YOUR BACKEND NOW?
+## 📞 STILL STUCK?
 
-### Check Current Deployments:
+If you encounter issues:
 
-1. **Hostinger Check:**
-   - Login to hPanel
-   - Go to **Websites**
-   - Look for Node.js app
-   - Copy the URL
-
-2. **Railway Check:**
-   - If you have Railway account
-   - Check if deployment exists there
-   - **You might want to DELETE Railway deployment** if not needed
-
-3. **Domain Check:**
+1. **Check PM2 logs:**
    ```bash
-   # Check where vigyanprep.com points to
-   nslookup vigyanprep.com
-   
-   # Check backend subdomain
-   nslookup api.vigyanprep.com
-   nslookup backend.vigyanprep.com
+   pm2 logs --lines 100
+   ```
+
+2. **Check server is running:**
+   ```bash
+   ps aux | grep node
+   ```
+
+3. **Check port 3000 is open:**
+   ```bash
+   netstat -tlnp | grep 3000
+   ```
+
+4. **Restart everything:**
+   ```bash
+   pm2 restart all
+   ```
+
+5. **Test locally first:**
+   ```bash
+   cd backend
+   node server.js
+   # Should show: ✅ Admin auth routes mounted
    ```
 
 ---
 
-## 🔥 QUICK FIX - Update Frontend Config
+**Done!** 🎉 Your admin login system is now live on Hostinger!
 
-I need to see which file has the API URL. Can you check:
-
-### File to check: `testfirstpage.html`
-
-Look for lines like:
-```javascript
-const API_URL = '...';
-const baseURL = '...';
-axios.defaults.baseURL = '...';
-```
-
-**Tell me:**
-1. What's your actual Hostinger backend URL?
-2. Where is the API_URL defined in your frontend?
-
-I'll create a commit to fix it immediately!
+**Next Steps:**
+1. Login to your dashboard
+2. Change the default password immediately
+3. Test the 60-minute session timeout
+4. Enjoy secure admin access!
 
 ---
 
-## 🎯 Expected URLs After Fix
-
-**Frontend (Already working):**
-```
-https://vigyanprep.com/testfirstpage.html ✅
-```
-
-**Backend (Need to fix):**
-```
-https://YOUR-HOSTINGER-URL/health ← Should return {"status":"ok"}
-https://YOUR-HOSTINGER-URL/api/verify-user-full ← Should work
-```
-
----
-
-## ✅ NEXT STEPS
-
-1. **Find your Hostinger backend URL** (from hPanel)
-2. **Tell me the URL**
-3. **Tell me which file has `API_URL` configuration**
-4. I'll push the fix in 2 minutes!
-
----
-
-**Current Status:** Waiting for Hostinger backend URL to update frontend configuration
+**Last Updated:** January 26, 2026, 1:20 AM IST
