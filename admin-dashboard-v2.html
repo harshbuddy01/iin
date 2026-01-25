@@ -5,16 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vigyan.prep Admin Portal - Dashboard</title>
-    <!-- Last updated: 2025-12-30 03:38 IST - Integrated Admin to Student Flow -->
-    <!-- Version: v9 - Complete Question Upload Flow -->
+    <!-- Last updated: 2026-01-26 00:27 IST - Removed Notifications -->
+    <!-- Version: v10 - Notifications Removed -->
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=9">
-    <link rel="stylesheet" href="frontend/css/admin-modals.css?v=9">
-    <link rel="stylesheet" href="frontend/css/admin-forms.css?v=9">
-    <link rel="stylesheet" href="frontend/css/header-dropdowns.css?v=9">
+    <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css?v=10">
+    <link rel="stylesheet" href="frontend/css/admin-modals.css?v=10">
+    <link rel="stylesheet" href="frontend/css/admin-forms.css?v=10">
+    <link rel="stylesheet" href="frontend/css/header-dropdowns.css?v=10">
 
     <style>
         .form-input {
@@ -383,7 +383,7 @@
         <header class="top-header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
-                <div class="notification-bell"><i class="fas fa-bell"></i><span class="badge">3</span></div>
+                <!-- 🗑️ REMOVED: Notification Bell -->
                 <div class="settings-icon"><i class="fas fa-cog"></i></div>
                 <div class="admin-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff" alt="Admin">
@@ -468,10 +468,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <!-- 🔥 CENTRALIZED CONFIG - Easy Hostinger Migration -->
-    <script src="frontend/js/config.js?v=9"></script>
+    <script src="frontend/js/config.js?v=10"></script>
 
     <script>
-        console.log('🎯 Admin Panel v9 - Complete Admin to Student Flow');
+        console.log('🎯 Admin Panel v10 - Notifications Removed');
         console.log('📍 Environment:', window.APP_CONFIG.ENVIRONMENT);
         console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
 
@@ -506,30 +506,30 @@
         }
     </script>
 
-    <!-- Core utilities with cache busting v9 -->
-    <script src="frontend/js/admin-api-service.js?v=9"></script>
-    <script src="frontend/js/admin-utils.js?v=9"></script>
+    <!-- Core utilities with cache busting v10 -->
+    <script src="frontend/js/admin-api-service.js?v=10"></script>
+    <script src="frontend/js/admin-utils.js?v=10"></script>
 
-    <!-- Feature modules with cache busting v9 -->
-    <script src="frontend/js/create-test.js?v=9"></script>
-    <script src="frontend/js/add-questions-v2.js?v=9"></script>
-    <script src="frontend/js/view-questions.js?v=9"></script>
-    <script src="frontend/js/students.js?v=9"></script>
-    <script src="frontend/js/transactions.js?v=9"></script>
-    <script src="frontend/js/results.js?v=9"></script>
-    <script src="frontend/js/upload-image.js?v=9"></script>
+    <!-- Feature modules with cache busting v10 -->
+    <script src="frontend/js/create-test.js?v=10"></script>
+    <script src="frontend/js/add-questions-v2.js?v=10"></script>
+    <script src="frontend/js/view-questions.js?v=10"></script>
+    <script src="frontend/js/students.js?v=10"></script>
+    <script src="frontend/js/transactions.js?v=10"></script>
+    <script src="frontend/js/results.js?v=10"></script>
+    <script src="frontend/js/upload-image.js?v=10"></script>
 
-    <!-- Test management modules with cache busting v9 -->
-    <script src="frontend/js/test-calendar.js?v=9"></script>
-    <script src="frontend/js/scheduled-tests.js?v=9"></script>
-    <script src="frontend/js/past-tests.js?v=9"></script>
-    <script src="frontend/js/upload-pdf.js?v=9"></script>
+    <!-- Test management modules with cache busting v10 -->
+    <script src="frontend/js/test-calendar.js?v=10"></script>
+    <script src="frontend/js/scheduled-tests.js?v=10"></script>
+    <script src="frontend/js/past-tests.js?v=10"></script>
+    <script src="frontend/js/upload-pdf.js?v=10"></script>
 
-    <!-- Main dashboard controller (must load last) with cache busting v9 -->
-    <script src="frontend/js/admin-dashboard-v2.js?v=9"></script>
+    <!-- Main dashboard controller (must load last) with cache busting v10 -->
+    <script src="frontend/js/admin-dashboard-v2.js?v=10"></script>
 
     <script>
-        console.log('✅ All scripts loaded - v9 - Complete Admin to Student Flow');
+        console.log('✅ All scripts loaded - v10 - Notifications Removed');
         console.log('🔍 initAddQuestions:', typeof window.initAddQuestions === 'function');
     </script>
 </body>
