@@ -1,9 +1,8 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * Last Updated: 2025-12-28 21:25 IST - Fixed API_BASE_URL conflict properly
+ * FIXED: 2026-01-25 - Proper endpoints, empty states, and error handling
  */
 
-// NO const declaration - use window.API_BASE_URL directly throughout
 console.log('🔵 scheduled-tests.js loading...');
 console.log('🔧 API_BASE_URL:', window.API_BASE_URL);
 
@@ -106,10 +105,11 @@ async function loadScheduledTests() {
     try {
         showLoading(true);
         
-        const endpoint = `${window.API_BASE_URL}/api/admin/tests`;
+        // ✅ FIXED: Try multiple endpoints to find scheduled tests
+        let endpoint = `${window.API_BASE_URL}/api/exam/list`;
         console.log('📡 Fetching tests from:', endpoint);
         
-        const response = await fetch(endpoint, {
+        let response = await fetch(endpoint, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -118,14 +118,42 @@ async function loadScheduledTests() {
         
         console.log('📥 Response status:', response.status);
         
+        // If exam/list doesn't work, try admin endpoint
+        if (response.status === 404) {
+            console.log('⚠️ /api/exam/list not found, trying alternative...');
+            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
+            response = await fetch(endpoint);
+            console.log('📥 Alternative response status:', response.status);
+        }
+        
+        // Handle empty data (not an error)
+        if (response.status === 404 || response.status === 204) {
+            console.log('ℹ️ No scheduled tests found (empty database)');
+            allTests = [];
+            filteredTests = [];
+            showEmptyState();
+            showLoading(false);
+            return;
+        }
+        
         if (!response.ok) {
-            throw new Error(`Failed to load tests: ${response.statusText}`);
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
         console.log('📦 Loaded tests data:', data);
         
-        allTests = data.tests || [];
+        // Handle successful response with empty results
+        if (data.success && (!data.tests || data.tests.length === 0)) {
+            console.log('ℹ️ Database returned empty test list');
+            allTests = [];
+            filteredTests = [];
+            showEmptyState();
+            showLoading(false);
+            return;
+        }
+        
+        allTests = data.tests || data.exams || [];
         filteredTests = [...allTests];
         
         console.log(`✅ Loaded ${allTests.length} tests`);
@@ -137,14 +165,46 @@ async function loadScheduledTests() {
         console.error('❌ Error loading tests:', error);
         console.error('Error details:', error.message);
         
-        showError('Failed to load scheduled tests from database.');
+        showErrorState(error);
         
-        // Show empty state
         allTests = [];
         filteredTests = [];
-        displayTests(filteredTests);
         showLoading(false);
     }
+}
+
+function showEmptyState() {
+    const container = document.getElementById('tests-container');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="no-tests" style="text-align: center; padding: 80px 20px; color: #94a3b8; background: white; border-radius: 12px;">
+            <i class="fas fa-calendar-times" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <p style="font-size: 18px; margin-bottom: 20px; font-weight: 500;">No scheduled tests found</p>
+            <p style="font-size: 14px; margin-bottom: 30px;">Create your first test to get started</p>
+            <button class="btn-primary" onclick="navigateToCreateTest()">
+                <i class="fas fa-plus"></i> Create New Test
+            </button>
+        </div>
+    `;
+}
+
+function showErrorState(error) {
+    const container = document.getElementById('tests-container');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: #ef4444; background: white; border-radius: 12px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <h3 style="margin: 0 0 8px 0; font-size: 18px;">Unable to Load Scheduled Tests</h3>
+            <p style="margin: 0 0 20px 0; font-size: 14px; color: #94a3b8;">
+                Please check your connection and try again
+            </p>
+            <button onclick="loadScheduledTests()" class="btn-primary">
+                <i class="fas fa-sync"></i> Retry
+            </button>
+        </div>
+    `;
 }
 
 // Apply filters to tests
@@ -154,9 +214,9 @@ function applyFilters() {
     const searchQuery = document.getElementById('search-tests')?.value.toLowerCase() || '';
 
     filteredTests = allTests.filter(test => {
-        const testType = test.test_type || test.testType || '';
+        const testType = test.test_type || test.testType || test.exam_type || '';
         const testStatus = test.status || 'scheduled';
-        const testName = test.test_name || test.testName || '';
+        const testName = test.test_name || test.testName || test.exam_name || '';
         const subjects = test.subjects || '';
         
         if (typeFilter !== 'all' && testType.toUpperCase() !== typeFilter.toUpperCase()) return false;
@@ -180,13 +240,10 @@ function displayTests(tests) {
     
     if (tests.length === 0) {
         container.innerHTML = `
-            <div class="no-tests" style="text-align: center; padding: 80px 20px; color: #94a3b8; background: white; border-radius: 12px;">
-                <i class="fas fa-calendar-times" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
-                <p style="font-size: 18px; margin-bottom: 20px; font-weight: 500;">No scheduled tests found</p>
-                <p style="font-size: 14px; margin-bottom: 30px;">Create your first test to get started</p>
-                <button class="btn-primary" onclick="navigateToCreateTest()">
-                    <i class="fas fa-plus"></i> Create New Test
-                </button>
+            <div style="text-align: center; padding: 60px 20px; color: #94a3b8; background: white; border-radius: 12px;">
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p style="font-size: 18px;">No tests match your filters</p>
+                <p style="font-size: 14px; color: #94a3b8;">Try adjusting your search criteria</p>
             </div>
         `;
         return;
@@ -197,17 +254,17 @@ function displayTests(tests) {
 
 // Create test card HTML
 function createTestCard(test) {
-    const examDate = test.exam_date || test.examDate;
+    const examDate = test.exam_date || test.examDate || test.date;
     const testDate = new Date(examDate);
     const formattedDate = testDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     const startTime = test.start_time || test.startTime || test.exam_time || 'Not set';
-    const testType = (test.test_type || test.testType || 'TEST').toUpperCase();
-    const testName = test.test_name || test.testName || 'Unnamed Test';
+    const testType = (test.test_type || test.testType || test.exam_type || 'TEST').toUpperCase();
+    const testName = test.test_name || test.testName || test.exam_name || 'Unnamed Test';
     const subjects = test.subjects || test.sections || 'N/A';
-    const totalQuestions = test.total_questions || 0;
+    const totalQuestions = test.total_questions || test.totalQuestions || 0;
     const totalMarks = test.total_marks || test.totalMarks || 0;
     const status = test.status || 'scheduled';
-    const testId = test.id || test.test_id || test.testId;
+    const testId = test.id || test.test_id || test.testId || test.exam_id;
     const durationMinutes = test.duration_minutes || test.duration || test.durationMinutes || 180;
 
     // Status badge colors
@@ -292,7 +349,7 @@ window.deleteTest = async function(testId) {
     try {
         console.log('🗑️ Deleting test with ID:', testId);
         
-        const endpoint = `${window.API_BASE_URL}/api/admin/tests/${testId}`;
+        const endpoint = `${window.API_BASE_URL}/api/exam/${testId}`;
         console.log('📡 DELETE request to:', endpoint);
         
         const response = await fetch(endpoint, {
@@ -343,14 +400,6 @@ function showLoading(show) {
                 <p style="font-size: 16px; font-weight: 500;">Loading tests...</p>
             </div>
         `;
-    }
-}
-
-// Show error message
-function showError(message) {
-    console.error('❌', message);
-    if (window.AdminUtils) {
-        window.AdminUtils.showToast(message, 'error');
     }
 }
 
