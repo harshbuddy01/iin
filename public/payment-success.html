@@ -36,7 +36,7 @@
             padding: 20px;
         }
 
-        /* Header with Logo - Matching Homepage */
+        /* Header with Logo - Matching Homepage EXACTLY */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -44,17 +44,18 @@
 
         .logo {
             font-size: 28px;
-            font-weight: 700;
+            font-weight: 400;
             letter-spacing: 0.5px;
-            font-style: italic;
         }
 
         .logo .vigyan {
             color: var(--gold);
+            font-weight: 700;
         }
 
         .logo .prep {
             color: var(--gray);
+            font-weight: 400;
         }
 
         /* Main Container */
@@ -393,7 +394,7 @@
     </style>
 </head>
 <body>
-    <!-- Header - Matching Homepage Logo -->
+    <!-- Header - Matching Homepage Logo EXACTLY -->
     <div class="header">
         <div class="logo">
             <span class="vigyan">VIGYAN</span><span class="prep">.prep</span>
@@ -506,7 +507,6 @@
                 });
             }
         }
-
         // Navigation functions
         function goToDashboard() {
             window.location.href = '/index.html';
