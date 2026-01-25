@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 00:46 IST - CARD DESIGN FIX ONLY -->
+    <!-- CACHE CLEAR: 2026-01-26 00:52 IST - EXACT COLOR MATCH -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0046">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0046">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0046">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0046">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0046">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0052">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0052">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0052">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0052">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0052">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -47,74 +47,72 @@
         /* ========== ULTRA PREMIUM CARD DESIGN ========== */
         
         .glass-panel {
-            border-radius: 24px;
-            padding: 48px;
+            border-radius: 28px;
+            padding: 52px;
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 580px;
+            min-height: 600px;
             border: 2px solid;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
         }
 
-        /* IAT - PURPLE TO PINK GRADIENT */
+        /* IAT - BRIGHT PURPLE TO MAGENTA (NO PINK) */
         .glass-panel.iat {
             background: linear-gradient(135deg, 
                 #a855f7 0%,
-                #9333ea 25%,
-                #ec4899 75%,
-                #f43f5e 100%);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 80px rgba(168, 85, 247, 0.35),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                #9333ea 40%,
+                #c026d3 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 100px rgba(168, 85, 247, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        /* NEST - TEAL TO BLUE GRADIENT */
+        /* NEST - CYAN/TEAL TO BLUE (EXACT MATCH) */
         .glass-panel.nest {
-            background: linear-gradient(135deg,
+            background: linear-gradient(180deg,
                 #14b8a6 0%,
-                #0d9488 25%,
-                #0891b2 60%,
-                #3b82f6 100%);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 80px rgba(20, 184, 166, 0.35),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                #06b6d4 35%,
+                #0891b2 65%,
+                #0284c7 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 100px rgba(20, 184, 166, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        /* ISI - RED TO MAGENTA GRADIENT */
+        /* ISI - PURE RED/CORAL (NO PINK) */
         .glass-panel.isi {
             background: linear-gradient(135deg,
                 #ef4444 0%,
-                #f43f5e 30%,
-                #ec4899 70%,
-                #d946ef 100%);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 80px rgba(239, 68, 68, 0.35),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                #f43f5e 50%,
+                #e11d48 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 100px rgba(239, 68, 68, 0.4),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
         /* HOVER EFFECTS - LIFT & GLOW */
         .glass-panel:hover {
-            transform: translateY(-20px) scale(1.02);
-            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-24px) scale(1.03);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .glass-panel.iat:hover {
-            box-shadow: 0 40px 120px rgba(168, 85, 247, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            box-shadow: 0 50px 150px rgba(168, 85, 247, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .glass-panel.nest:hover {
-            box-shadow: 0 40px 120px rgba(20, 184, 166, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            box-shadow: 0 50px 150px rgba(20, 184, 166, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .glass-panel.isi:hover {
-            box-shadow: 0 40px 120px rgba(239, 68, 68, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            box-shadow: 0 50px 150px rgba(239, 68, 68, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         /* BADGE - CLEAN & MODERN */
@@ -126,13 +124,13 @@
             font-size: 11px;
             font-weight: 800;
             letter-spacing: 2px;
-            padding: 10px 18px;
+            padding: 11px 20px;
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.2);
             border: 1.5px solid rgba(255, 255, 255, 0.4);
             color: #ffffff;
             text-transform: uppercase;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             width: fit-content;
             backdrop-filter: blur(10px);
         }
@@ -140,28 +138,28 @@
         /* TITLE - BOLD & CLEAN */
         .series-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 3rem;
+            font-size: 3.2rem;
             font-weight: 900;
             color: #ffffff;
-            margin: 0 0 12px 0;
-            letter-spacing: -1px;
-            line-height: 1.1;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            margin: 0 0 16px 0;
+            letter-spacing: -1.2px;
+            line-height: 1.05;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
         }
 
         /* SUBTITLE */
         .series-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 32px;
-            line-height: 1.5;
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.98);
+            margin-bottom: 36px;
+            line-height: 1.6;
             font-weight: 500;
             font-family: 'Inter', sans-serif;
         }
 
         /* FEATURES LIST - CLEAN DOTS */
         .series-features {
-            margin-bottom: 32px;
+            margin-bottom: 36px;
             list-style: none;
             padding: 0;
         }
@@ -170,33 +168,33 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            margin-bottom: 16px;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 18px;
+            font-size: 1.02rem;
+            color: rgba(255, 255, 255, 0.98);
             font-weight: 500;
             font-family: 'Inter', sans-serif;
         }
 
         .series-features li::before {
             content: '';
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.85);
             flex-shrink: 0;
         }
 
         /* TRUST BADGE */
         .trust-badge {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.95);
-            padding: 16px;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.97);
+            padding: 18px;
             background: rgba(255, 255, 255, 0.15);
-            border: 1.5px solid rgba(255, 255, 255, 0.25);
-            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
             text-align: center;
             font-weight: 700;
-            margin-bottom: 28px;
+            margin-bottom: 32px;
             font-family: 'Inter', sans-serif;
             backdrop-filter: blur(10px);
         }
@@ -204,29 +202,29 @@
         /* BUTTON - PREMIUM WHITE */
         .buy-btn {
             width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.99);
+            border: none;
+            border-radius: 16px;
             color: #1f2937;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
             font-size: 0.95rem;
-            padding: 18px;
+            padding: 20px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
+            box-shadow: 0 12px 40px rgba(255, 255, 255, 0.2);
         }
 
         .buy-btn:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
             background: rgba(255, 255, 255, 1);
-            box-shadow: 0 20px 50px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 60px rgba(255, 255, 255, 0.35);
         }
 
         .buy-btn:active {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
         }
 
         /* MODALS */
@@ -532,11 +530,11 @@
                 flex-direction: column;
             }
             .glass-panel {
-                padding: 32px;
-                min-height: 500px;
+                padding: 36px;
+                min-height: 520px;
             }
             .series-title {
-                font-size: 2.4rem;
+                font-size: 2.5rem;
             }
         }
 
@@ -701,9 +699,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-20" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0046"></script>
-    <script src="frontend/js/auth.js?v=20260126-0046"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0046"></script>
+    <script src="frontend/js/config.js?v=20260126-0052"></script>
+    <script src="frontend/js/auth.js?v=20260126-0052"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0052"></script>
 
     <script>
         const testSeries = [
@@ -719,7 +717,7 @@
                     'Daily speed trials',
                     'Analytics dashboard'
                 ],
-                cta: '→ ACCESS GRANTED',
+                cta: '✓ ACCESS GRANTED',
                 trust: '5,000+ toppers | +15%',
                 price: 1
             },
@@ -963,4 +961,3 @@
 </body>
 
 </html>
-<sha>80f207746de388d65c04636a708a4a397acf7b1b</sha>
