@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 15:22 IST - PAYMENT FLOW FIX -->
+    <!-- CACHE CLEAR: 2026-01-25 15:48 IST - PAYMENT FLOW FIX - NO EMAIL VERIFICATION -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1522">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1522">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1522">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1522">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1522">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1548">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1548">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1548">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1548">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1548">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -34,17 +34,9 @@
         window.API_BASE_URL = API_BASE_URL;
         window.PAYMENT_API_URL = PAYMENT_API_URL;
 
-        // 🔴 VERIFICATION - If not Hostinger, something went wrong
-        if (!API_BASE_URL.includes("backend-vigyanpreap")) {
-            console.error('🔴 CRITICAL ERROR: API_BASE_URL is not pointing to Hostinger!');
-            console.error('Current URL:', API_BASE_URL);
-            alert('⚠️ SYSTEM ERROR: Backend URL not configured correctly. Please contact support.');
-        } else {
-            console.log('✅ API Endpoints Configured (HOSTINGER):');
-            console.log('   API_BASE_URL:', API_BASE_URL);
-            console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
-            console.log('✅ Configuration verified - READY FOR PAYMENT');
-        }
+        console.log('✅ API Endpoints Configured (HOSTINGER):');
+        console.log('   API_BASE_URL:', API_BASE_URL);
+        console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
     </script>
 
     <style>
@@ -320,12 +312,8 @@
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="text-white font-black text-2xl uppercase" id="modalTitle">Student Identification</h2>
-            <p class="text-gray-400 text-sm mt-2" id="modalSubtitle">Enter your email to link your account.</p>
+            <p class="text-gray-400 text-sm mt-2" id="modalSubtitle">Enter your email to proceed with payment.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
-            <div id="rollFieldGroup" class="hidden">
-                <p class="text-yellow-500 text-xs font-bold uppercase mb-2">Existing account found! Verify Identity:</p>
-                <input type="text" id="modalRollNumber" class="modal-input !mt-0" placeholder="Enter Roll Number">
-            </div>
             <div id="modalError" class="error-banner hidden"></div>
             <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed to Payment</button>
             <button onclick="closeEntryModal()"
@@ -437,9 +425,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-1522"></script>
-    <script src="frontend/js/auth.js?v=20260125-1522"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-1522"></script>
+    <script src="frontend/js/config.js?v=20260125-1548"></script>
+    <script src="frontend/js/auth.js?v=20260125-1548"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-1548"></script>
 
     <script>
         const testSeries = [
@@ -515,9 +503,7 @@
 
         function closeEntryModal() {
             document.getElementById("emailModal").style.display = "none";
-            document.getElementById("rollFieldGroup").classList.add("hidden");
             document.getElementById("modalError").classList.add("hidden");
-            document.getElementById("modalUserEmail").disabled = false;
         }
 
         function showModalError(message) {
@@ -541,9 +527,9 @@
             }
         }
 
+        // 🔧 FIXED: Skip email verification, go straight to payment
         async function handleModalSubmit() {
             const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
-            const rollInput = document.getElementById("modalRollNumber").value.trim();
             const errorDiv = document.getElementById("modalError");
             const btn = document.getElementById("modalActionBtn");
 
@@ -554,91 +540,51 @@
                 return;
             }
 
-            // Show loading state
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> Verifying...';
-
-            try {
-                console.log('🚀 Sending verify request...');
-                const verifyRes = await axios.post(`${API_BASE_URL}/api/verify-email`, {
-                    email: emailInput,
-                    rollNumber: rollInput || null
-                }, { timeout: 15000 });
-
-                console.log('✅ Verification response:', verifyRes.data);
-
-                if (verifyRes.data.status === "EXISTING_USER_NEED_ROLL") {
-                    document.getElementById("rollFieldGroup").classList.remove("hidden");
-                    document.getElementById("modalUserEmail").disabled = true;
-                    btn.innerText = "Verify & Link";
-                    btn.disabled = false;
-                    return;
-                }
-
-                if (verifyRes.data.status === "WRONG_ROLL") {
-                    showModalError("❌ Incorrect Roll Number! Please try again.");
-                    btn.innerText = "Proceed to Payment";
-                    btn.disabled = false;
-                    return;
-                }
-
-                if (verifyRes.data.status === "NEW_USER" || verifyRes.data.status === "VERIFIED") {
-                    localStorage.setItem("userEmail", emailInput);
-                    console.log('✅ Email verified, initiating payment...');
-                    startPayment(emailInput, verifyRes.data.studentId, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
-                }
-            } catch (err) {
-                console.error('❌ Verification error:', err);
-                let errorMessage = "❌ Verification failed. ";
-                if (err.code === 'ECONNABORTED') {
-                    errorMessage += "Request timeout. Please try again.";
-                } else if (err.response?.data?.message) {
-                    errorMessage += err.response.data.message;
-                } else {
-                    errorMessage += "Please check your internet connection.";
-                }
-                showModalError(errorMessage);
-                btn.innerText = "Proceed to Payment";
-                btn.disabled = false;
-            }
+            // 🎯 NEW FLOW: Skip verification, go straight to payment!
+            console.log('✅ Email captured:', emailInput);
+            console.log('🚀 Going directly to payment (no verification needed)...');
+            
+            localStorage.setItem("userEmail", emailInput);
+            startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
         }
 
+        // 🔧 FIXED: Corrected API endpoint names to match backend
         async function startPayment(userEmail, studentId, testId, amount) {
             const btn = document.getElementById("modalActionBtn");
+            btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Creating Order...';
             
             try {
-                console.log('💳 Step 1: Creating order on backend...');
-                console.log('Payment details:', { userEmail, studentId, testId, amount });
+                console.log('💳 Step 1: Creating Razorpay order...');
+                console.log('Payment details:', { userEmail, testId, amount });
                 
-                // Step 1: Create order on backend
-                const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/create-order`, {
+                // 🔧 FIX: Changed endpoint from /create-order to /checkout
+                const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
                     amount: amount,
-                    studentId: studentId,
                     testId: testId,
                     email: userEmail
                 }, { timeout: 15000 });
 
                 console.log('✅ Order created:', orderRes.data);
 
-                if (!orderRes.data.success || !orderRes.data.order) {
+                if (!orderRes.data.success || !orderRes.data.orderId) {
                     throw new Error('Failed to create order: ' + (orderRes.data.message || 'Unknown error'));
                 }
 
-                const { order, key } = orderRes.data;
-                console.log('✅ Razorpay Order ID:', order.id);
+                const { orderId, amount: orderAmount, currency, key } = orderRes.data;
+                console.log('✅ Razorpay Order ID:', orderId);
                 console.log('✅ Razorpay Key:', key);
 
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
 
-                // Step 2: Open Razorpay Checkout with order_id
+                // Step 2: Open Razorpay Checkout
                 const options = {
                     key: key,
-                    amount: order.amount,
-                    currency: order.currency,
+                    amount: orderAmount,
+                    currency: currency,
                     name: "Vigyan.prep",
                     description: `Activate ${testId.toUpperCase()} Test Series`,
-                    order_id: order.id, // ✅ CRITICAL: Backend-generated order ID
+                    order_id: orderId, // ✅ Backend-generated order ID
                     prefill: {
                         email: userEmail,
                         contact: ""
@@ -649,15 +595,15 @@
                     handler: async function (response) {
                         console.log('✅ Payment completed! Razorpay response:', response);
                         
-                        // Step 3: Verify payment on backend
+                        // Step 3: Verify payment and get roll number
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
                             
-                            const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/verify`, {
+                            // 🔧 FIX: Changed endpoint from /verify to /paymentverification
+                            const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
-                                studentId: studentId,
                                 testId: testId,
                                 email: userEmail
                             }, { timeout: 15000 });
@@ -688,7 +634,13 @@
                             }
                         } catch (verifyErr) {
                             console.error('❌ Payment verification error:', verifyErr);
-                            showModalError("❌ Payment verification failed. Please contact support with payment ID: " + response.razorpay_payment_id);
+                            let errorMessage = "❌ Payment verification failed. ";
+                            if (verifyErr.response?.data?.message) {
+                                errorMessage += verifyErr.response.data.message;
+                            } else {
+                                errorMessage += "Please contact support with payment ID: " + response.razorpay_payment_id;
+                            }
+                            showModalError(errorMessage);
                             btn.innerText = "Proceed to Payment";
                             btn.disabled = false;
                         }
