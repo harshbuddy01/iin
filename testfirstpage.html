@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 00:52 IST - EXACT COLOR MATCH -->
+    <!-- CACHE CLEAR: 2026-01-26 00:58 IST - HEADER MATCH ABOUTPAGE -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0052">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0052">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0052">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0052">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0052">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0058">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0058">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0058">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0058">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0058">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -42,6 +42,51 @@
         main {
             padding-top: 120px;
             padding-bottom: 80px;
+        }
+
+        /* ========== HEADER STYLE - MATCH ABOUTPAGE ========== */
+        header {
+            margin-bottom: 48px;
+            padding-top: 80px;
+        }
+
+        header .core-objective {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(148, 163, 184, 0.6);
+            margin-bottom: 24px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        header h1 {
+            font-size: 5.5rem;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            color: #ffffff;
+            margin: 0 0 32px 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        header h1 .highlight {
+            background: linear-gradient(90deg, #3b82f6 0%, #06b6d4 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline;
+        }
+
+        header p {
+            font-size: 1.05rem;
+            color: rgba(226, 232, 240, 0.9);
+            line-height: 1.7;
+            max-width: 750px;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            border-left: 3px solid #3b82f6;
+            padding-left: 24px;
         }
 
         /* ========== ULTRA PREMIUM CARD DESIGN ========== */
@@ -536,6 +581,9 @@
             .series-title {
                 font-size: 2.5rem;
             }
+            header h1 {
+                font-size: 3.5rem;
+            }
         }
 
         /* LOGO STYLING */
@@ -669,12 +717,14 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6">
-        <header class="mb-20 pt-32">
-            <h1 class="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-tight text-white mb-6">
-                Choose Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Challenge.</span>
+        <header>
+            <div class="core-objective">CORE OBJECTIVE // V2025.04</div>
+            <h1>
+                PIONEERING THE
+                <span class="highlight">TEST REVOLUTION.</span>
             </h1>
-            <p class="text-gray-400 text-lg max-w-2xl leading-relaxed">
-                Each exam series tells a unique story. Find the one that matches your strength and ambition.
+            <p>
+                Vigyan.prep is a response to the dilution of scientific assessment. We provide the most rigorous, conceptual-first test series for India's premier research institutes.
             </p>
         </header>
 
@@ -699,9 +749,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-20" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0052"></script>
-    <script src="frontend/js/auth.js?v=20260126-0052"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0052"></script>
+    <script src="frontend/js/config.js?v=20260126-0058"></script>
+    <script src="frontend/js/auth.js?v=20260126-0058"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0058"></script>
 
     <script>
         const testSeries = [
