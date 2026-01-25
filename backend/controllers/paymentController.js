@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import razorpayInstance from "../config/razorpay.js";
-// DISABLED FOR MONGODB MIGRATION: import { pool } from "../config/mysql.js";
 import nodemailer from "nodemailer";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
@@ -55,7 +54,7 @@ export const getApiKey = (req, res) => {
   res.status(200).json({ key: process.env.RAZORPAY_API_KEY });
 };
 
-// 2. CHECKOUT
+// 2. CHECKOUT - 🔧 FIXED: Return key and orderId
 export const checkout = async (req, res) => {
   try {
     // 🔴 FIX #1: CHECK IF RAZORPAY IS CONFIGURED
@@ -67,7 +66,7 @@ export const checkout = async (req, res) => {
       });
     }
 
-    const { amount } = req.body;
+    const { amount, testId, email } = req.body;
 
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({
@@ -76,20 +75,37 @@ export const checkout = async (req, res) => {
       });
     }
 
+    console.log(`💳 Creating order for ${email}, Test: ${testId}, Amount: ₹${amount}`);
+
     const options = {
-      amount: Number(amount * 100),
+      amount: Number(amount * 100), // Amount in paise
       currency: "INR",
+      receipt: `receipt_${Date.now()}_${testId}`,
+      notes: {
+        email: email,
+        testId: testId
+      }
     };
 
     const order = await razorpayInstance.orders.create(options);
-    res.status(200).json({ success: true, order });
+    
+    console.log('✅ Razorpay order created:', order.id);
+
+    // 🔧 FIX: Return the exact format frontend expects
+    res.status(200).json({ 
+      success: true, 
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_API_KEY // Include key in response
+    });
   } catch (error) {
-    console.error('Checkout error:', error);
+    console.error('❌ Checkout error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 3. PAYMENT VERIFICATION (USING MONGODB + NODEMAILER)
+// 3. PAYMENT VERIFICATION - 🔧 GENERATES ROLL NUMBER ONLY AFTER SUCCESSFUL PAYMENT
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -140,7 +156,7 @@ export const paymentVerification = async (req, res) => {
 
     console.log("✅ Payment signature verified!");
 
-    // Payment verified! Now handle roll number logic
+    // 🎯 PAYMENT VERIFIED! Now handle roll number logic
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if student already exists in MongoDB
@@ -152,10 +168,10 @@ export const paymentVerification = async (req, res) => {
     let emailWarning = null;
 
     if (existingStudent) {
-      // EXISTING STUDENT - Use their existing roll number
+      // ✅ EXISTING STUDENT - Use their existing roll number (ONE ROLL NUMBER PER EMAIL)
       rollNumber = existingStudent.roll_number;
 
-      console.log(`👤 Existing student found: ${normalizedEmail}`);
+      console.log(`👤 Existing student found: ${normalizedEmail}, Roll: ${rollNumber}`);
 
       // Check if they already purchased this test
       const existingPurchase = await PurchasedTest.findOne({
@@ -194,14 +210,14 @@ export const paymentVerification = async (req, res) => {
       const tests = await PurchasedTest.find({ email: normalizedEmail });
       purchasedTests = tests.map(t => t.test_id);
 
-      console.log(`✅ Updated existing student: ${normalizedEmail}, Roll: ${rollNumber}`);
+      console.log(`✅ Updated existing student: ${normalizedEmail}, Roll: ${rollNumber}, Tests: ${purchasedTests.join(', ')}`);
 
     } else {
-      // NEW STUDENT - Generate new roll number
+      // 🆕 NEW STUDENT - Generate new roll number (ONLY AFTER PAYMENT SUCCESS)
       rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
       isNewStudent = true;
 
-      console.log(`🆕 New Student. Generated Roll Number: ${rollNumber}`);
+      console.log(`🆕 New Student! Generated Roll Number: ${rollNumber}`);
 
       // Create new student record
       await StudentPayment.create({
