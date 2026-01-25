@@ -60,6 +60,106 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 
+// ========== NOTIFICATIONS ==========
+export const getNotifications = async (req, res) => {
+  try {
+    console.log('🔹 Getting admin notifications...');
+    
+    // Get recent transactions and students for notifications
+    const recentTransactions = await PaymentTransaction.find()
+      .sort({ created_at: -1 })
+      .limit(10);
+    
+    const recentStudents = await StudentPayment.find()
+      .sort({ created_at: -1 })
+      .limit(10);
+
+    // Create notifications from recent activity
+    const notifications = [];
+
+    // Add student registration notifications
+    for (const student of recentStudents) {
+      notifications.push({
+        id: `student_${student._id}`,
+        type: 'student_registration',
+        title: 'New Student Registration',
+        message: `${student.email} registered with roll number ${student.roll_number}`,
+        timestamp: student.created_at,
+        read: false
+      });
+    }
+
+    // Add payment notifications
+    for (const transaction of recentTransactions) {
+      notifications.push({
+        id: `payment_${transaction._id}`,
+        type: 'payment_received',
+        title: 'Payment Received',
+        message: `Payment of ₹${transaction.amount} received from ${transaction.email}`,
+        timestamp: transaction.created_at,
+        read: false
+      });
+    }
+
+    // Sort by timestamp descending
+    notifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    console.log(`✅ Retrieved ${notifications.length} notifications`);
+    res.status(200).json({
+      success: true,
+      notifications: notifications.slice(0, 20), // Return max 20
+      total: notifications.length
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting notifications:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve notifications',
+      error: error.message
+    });
+  }
+};
+
+// ========== NOTIFICATIONS COUNT ==========
+export const getNotificationsCount = async (req, res) => {
+  try {
+    console.log('🔹 Getting notifications count...');
+    
+    // Count recent activity (last 24 hours)
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const recentStudents = await StudentPayment.countDocuments({
+      created_at: { $gte: yesterday }
+    });
+
+    const recentTransactions = await PaymentTransaction.countDocuments({
+      created_at: { $gte: yesterday }
+    });
+
+    const unreadCount = recentStudents + recentTransactions;
+
+    console.log(`✅ Unread notifications count: ${unreadCount}`);
+    res.status(200).json({
+      success: true,
+      unreadCount,
+      breakdown: {
+        newStudents: recentStudents,
+        newPayments: recentTransactions
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting notifications count:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve notifications count',
+      error: error.message
+    });
+  }
+};
+
 // ========== TEMP: Not implemented functions ==========
 const notImplemented = (req, res) => {
   res.status(501).json({ 
