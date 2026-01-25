@@ -1,13 +1,12 @@
 /**
- * OLD ADMIN CONTROLLER - DISABLED FOR MONGODB MIGRATION
+ * ADMIN CONTROLLER - MongoDB Version
  * 
- * This file uses raw MySQL queries.
- * TODO: Replace with OOP/Repository pattern controllers
- * 
- * For now, all functions return "Not implemented" to prevent import errors.
+ * Handles admin-related operations
  */
 
-// Disabled: import { pool } from "../config/mysql.js";
+import { StudentPayment } from '../models/StudentPayment.js';
+import { PaymentTransaction } from '../models/PaymentTransaction.js';
+import { PurchasedTest } from '../models/PurchasedTest.js';
 
 // Helper function to safely parse JSON
 const safeJsonParse = (jsonString, fallback = null) => {
@@ -19,7 +18,49 @@ const safeJsonParse = (jsonString, fallback = null) => {
   }
 };
 
-// TEMP: Return "not implemented" for all functions
+// ========== ADMIN PROFILE ==========
+export const getAdminProfile = async (req, res) => {
+  try {
+    console.log('🔹 Getting admin profile...');
+    
+    // Get admin stats
+    const totalStudents = await StudentPayment.countDocuments();
+    const totalTransactions = await PaymentTransaction.countDocuments();
+    const totalRevenue = await PaymentTransaction.aggregate([
+      { $match: { status: 'paid' } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]);
+
+    const adminProfile = {
+      name: 'Admin',
+      email: process.env.ADMIN_EMAIL || 'admin@vigyanprep.com',
+      role: 'Administrator',
+      stats: {
+        totalStudents,
+        totalTransactions,
+        totalRevenue: totalRevenue.length > 0 ? totalRevenue[0].total : 0
+      },
+      permissions: ['manage_tests', 'manage_students', 'view_analytics'],
+      lastLogin: new Date().toISOString()
+    };
+
+    console.log('✅ Admin profile retrieved successfully');
+    res.status(200).json({
+      success: true,
+      profile: adminProfile
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting admin profile:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve admin profile',
+      error: error.message
+    });
+  }
+};
+
+// ========== TEMP: Not implemented functions ==========
 const notImplemented = (req, res) => {
   res.status(501).json({ 
     success: false, 
