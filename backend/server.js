@@ -1,6 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔄 DEPLOYMENT TRIGGER: Fix admin route paths - Jan 25, 2026 6:45 PM IST
+// 🔧 CRITICAL FIX: Enhanced CORS + Payment Verification - Jan 25, 2026 7:10 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -83,7 +83,7 @@ const validateEnvironmentVariables = () => {
 // Validate env vars before starting
 validateEnvironmentVariables();
 
-// 🔧 CRITICAL FIX #2: CORS Configuration - MUST BE FIRST middleware!
+// 🔧 CRITICAL FIX #2: ENHANCED CORS Configuration - MUST BE FIRST middleware!
 console.log('🔵 Setting up CORS...');
 const allowedOrigins = [
   // Local development
@@ -107,28 +107,45 @@ const allowedOrigins = [
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+// 🔧 ENHANCED: More permissive CORS for Hostinger deployment
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, Postman, or same-origin)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log(`✅ CORS: Allowed origin: ${origin}`);
-      callback(null, true);
-    } else {
-      // 🔧 FIX: Allow all origins in production for Hostinger
-      console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
-      callback(null, true);
+    if (!origin) {
+      console.log('✅ CORS: Allowing request with no origin (same-origin/Postman)');
+      return callback(null, true);
     }
+    
+    // Check if origin is in whitelist
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`✅ CORS: Allowed whitelisted origin: ${origin}`);
+      return callback(null, true);
+    }
+    
+    // 🔧 FIX: In production, allow all vigyanprep.com subdomains
+    if (origin.includes('vigyanprep.com')) {
+      console.log(`✅ CORS: Allowing vigyanprep.com subdomain: ${origin}`);
+      return callback(null, true);
+    }
+    
+    // 🔧 CRITICAL: Allow all origins in production for Hostinger (temporary fix)
+    console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 600, // Cache preflight for 10 minutes
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
+// 🔧 ADDITIONAL: Explicit OPTIONS handler for all routes
+app.options('*', cors());
+
 console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
+console.log('✅ CORS: Allowing all vigyanprep.com subdomains');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
@@ -302,8 +319,7 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
       logStartup(msg);
       logStartup(`Database: ${isMongoDBConnected ? 'Connected' : 'Not Connected'}`);
       console.log(`\n${msg}`);
-      console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
-      console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
       console.log('\n🟢 Server is ready to accept requests\n');
