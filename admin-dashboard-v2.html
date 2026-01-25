@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vigyan.prep Admin Portal - Dashboard</title>
-    <!-- Dark Theme + Animations + Modern Clock -->
+    <!-- Dark Theme + Flip Clock Animation -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -228,42 +228,137 @@
             align-items: center; 
         }
 
-        /* Modern Digital Clock Widget */
-        .digital-clock {
+        /* Beautiful Flip Clock Widget */
+        .flip-clock-container {
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            padding: 12px 20px;
-            background: rgba(30, 41, 59, 0.8);
+            align-items: center;
+            gap: 8px;
+            padding: 16px 20px;
+            background: rgba(30, 41, 59, 0.9);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             border: 1px solid var(--border-color);
-            min-width: 200px;
         }
 
-        .clock-time {
-            font-family: 'Orbitron', 'Inter', monospace;
-            font-size: 26px;
-            font-weight: 700;
+        .flip-clock {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .flip-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .flip-card {
+            position: relative;
+            width: 45px;
+            height: 54px;
+            perspective: 200px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
             color: var(--blue);
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            backface-visibility: hidden;
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
         }
 
-        .clock-date {
-            font-size: 13px;
+        .flip-card-front::before,
+        .flip-card-back::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.3);
+            top: 50%;
+            left: 0;
+            z-index: 1;
+        }
+
+        .flip-card-back {
+            transform: rotateX(180deg);
+        }
+
+        .flip-card.flip .flip-card-inner {
+            animation: flipAnimation 0.6s ease-in-out;
+        }
+
+        @keyframes flipAnimation {
+            0% { transform: rotateX(0deg); }
+            50% { transform: rotateX(-90deg); }
+            100% { transform: rotateX(-180deg); }
+        }
+
+        .flip-separator {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--blue);
+            margin: 0 2px;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .flip-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .clock-date-info {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .clock-date,
+        .clock-day {
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
             letter-spacing: 0.5px;
         }
 
         .clock-day {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            color: var(--blue);
+        }
+
+        .clock-separator {
+            color: var(--border-color);
+            font-weight: 400;
         }
 
         .settings-icon {
@@ -537,11 +632,62 @@
         <header class="top-header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
-                <!-- Modern Digital Clock -->
-                <div class="digital-clock">
-                    <div class="clock-time" id="clockTime">00:00:00</div>
-                    <div class="clock-date" id="clockDate">Loading...</div>
-                    <div class="clock-day" id="clockDay">Loading...</div>
+                <!-- Beautiful Flip Clock -->
+                <div class="flip-clock-container">
+                    <div class="flip-clock">
+                        <div class="flip-unit">
+                            <div class="flip-card" id="hour1">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-card" id="hour2">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-label">Hours</div>
+                        </div>
+                        <span class="flip-separator">:</span>
+                        <div class="flip-unit">
+                            <div class="flip-card" id="min1">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-card" id="min2">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-label">Minutes</div>
+                        </div>
+                        <span class="flip-separator">:</span>
+                        <div class="flip-unit">
+                            <div class="flip-card" id="sec1">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-card" id="sec2">
+                                <div class="flip-card-inner">
+                                    <div class="flip-card-front">0</div>
+                                    <div class="flip-card-back">0</div>
+                                </div>
+                            </div>
+                            <div class="flip-label">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="clock-date-info">
+                        <span class="clock-day" id="clockDay">MONDAY</span>
+                        <span class="clock-separator">•</span>
+                        <span class="clock-date" id="clockDate">26 Jan 2026</span>
+                    </div>
                 </div>
                 
                 <div class="settings-icon"><i class="fas fa-cog"></i></div>
@@ -621,33 +767,69 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="frontend/js/config.js"></script>
     <script>
-        // Modern Digital Clock Function
-        function updateClock() {
+        // Flip Clock Animation Engine
+        let prevTime = { h1: 0, h2: 0, m1: 0, m2: 0, s1: 0, s2: 0 };
+
+        function updateFlipCard(id, newValue) {
+            const card = document.getElementById(id);
+            const front = card.querySelector('.flip-card-front');
+            const back = card.querySelector('.flip-card-back');
+            
+            if (front.textContent !== String(newValue)) {
+                back.textContent = newValue;
+                card.classList.add('flip');
+                
+                setTimeout(() => {
+                    front.textContent = newValue;
+                    card.classList.remove('flip');
+                }, 600);
+            }
+        }
+
+        function updateFlipClock() {
             const now = new Date();
             
-            // Time (HH:MM:SS)
+            // Get time components
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clockTime').textContent = `${hours}:${minutes}:${seconds}`;
             
-            // Date (DD Mon YYYY)
+            const time = {
+                h1: parseInt(hours[0]),
+                h2: parseInt(hours[1]),
+                m1: parseInt(minutes[0]),
+                m2: parseInt(minutes[1]),
+                s1: parseInt(seconds[0]),
+                s2: parseInt(seconds[1])
+            };
+            
+            // Update only changed digits with flip animation
+            if (time.h1 !== prevTime.h1) updateFlipCard('hour1', time.h1);
+            if (time.h2 !== prevTime.h2) updateFlipCard('hour2', time.h2);
+            if (time.m1 !== prevTime.m1) updateFlipCard('min1', time.m1);
+            if (time.m2 !== prevTime.m2) updateFlipCard('min2', time.m2);
+            if (time.s1 !== prevTime.s1) updateFlipCard('sec1', time.s1);
+            if (time.s2 !== prevTime.s2) updateFlipCard('sec2', time.s2);
+            
+            prevTime = time;
+            
+            // Update Date
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const day = String(now.getDate()).padStart(2, '0');
             const month = months[now.getMonth()];
             const year = now.getFullYear();
             document.getElementById('clockDate').textContent = `${day} ${month} ${year}`;
             
-            // Day of Week
+            // Update Day
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            document.getElementById('clockDay').textContent = days[now.getDay()];
+            document.getElementById('clockDay').textContent = days[now.getDay()].toUpperCase();
         }
         
-        // Update clock immediately and then every second
-        updateClock();
-        setInterval(updateClock, 1000);
+        // Initialize and update every second
+        updateFlipClock();
+        setInterval(updateFlipClock, 1000);
 
-        console.log('⏰ Dark Theme + Animations + Digital Clock');
+        console.log('🔥 Beautiful Flip Clock - Hours, Minutes, Seconds + Date & Day');
         window.AdminUtils = {
             showToast(msg, type = 'info') {
                 const toast = document.createElement('div');
