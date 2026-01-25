@@ -1,6 +1,5 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔄 DEPLOYMENT TIMESTAMP: 2026-01-24 23:14 IST - Force Fresh Deployment
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -24,8 +23,7 @@ function logStartup(message) {
   }
 }
 
-logStartup('🚀 STARTING BACKEND SERVER.JS - FRESH DEPLOYMENT');
-logStartup('⏰ Deployment Time: 2026-01-24 23:14 IST');
+logStartup('🚀 STARTING BACKEND SERVER.JS');
 logStartup(`Running on Node ${process.version}`);
 logStartup(`Env PORT: ${process.env.PORT}`);
 // 🔍 DEBUG: Log ALL Environment Keys (but not values to avoid leaking secrets)
