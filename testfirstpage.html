@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 16:57 IST - PRICE CHANGE TO ₹1 FOR TESTING -->
+    <!-- CACHE CLEAR: 2026-01-25 17:09 IST - FIX PAYMENT VERIFICATION - ADD AMOUNT -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1657">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1657">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1657">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1657">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1657">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1709">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1709">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1709">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1709">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1709">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -425,9 +425,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-1657"></script>
-    <script src="frontend/js/auth.js?v=20260125-1657"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-1657"></script>
+    <script src="frontend/js/config.js?v=20260125-1709"></script>
+    <script src="frontend/js/auth.js?v=20260125-1709"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-1709"></script>
 
     <script>
         // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
@@ -600,13 +600,14 @@
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
                             
-                            // 🔧 FIX: Changed endpoint from /verify to /paymentverification
+                            // 🔧 CRITICAL FIX: Added missing 'amount' parameter!
                             const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
                                 testId: testId,
-                                email: userEmail
+                                email: userEmail,
+                                amount: amount  // ✅ FIX: Added this missing parameter!
                             }, { timeout: 15000 });
 
                             console.log('✅ Verification response:', verifyRes.data);
