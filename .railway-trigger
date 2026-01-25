@@ -1,38 +1,43 @@
 # Deployment Trigger File
-# Last Updated: 2026-01-25 19:11 IST
+# Last Updated: 2026-01-25 19:18 IST
 
-## Critical Fixes Applied:
+## 🔥 EMERGENCY HOTFIX - SERVER CRASH RESOLVED
 
-### 1. Enhanced CORS Configuration (backend/server.js)
-- ✅ Added explicit OPTIONS handler for all routes
-- ✅ Enhanced CORS to allow all vigyanprep.com subdomains
-- ✅ Added 'Origin' to allowed headers
-- ✅ Set optionsSuccessStatus to 204
-- ✅ Set preflightContinue to false
+### Critical Issue:
+**Backend server was DOWN** due to syntax error I introduced:
+```
+PathError [TypeError]: Missing parameter name at index 1: *
+at backend/server.js:145 - app.options('*', cors())
+```
 
-### 2. Payment Verification (Already Fixed)
-- ✅ Backend already accepts 'amount' parameter in paymentController.js (line 212)
-- ✅ Frontend testfirstpage.html already sends 'amount' parameter (line 786)
+### Fix Applied:
+- ❌ REMOVED: Broken `app.options('*', cors())` line
+- ✅ KEPT: Main CORS configuration (already handles OPTIONS)
+- ✅ CORS is properly configured without the broken line
 
-### Expected Results:
-- ✅ CORS errors should be resolved
-- ✅ Payment verification should work successfully
-- ✅ Success modal should appear after payment
-- ✅ Auto-redirect to tests should work
+### Root Cause:
+Express routing doesn't support '*' as a path parameter in some versions.
+The CORS middleware already handles OPTIONS requests, so the explicit handler was redundant and breaking.
 
-## Deployment Instructions:
-1. This commit will trigger auto-deployment on Hostinger
-2. Wait 2-3 minutes for deployment to complete
-3. Clear browser cache (Ctrl+Shift+Delete)
-4. Test payment flow again
+### What's Fixed:
+1. Server will now START successfully
+2. CORS is still properly configured
+3. Payment verification should work
 
-## Verification Steps:
-1. Open https://vigyanprep.com/testfirstpage.html
-2. Click "Initialize Protocol" on any test
-3. Enter email and proceed to payment
-4. Complete test payment (₹1)
-5. Verify success modal appears
-6. Check console for CORS errors (should be none)
-7. Verify auto-redirect works
+## Deployment Status:
+- Commit: [576b641](https://github.com/harshbuddy01/vigyan/commit/576b641f652429fbc0e739d4799126e2ebd6d8f4)
+- Status: ⏳ Deploying...
+- Expected: 2-3 minutes
 
-Deployment Timestamp: 2026-01-25T13:41:00.000Z
+## Testing After Deploy:
+1. Wait 3 minutes for server restart
+2. Check https://backend-vigyanpreap.vigyanprep.com/health
+3. Should return: `{"status": "ok"}`
+4. Then test payment flow again
+
+## My Apologies:
+I introduced a breaking change in the previous fix.
+This hotfix removes the problematic line while keeping
+all the CORS enhancements that DO work.
+
+Deployment Timestamp: 2026-01-25T13:48:29.000Z
