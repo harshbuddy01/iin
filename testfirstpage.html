@@ -1,42 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 02:41 IST - DEPLOYED TO MAIN -->
-
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0241">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0241">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0241">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0241">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0241">
-
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0250">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0250">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0250">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0250">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0250">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
 
     <script>
-        // 🔧 CRITICAL FIX: Hostinger Backend Configuration
         const API_BASE_URL = "https://backend-vigyanpreap.vigyanprep.com";
         const PAYMENT_API_URL = "https://backend-vigyanpreap.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
         window.PAYMENT_API_URL = PAYMENT_API_URL;
-
-        console.log('✅ API Endpoints Configured (HOSTINGER):');
-        console.log('   API_BASE_URL:', API_BASE_URL);
-        console.log('   PAYMENT_API_URL:', PAYMENT_API_URL);
     </script>
 
     <style>
@@ -44,6 +30,9 @@
             --blue: #3b82f6;
             --navy-dark: #020617;
             --gold: #f59e0b;
+            --iat-purple: #8B5CF6;
+            --nest-teal: #14B8A6;
+            --isi-red: #EF4444;
         }
 
         html,
@@ -85,27 +74,45 @@
             box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
         }
 
-        /* ========== TEST SERIES ICON HEADER (IMAGE-BASED) ========== */
+        /* CARD ICON STYLING */
         .series-icon-header {
             text-align: center;
             margin-bottom: 1.5rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 80px;
+            min-height: 100px;
         }
 
-        .series-icon-image {
-            width: 70px;
-            height: 70px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+        .card-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
-        .glass-panel:hover .series-icon-image {
-            transform: scale(1.1);
-            filter: drop-shadow(0 8px 20px rgba(59, 130, 246, 0.5));
+        .card-icon:hover {
+            transform: scale(1.15);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .icon-iat {
+            background: linear-gradient(135deg, var(--iat-purple) 0%, #7C3AED 100%);
+        }
+
+        .icon-nest {
+            background: linear-gradient(135deg, var(--nest-teal) 0%, #0D9488 100%);
+        }
+
+        .icon-isi {
+            background: linear-gradient(135deg, var(--isi-red) 0%, #DC2626 100%);
         }
 
         .buy-btn {
@@ -150,7 +157,6 @@
             box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
         }
 
-        /* ✨ ENHANCED SUCCESS MODAL */
         .success-modal-content {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 3.5rem;
@@ -162,18 +168,6 @@
             box-shadow: 0 25px 60px rgba(245, 158, 11, 0.4);
             position: relative;
             overflow: hidden;
-        }
-
-        .success-modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
-            background-size: 30px 30px;
-            pointer-events: none;
         }
 
         .success-icon {
@@ -348,7 +342,6 @@
             display: none !important;
         }
 
-        /* Calendar Banner */
         .calendar-banner {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
             border: 2px solid rgba(16, 185, 129, 0.3);
@@ -360,47 +353,6 @@
             gap: 2rem;
             backdrop-filter: blur(20px);
             transition: all 0.4s;
-        }
-
-        .calendar-banner:hover {
-            border-color: rgba(16, 185, 129, 0.6);
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
-            transform: translateY(-4px);
-        }
-
-        .calendar-icon {
-            font-size: 4rem;
-            color: #10b981;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .calendar-content {
-            flex: 1;
-        }
-
-        .calendar-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: white;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .calendar-subtitle {
-            color: #94a3b8;
-            font-size: 1rem;
-            line-height: 1.6;
         }
 
         .calendar-btn {
@@ -426,17 +378,6 @@
             transform: scale(1.05);
         }
 
-        @media (max-width: 768px) {
-            .calendar-banner {
-                flex-direction: column;
-                text-align: center;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-
-        /* VIGYAN.PREP Premium Logo */
         .logo .logo-vigyan {
             font-family: 'Cormorant Garamond', Georgia, serif;
             font-weight: 700;
@@ -454,13 +395,8 @@
         }
 
         @keyframes vigyanShimmer {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .logo .logo-dot {
@@ -481,33 +417,25 @@
         }
     </style>
 </head>
-
 <body>
-
     <div class="grid-bg"></div>
 
-    <!-- Email / roll capture modal -->
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
-            <h2 class="text-white font-black text-2xl uppercase" id="modalTitle">Student Identification</h2>
-            <p class="text-gray-400 text-sm mt-2" id="modalSubtitle">Enter your email to proceed with payment.</p>
+            <h2 class="text-white font-black text-2xl uppercase">Student Identification</h2>
+            <p class="text-gray-400 text-sm mt-2">Enter your email to proceed with payment.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
             <div id="modalError" class="error-banner hidden"></div>
             <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed to Payment</button>
-            <button onclick="closeEntryModal()"
-                class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
+            <button onclick="closeEntryModal()" class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
         </div>
     </div>
 
-    <!-- ✨ ENHANCED SUCCESS MODAL -->
     <div id="successModal" class="modal-overlay">
         <div class="success-modal-content">
             <div class="success-icon">✓</div>
-            
             <h2 class="text-white font-black text-3xl uppercase mb-2">Payment Successful!</h2>
             <p class="text-gray-400 text-sm mb-4">Your enrollment is confirmed</p>
-
-            <!-- Golden Roll Number Card -->
             <div class="golden-roll-number">
                 <div class="roll-label">⚡ YOUR ROLL NUMBER ⚡</div>
                 <div id="finalTokenDisplay" class="roll-number-display">--------</div>
@@ -515,143 +443,80 @@
                     <i class="fas fa-copy"></i> COPY ROLL NUMBER
                 </button>
             </div>
-
-            <!-- Auto-redirect Countdown -->
-            <div class="countdown-text">
-                Returning to dashboard in <span id="countdownTimer" class="countdown-number">6</span> seconds...
-            </div>
-
-            <!-- Action Buttons -->
+            <div class="countdown-text">Returning to dashboard in <span id="countdownTimer" class="countdown-number">6</span> seconds...</div>
             <div class="action-buttons">
-                <button onclick="closeSuccessModal()" class="primary-btn">
-                    <i class="fas fa-check"></i> GOT IT!
-                </button>
-                <button onclick="cancelRedirect()" class="secondary-btn">
-                    <i class="fas fa-times"></i> CANCEL AUTO-REDIRECT
-                </button>
+                <button onclick="closeSuccessModal()" class="primary-btn"><i class="fas fa-check"></i> GOT IT!</button>
+                <button onclick="cancelRedirect()" class="secondary-btn"><i class="fas fa-times"></i> CANCEL AUTO-REDIRECT</button>
             </div>
-
-            <p class="text-xs text-gray-500 mt-6">
-                <i class="fas fa-envelope"></i> Roll number sent to your email
-            </p>
+            <p class="text-xs text-gray-500 mt-6"><i class="fas fa-envelope"></i> Roll number sent to your email</p>
         </div>
     </div>
 
-    <!-- Navbar (login placeholder used by user-panel.js) -->
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
-        id="navbar">
-        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'"
-            style="display:inline-flex;align-items:baseline;">
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
+        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'" style="display:inline-flex;align-items:baseline;">
             <span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span class="logo-prep">prep</span>
         </div>
-
         <div class="nav-links flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
-
-            <!-- About Dropdown -->
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">About <i
-                        class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">About <i class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="aboutpage.html">About Us</a>
                     <a href="shoutouts.html">Shoutouts</a>
                 </div>
             </div>
-
             <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-            <a href="testfirstpage.html"
-                class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
-
-            <!-- Future Career Dropdown -->
+            <a href="testfirstpage.html" class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i
-                        class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="future.html">Future Career</a>
                     <a href="sciencenews.html">Science News</a>
                 </div>
             </div>
-
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html"
-                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
-                    Login
-                </a>
+                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">Login</a>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.1
-            </div>
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.1</div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
-                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam
-                    Protocols.</span>
+                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam Protocols.</span>
             </h1>
             <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-blue-500/50 pl-8 leading-relaxed">
                 Each test series is uniquely designed for your exam. Pick the challenge that matches your ambition.
             </p>
         </header>
 
-        <!-- Calendar Banner (shows only if user has purchased tests) -->
         <div id="calendarBanner" class="calendar-banner">
-            <div class="calendar-icon">
-                <i class="fas fa-calendar-alt"></i>
+            <div style="font-size: 3rem; color: #10b981;"><i class="fas fa-calendar-alt"></i></div>
+            <div style="flex: 1;">
+                <h2 style="font-size: 1.8rem; font-weight: 900; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">📅 View Your Upcoming Tests</h2>
+                <p style="color: #94a3b8; font-size: 1rem; line-height: 1.6;">Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased series are shown.</p>
             </div>
-            <div class="calendar-content">
-                <h2 class="calendar-title">
-                    📅 View Your Upcoming Tests
-                </h2>
-                <p class="calendar-subtitle">
-                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased
-                    series are shown.
-                </p>
-            </div>
-            <a href="student-calendar.html" class="calendar-btn">
-                <i class="fas fa-calendar-check"></i>
-                My Test Calendar
-            </a>
+            <a href="student-calendar.html" class="calendar-btn"><i class="fas fa-calendar-check"></i> My Test Calendar</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0241"></script>
-    <script src="frontend/js/auth.js?v=20260126-0241"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0241"></script>
+    <script src="frontend/js/config.js?v=20260126-0250"></script>
+    <script src="frontend/js/auth.js?v=20260126-0250"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0250"></script>
 
     <script>
-        // 🎨 TEST SERIES WITH IMAGE ICONS (NOT EMOJI)
         const testSeries = [
-            { 
-                id: 'iat', 
-                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%238B5CF6"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E⚡%3C/text%3E%3C/svg%3E',
-                name: 'IAT SERIES', 
-                subtitle: 'Speed Mastery',
-                price: 1 
-            },
-            { 
-                id: 'nest', 
-                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%2314B8A6"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E🔬%3C/text%3E%3C/svg%3E',
-                name: 'NEST SERIES', 
-                subtitle: 'Deep Dive',
-                price: 1 
-            },
-            { 
-                id: 'isi', 
-                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%23EF4444"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E🏆%3C/text%3E%3C/svg%3E',
-                name: 'ISI SERIES', 
-                subtitle: 'Proof Academy',
-                price: 1 
-            }
+            { id: 'iat', iconColor: 'iat', iconEmoji: '⚡', name: 'IAT SERIES', subtitle: 'Speed Mastery', price: 1 },
+            { id: 'nest', iconColor: 'nest', iconEmoji: '🔬', name: 'NEST SERIES', subtitle: 'Deep Dive', price: 1 },
+            { id: 'isi', iconColor: 'isi', iconEmoji: '🏆', name: 'ISI SERIES', subtitle: 'Proof Academy', price: 1 }
         ];
 
-        // ⏱️ Auto-redirect countdown variables
         let countdownInterval = null;
         let secondsRemaining = 6;
 
-        // Generate cards
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
             const card = document.createElement('div');
@@ -659,10 +524,10 @@
             card.innerHTML = `
                 <div>
                     <div class="series-icon-header">
-                        <img src="${test.iconUrl}" alt="${test.id}" class="series-icon-image" />
+                        <div class="card-icon icon-${test.iconColor}">${test.iconEmoji}</div>
                     </div>
                     <div class="flex justify-between items-start mb-8">
-                        <span class="font-bold text-blue-500 uppercase tracking-widest text-[10px] border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5">${test.id}</span>
+                        <span class="font-bold text-blue-500 uppercase tracking-widest text-[10px] border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5">${test.id.toUpperCase()}</span>
                         <div class="text-right leading-none">
                             <span class="block text-5xl font-black text-white tracking-tight">₹${test.price}</span>
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">One-time Access</span>
@@ -676,23 +541,17 @@
                         <li class="flex items-center gap-2"><span class="text-blue-500">✦</span> Instant access granted</li>
                     </ul>
                 </div>
-                <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn shadow-lg shadow-blue-900/30">
-                    Initialize Protocol
-                </button>
+                <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn shadow-lg shadow-blue-900/30">Initialize Protocol</button>
             `;
             cardsContainer.appendChild(card);
         });
 
-        // On load: hydrate purchased state and user panel
         window.onload = function () {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-
-            // Show calendar banner if user has purchased any tests
             if (purchased.length > 0) {
                 document.getElementById('calendarBanner').style.display = 'flex';
             }
-
             testSeries.forEach(test => {
                 if (purchased.includes(test.id)) markAsPurchased(test.id);
             });
@@ -710,7 +569,6 @@
             }
         }
 
-        // Entry modal
         function executePurchase(testId, amount) {
             localStorage.setItem("tempTestId", testId);
             localStorage.setItem("tempAmount", amount);
@@ -731,204 +589,126 @@
             errorDiv.classList.remove("hidden");
         }
 
-        // ✨ ENHANCED: Copy Roll Number Function
         function copyRollNumber() {
             const rollNumber = document.getElementById('finalTokenDisplay').innerText;
             const copyBtn = document.getElementById('copyRollBtn');
-            
             navigator.clipboard.writeText(rollNumber).then(() => {
                 copyBtn.innerHTML = '<i class="fas fa-check"></i> COPIED!';
                 copyBtn.classList.add('copied');
-                
                 setTimeout(() => {
                     copyBtn.innerHTML = '<i class="fas fa-copy"></i> COPY ROLL NUMBER';
                     copyBtn.classList.remove('copied');
                 }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-            });
+            }).catch(err => console.error('Failed to copy:', err));
         }
 
-        // ⏱️ Start Auto-redirect Countdown
         function startCountdown() {
             secondsRemaining = 6;
             const countdownElement = document.getElementById('countdownTimer');
-            
             countdownInterval = setInterval(() => {
                 secondsRemaining--;
                 countdownElement.textContent = secondsRemaining;
-                
                 if (secondsRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    closeSuccessModal(); // ✅ Auto-redirect to testfirstpage after 6 seconds
+                    closeSuccessModal();
                 }
             }, 1000);
         }
 
-        // ✖️ Cancel Auto-redirect
         function cancelRedirect() {
             if (countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
-            
             const countdownElement = document.getElementById('countdownTimer');
             countdownElement.parentElement.innerHTML = '<i class="fas fa-check-circle"></i> Auto-redirect cancelled';
         }
 
-        // ✅ FIXED: Close Success Modal - Redirect back to testfirstpage.html
         function closeSuccessModal() {
-            console.log('⚡ Closing success modal and refreshing page...');
-            
             if (countdownInterval) clearInterval(countdownInterval);
-            
-            // Hide modal
             document.getElementById("successModal").style.display = "none";
-            
-            // Update UI for purchased test
             const testId = localStorage.getItem("tempTestId");
             if (testId) markAsPurchased(testId);
-            
-            // Show calendar banner
             document.getElementById('calendarBanner').style.display = 'flex';
-
-            // Refresh user panel
             if (window.renderUserPanelDirect) {
                 const email = localStorage.getItem("userEmail");
                 const rollNumber = localStorage.getItem("userRollNumber");
                 const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                 window.renderUserPanelDirect({ email, rollNumber, tests: purchasedTests });
             }
-            
-            // ✅ FIX: Force page reload to refresh everything
             setTimeout(() => {
-                console.log('🔄 Forcing page reload...');
                 window.location.href = "testfirstpage.html?t=" + Date.now();
             }, 500);
         }
 
-        // 🔧 FIXED: Skip email verification, go straight to payment
         async function handleModalSubmit() {
             const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
             const errorDiv = document.getElementById("modalError");
             const btn = document.getElementById("modalActionBtn");
-
             errorDiv.classList.add("hidden");
-
             if (!emailInput || !emailInput.includes("@")) {
                 showModalError("✖ Please enter a valid email address");
                 return;
             }
-
-            // 🏃 NEW FLOW: Skip verification, go straight to payment!
-            console.log('✅ Email captured:', emailInput);
-            console.log('🚀 Going directly to payment (no verification needed)...');
-            
             localStorage.setItem("userEmail", emailInput);
             startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
         }
 
-        // 🔧 FIXED: Corrected API endpoint names to match backend
         async function startPayment(userEmail, studentId, testId, amount) {
             const btn = document.getElementById("modalActionBtn");
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Creating Order...';
-            
             try {
-                console.log('💳 Step 1: Creating Razorpay order...');
-                console.log('Payment details:', { userEmail, testId, amount });
-                
-                // 🔧 FIX: Changed endpoint from /create-order to /checkout
                 const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
                     amount: amount,
                     testId: testId,
                     email: userEmail
                 }, { timeout: 15000 });
-
-                console.log('✅ Order created:', orderRes.data);
-
                 if (!orderRes.data.success || !orderRes.data.orderId) {
                     throw new Error('Failed to create order: ' + (orderRes.data.message || 'Unknown error'));
                 }
-
                 const { orderId, amount: orderAmount, currency, key } = orderRes.data;
-                console.log('✅ Razorpay Order ID:', orderId);
-                console.log('✅ Razorpay Key:', key);
-
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
-
-                // Step 2: Open Razorpay Checkout
                 const options = {
                     key: key,
                     amount: orderAmount,
                     currency: currency,
                     name: "Vigyan.prep",
                     description: `Activate ${testId.toUpperCase()} Test Series`,
-                    order_id: orderId, // ✅ Backend-generated order ID
-                    prefill: {
-                        email: userEmail,
-                        contact: ""
-                    },
-                    theme: {
-                        color: "#3b82f6"
-                    },
+                    order_id: orderId,
+                    prefill: { email: userEmail, contact: "" },
+                    theme: { color: "#3b82f6" },
                     handler: async function (response) {
-                        console.log('✅ Payment completed! Razorpay response:', response);
-                        
-                        // Step 3: Verify payment and get roll number
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
-                            
-                            // 🔧 CRITICAL FIX: Added missing 'amount' parameter!
                             const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
                                 testId: testId,
                                 email: userEmail,
-                                amount: amount  // ✅ FIX: Added this missing parameter!
+                                amount: amount
                             }, { timeout: 15000 });
-
-                            console.log('✅ Verification response:', verifyRes.data);
-
                             if (verifyRes.data.success) {
-                                // Step 4: Store roll number and show success
                                 const rollNumber = verifyRes.data.rollNumber;
-                                
-                                // 🔧 CRITICAL FIX: Save ALL data synchronously BEFORE showing modal
                                 localStorage.setItem("userEmail", userEmail);
                                 localStorage.setItem("userRollNumber", rollNumber);
-                                localStorage.setItem("currentTestId", testId); // ✅ Set this NOW!
-                                
-                                // Add to purchased tests
+                                localStorage.setItem("currentTestId", testId);
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                                 if (!purchased.includes(testId)) {
                                     purchased.push(testId);
                                 }
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-                                
-                                // ✅ Wait 200ms to ensure localStorage is written
                                 setTimeout(() => {
-                                    console.log('✅ LocalStorage saved:', {
-                                        email: localStorage.getItem('userEmail'),
-                                        roll: localStorage.getItem('userRollNumber'),
-                                        currentTest: localStorage.getItem('currentTestId'),
-                                        purchased: localStorage.getItem('purchasedTests')
-                                    });
-                                    
-                                    // ✨ Show enhanced success modal with countdown
                                     closeEntryModal();
                                     document.getElementById("finalTokenDisplay").innerText = rollNumber;
                                     document.getElementById("successModal").style.display = "flex";
-                                    startCountdown(); // ⏱️ Start 6-second countdown
-                                    
-                                    console.log('🎉 Payment complete! Roll number:', rollNumber);
+                                    startCountdown();
                                 }, 200);
                             } else {
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
                         } catch (verifyErr) {
-                            console.error('✖ Payment verification error:', verifyErr);
                             let errorMessage = "✖ Payment verification failed. ";
                             if (verifyErr.response?.data?.message) {
                                 errorMessage += verifyErr.response.data.message;
@@ -942,19 +722,14 @@
                     },
                     modal: {
                         ondismiss: function () {
-                            console.log('✖ Payment cancelled by user');
                             btn.innerText = "Proceed to Payment";
                             btn.disabled = false;
                         }
                     }
                 };
-
-                console.log('🚀 Opening Razorpay checkout...');
                 const rzp = new Razorpay(options);
                 rzp.open();
-
             } catch (error) {
-                console.error('✖ Payment initiation error:', error);
                 let errorMessage = "✖ Payment failed: ";
                 if (error.code === 'ECONNABORTED') {
                     errorMessage += "Connection timeout. Please check your internet.";
@@ -970,5 +745,4 @@
         }
     </script>
 </body>
-
 </html>
