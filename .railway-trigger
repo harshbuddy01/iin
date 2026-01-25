@@ -1,5 +1,38 @@
-# Railway Deployment Trigger
-# This file is used to force Railway to redeploy
-# Last update: 2025-12-29 00:35 IST
+# Deployment Trigger File
+# Last Updated: 2026-01-25 19:11 IST
 
-Deployment triggered to update PDF processing route with enhanced logging and PyPDF2 debug endpoint.
+## Critical Fixes Applied:
+
+### 1. Enhanced CORS Configuration (backend/server.js)
+- ✅ Added explicit OPTIONS handler for all routes
+- ✅ Enhanced CORS to allow all vigyanprep.com subdomains
+- ✅ Added 'Origin' to allowed headers
+- ✅ Set optionsSuccessStatus to 204
+- ✅ Set preflightContinue to false
+
+### 2. Payment Verification (Already Fixed)
+- ✅ Backend already accepts 'amount' parameter in paymentController.js (line 212)
+- ✅ Frontend testfirstpage.html already sends 'amount' parameter (line 786)
+
+### Expected Results:
+- ✅ CORS errors should be resolved
+- ✅ Payment verification should work successfully
+- ✅ Success modal should appear after payment
+- ✅ Auto-redirect to tests should work
+
+## Deployment Instructions:
+1. This commit will trigger auto-deployment on Hostinger
+2. Wait 2-3 minutes for deployment to complete
+3. Clear browser cache (Ctrl+Shift+Delete)
+4. Test payment flow again
+
+## Verification Steps:
+1. Open https://vigyanprep.com/testfirstpage.html
+2. Click "Initialize Protocol" on any test
+3. Enter email and proceed to payment
+4. Complete test payment (₹1)
+5. Verify success modal appears
+6. Check console for CORS errors (should be none)
+7. Verify auto-redirect works
+
+Deployment Timestamp: 2026-01-25T13:41:00.000Z
