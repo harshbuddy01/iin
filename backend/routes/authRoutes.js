@@ -4,10 +4,6 @@ import { isMongoDBConnected, lastConnectionError } from '../config/mongodb.js';
 
 const router = express.Router();
 
-// 🔴 CRITICAL FIX: Temporary in-memory storage to bypass MongoDB for now
-const tempStudents = new Map();
-const tempTokens = new Map();
-
 // Email verification endpoint - Creates/finds student
 // GET method for debugging availability
 router.get('/verify-email', (req, res) => {
@@ -35,90 +31,78 @@ router.post('/verify-email', async (req, res) => {
 
     const startTime = Date.now();
 
-    // 🟢 TEMPORARY: Try MongoDB first if connected
-    if (isMongoDBConnected) {
-      try {
-        // Set timeout for database operations
-        let student = await Student.findOne({ email: normalizedEmail })
-          .maxTimeMS(3000) // 3 second max query time
-          .lean();
+    // Check if MongoDB is connected
+    if (!isMongoDBConnected) {
+      console.warn('⚠️ MongoDB not connected - checking if still available...');
+    }
 
-        if (student) {
-          const duration = Date.now() - startTime;
-          console.log(`✅ Existing user verified (MongoDB): ${normalizedEmail} (${duration}ms)`);
+    try {
+      // Check if student exists
+      let student = await Student.findOne({ email: normalizedEmail })
+        .maxTimeMS(5000) // 5 second max query time
+        .lean();
 
-          return res.json({
-            success: true,
-            studentId: student._id.toString(),
-            isNewUser: false,
-            email: student.email,
-            status: 'VERIFIED'
-          });
-        }
-
-        // Create new student
-        student = await Student.create({
-          email: normalizedEmail,
-          rollNumber: rollNumber || null,
-          createdAt: new Date(),
-          lastLoginAt: new Date()
-        });
+      if (student) {
+        // Update last login (fire and forget)
+        Student.updateOne(
+          { _id: student._id },
+          { lastLoginAt: new Date() }
+        ).catch(err => console.error('Failed to update lastLoginAt:', err));
 
         const duration = Date.now() - startTime;
-        console.log(`✅ New student created (MongoDB): ${normalizedEmail} (${duration}ms)`);
+        console.log(`✅ Existing user verified: ${normalizedEmail} (${duration}ms)`);
 
         return res.json({
           success: true,
           studentId: student._id.toString(),
-          isNewUser: true,
+          isNewUser: false,
           email: student.email,
-          status: 'NEW_USER'
+          status: 'VERIFIED'
         });
-      } catch (mongoError) {
-        console.warn('⚠️ MongoDB failed, falling back to temp storage:', mongoError.message);
-        // Fall through to temp storage below
       }
-    }
 
-    // 🟡 FALLBACK: Use temporary in-memory storage (no MongoDB dependency)
-    console.log('📝 Using temporary storage (MongoDB unavailable)');
+      // Create new student
+      student = await Student.create({
+        email: normalizedEmail,
+        rollNumber: rollNumber || null,
+        createdAt: new Date(),
+        lastLoginAt: new Date()
+      });
 
-    if (tempStudents.has(normalizedEmail)) {
-      const student = tempStudents.get(normalizedEmail);
       const duration = Date.now() - startTime;
-      console.log(`✅ Existing user verified (TEMP): ${normalizedEmail} (${duration}ms)`);
+      console.log(`✅ New student created: ${normalizedEmail} (${duration}ms)`);
 
-      return res.json({
+      res.json({
         success: true,
-        studentId: student.id,
-        isNewUser: false,
+        studentId: student._id.toString(),
+        isNewUser: true,
         email: student.email,
-        status: 'VERIFIED'
+        status: 'NEW_USER'
+      });
+    } catch (mongoError) {
+      console.error('❌ MongoDB Error:', mongoError.message);
+      
+      // Return clear error message
+      if (mongoError.name === 'MongooseError' && mongoError.message.includes('buffering timed out')) {
+        return res.status(503).json({
+          error: 'Database timeout',
+          message: 'MongoDB connection unavailable. Make sure MONGODB_URI is set in Hostinger environment variables.',
+          helpText: 'Go to Hostinger → Environment Variables → Add MONGODB_URI with your MongoDB Atlas connection string'
+        });
+      }
+
+      if (mongoError.code === 11000) {
+        return res.status(409).json({
+          error: 'Duplicate entry',
+          message: 'This email is already registered'
+        });
+      }
+
+      return res.status(500).json({
+        error: 'Server error during verification',
+        message: mongoError.message
       });
     }
-
-    // Create new student in temporary storage
-    const newStudent = {
-      id: 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-      email: normalizedEmail,
-      rollNumber: rollNumber || null,
-      createdAt: new Date(),
-      isPermanent: false
-    };
-
-    tempStudents.set(normalizedEmail, newStudent);
-
-    const duration = Date.now() - startTime;
-    console.log(`✅ New student created (TEMP): ${normalizedEmail} (${duration}ms)`);
-
-    res.json({
-      success: true,
-      studentId: newStudent.id,
-      isNewUser: true,
-      email: newStudent.email,
-      status: 'NEW_USER'
-    });
-
   } catch (error) {
     console.error('❌ Email verification error:', error);
 
@@ -138,7 +122,7 @@ router.get('/auth-health', async (req, res) => {
 
   res.json({
     status: 'ok',
-    version: 'DEBUG-V2-DEPLOYED-TEMP-STORAGE', // Check this to confirm code update
+    version: 'PRODUCTION-MONGODB-PERMANENT',
     mongo_var_connected: isMongoDBConnected,
     mongo_uri_configured: !!process.env.MONGODB_URI,
     last_error: lastConnectionError,
@@ -146,7 +130,7 @@ router.get('/auth-health', async (req, res) => {
     mongoose_state_name: states[readyState] || 'unknown',
     host: mongoose.default.connection.host,
     timestamp: new Date().toISOString(),
-    temp_users_stored: tempStudents.size
+    setup_help: !process.env.MONGODB_URI ? 'Set MONGODB_URI environment variable in Hostinger' : 'Configured'
   });
 });
 
