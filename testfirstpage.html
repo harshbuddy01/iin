@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 21:11 IST - FIXED AUTO-REDIRECT -->
+    <!-- CACHE CLEAR: 2026-01-26 02:20 IST - ADDED TEST SERIES ICONS -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -73,6 +73,9 @@
             transition: 0.4s;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 580px;
         }
 
         .glass-panel:hover {
@@ -80,6 +83,39 @@
             transform: translateY(-10px);
             background: rgba(15, 23, 42, 0.8);
             box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* ========== TEST SERIES ICON HEADER ========== */
+        .series-icon-header {
+            width: 100%;
+            height: 140px;
+            margin: -2.5rem -2.5rem 1.5rem -2.5rem;
+            border-radius: 2rem 2rem 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* IAT - LIGHTNING BOLT */
+        .series-icon-header.iat {
+            color: #fbbf24;
+            background: linear-gradient(180deg, rgba(251,191,36,0.12) 0%, transparent 100%);
+        }
+
+        /* NEST - MICROSCOPE */
+        .series-icon-header.nest {
+            color: #06b6d4;
+            background: linear-gradient(180deg, rgba(6,182,212,0.12) 0%, transparent 100%);
+        }
+
+        /* ISI - TROPHY */
+        .series-icon-header.isi {
+            color: #f87171;
+            background: linear-gradient(180deg, rgba(248,113,113,0.12) 0%, transparent 100%);
         }
 
         .buy-btn {
@@ -408,6 +444,11 @@
             .action-buttons {
                 flex-direction: column;
             }
+            .series-icon-header {
+                height: 100px;
+                font-size: 3rem;
+                margin: -2.5rem -2.5rem 1rem -2.5rem;
+            }
         }
 
         /* VIGYAN.PREP Premium Logo */
@@ -557,14 +598,14 @@
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.0
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.1
             </div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
                 Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam
                     Protocols.</span>
             </h1>
             <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-blue-500/50 pl-8 leading-relaxed">
-                Unlock the gateway to India's premier research institutes.
+                Each test series is uniquely designed for your exam. Pick the challenge that matches your ambition.
             </p>
         </header>
 
@@ -598,9 +639,27 @@
     <script>
         // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
         const testSeries = [
-            { id: 'iat', name: 'IAT SERIES', price: 1 },
-            { id: 'nest', name: 'NEST SERIES', price: 1 },
-            { id: 'isi', name: 'ISI SERIES', price: 1 }
+            { 
+                id: 'iat', 
+                icon: '⚡',
+                name: 'IAT SERIES', 
+                subtitle: 'Speed Mastery',
+                price: 1 
+            },
+            { 
+                id: 'nest', 
+                icon: '🔬',
+                name: 'NEST SERIES', 
+                subtitle: 'Deep Dive',
+                price: 1 
+            },
+            { 
+                id: 'isi', 
+                icon: '🏆',
+                name: 'ISI SERIES', 
+                subtitle: 'Proof Academy',
+                price: 1 
+            }
         ];
 
         // ⏱️ Auto-redirect countdown variables
@@ -614,6 +673,7 @@
             card.className = 'glass-panel flex flex-col justify-between';
             card.innerHTML = `
                 <div>
+                    <div class="series-icon-header ${test.id}">${test.icon}</div>
                     <div class="flex justify-between items-start mb-8">
                         <span class="font-bold text-blue-500 uppercase tracking-widest text-[10px] border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5">${test.id}</span>
                         <div class="text-right leading-none">
@@ -621,11 +681,12 @@
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">One-time Access</span>
                         </div>
                     </div>
-                    <h3 class="text-4xl font-black text-white mb-6 uppercase leading-none tracking-tight">${test.name}</h3>
+                    <h3 class="text-3xl font-black text-white mb-2 uppercase leading-none tracking-tight">${test.name}</h3>
+                    <p class="text-gray-400 text-sm mb-6 font-medium">${test.subtitle}</p>
                     <div class="w-full h-px bg-white/10 mb-6"></div>
                     <ul class="text-gray-400 text-sm space-y-3 mb-8 font-medium">
-                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> IISER Standard Logic</li>
-                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> Instant Token Dispatch</li>
+                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> Real exam patterns</li>
+                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> Instant access granted</li>
                     </ul>
                 </div>
                 <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn shadow-lg shadow-blue-900/30">
