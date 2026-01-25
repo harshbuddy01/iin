@@ -1,5 +1,6 @@
 /**
- * Admin Dashboard Main - Complete with ALL modules + Real Backend Integration
+ * Admin Dashboard Main - REAL Backend Integration - NO FAKE DATA!
+ * FIXED: 2026-01-25 - Completely removed all fallback fake data
  */
 
 let performanceChart = null;
@@ -11,11 +12,12 @@ async function initDashboard() {
     try {
         setupNavigation();
         setupHeaderActions(); // Setup header icons functionality
-        await loadDashboardData();
+        await loadDashboardData(); // 🔥 LOAD REAL DATA ONLY
         console.log('✅ Dashboard initialized successfully');
     } catch (error) {
         console.error('❌ Dashboard initialization error:', error);
-        loadDashboardFallbackData();
+        // 🔥 NO FALLBACK - Show error instead of fake data
+        showDashboardError(error);
     }
 }
 
@@ -77,7 +79,7 @@ function setupHeaderActions() {
 // 🆕 Load admin profile from backend
 async function loadAdminProfile() {
     try {
-        const profile = await AdminAPI.request('/api/admin/profile');
+        const profile = await window.AdminAPI.getAdminProfile();
         
         // Update profile display
         const adminName = document.querySelector('.admin-name');
@@ -107,10 +109,10 @@ async function loadAdminProfile() {
 // 🆕 Load notifications count from backend
 async function loadNotificationsCount() {
     try {
-        const data = await AdminAPI.request('/api/admin/notifications/count');
+        const data = await window.AdminAPI.getNotificationsCount();
         const badge = document.querySelector('.notification-bell .badge');
         
-        if (badge && data.count) {
+        if (badge && data.count !== undefined) {
             badge.textContent = data.count;
             badge.style.display = data.count > 0 ? 'flex' : 'none';
         }
@@ -167,7 +169,7 @@ async function showNotifications(e) {
     
     try {
         // 🆕 Fetch REAL notifications from backend
-        const data = await AdminAPI.request('/api/admin/notifications');
+        const data = await window.AdminAPI.getNotifications();
         const notifications = data.notifications || [];
         
         // Update dropdown with real data
@@ -235,7 +237,7 @@ function closeNotifications() {
 // 🆕 Mark all notifications as read
 window.markAllRead = async function() {
     try {
-        await AdminAPI.request('/api/admin/notifications/mark-all-read', { method: 'POST' });
+        await window.AdminAPI.markAllNotificationsRead();
         
         const badge = document.querySelector('.notification-bell .badge');
         if (badge) {
@@ -258,7 +260,7 @@ window.markAllRead = async function() {
 // 🆕 Mark single notification as read
 window.markNotificationRead = async function(notificationId) {
     try {
-        await AdminAPI.request(`/api/admin/notifications/${notificationId}/read`, { method: 'POST' });
+        await window.AdminAPI.markNotificationRead(notificationId);
         console.log(`✅ Notification ${notificationId} marked as read`);
         
         // Reload notifications count
@@ -650,19 +652,57 @@ function loadPageData(pageName) {
     }
 }
 
-// Load dashboard data
+// 🔥 FIXED: Load REAL dashboard data from backend - NO FAKE DATA!
 async function loadDashboardData() {
-    console.log('🔵 Loading dashboard data...');
-    loadDashboardFallbackData();
+    console.log('🔵 Loading REAL dashboard data from backend...');
+    
+    // Show loading state
+    showDashboardLoading();
+    
+    try {
+        // 🔥 Fetch REAL stats from backend
+        const stats = await window.AdminAPI.getDashboardStats();
+        
+        console.log('✅ Dashboard stats loaded from backend:', stats);
+        
+        // Update UI with REAL data
+        updateDashboardStats(stats);
+        updatePerformanceChart(stats.performanceData || {});
+        
+    } catch (error) {
+        console.error('❌ Failed to load dashboard data:', error);
+        showDashboardError(error);
+    }
 }
 
+// 🔥 Show loading state while fetching data
+function showDashboardLoading() {
+    const statCards = document.querySelectorAll('.stat-value');
+    statCards.forEach(card => {
+        if (card) card.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    });
+}
+
+// 🔥 Show error state if backend fails
+function showDashboardError(error) {
+    const statCards = document.querySelectorAll('.stat-value');
+    statCards.forEach(card => {
+        if (card) card.textContent = '--';
+    });
+    
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Failed to load dashboard data. Check backend connection.', 'error');
+    }
+}
+
+// 🔥 Update dashboard stats with REAL data only
 function updateDashboardStats(stats) {
     try {
         const statCards = {
-            tests: { value: stats.activeTests || 24, trend: stats.testsTrend || 12 },
-            students: { value: stats.totalStudents || 1250, trend: stats.studentsTrend || 8 },
-            exams: { value: stats.todayExams || 3 },
-            revenue: { value: stats.monthlyRevenue || 240000, trend: stats.revenueTrend || 15 }
+            tests: { value: stats.activeTests || 0, trend: stats.testsTrend || 0 },
+            students: { value: stats.totalStudents || 0, trend: stats.studentsTrend || 0 },
+            exams: { value: stats.todayExams || 0 },
+            revenue: { value: stats.monthlyRevenue || 0, trend: stats.revenueTrend || 0 }
         };
         
         const testsValue = document.querySelector('.stat-card.blue .stat-value');
@@ -675,7 +715,7 @@ function updateDashboardStats(stats) {
         if (examsValue) examsValue.textContent = statCards.exams.value;
         if (revenueValue) revenueValue.textContent = `₹${(statCards.revenue.value / 100000).toFixed(1)}L`;
         
-        console.log('✅ Dashboard stats updated');
+        console.log('✅ Dashboard stats updated with REAL data');
     } catch (error) {
         console.error('Error updating stats:', error);
     }
@@ -702,7 +742,7 @@ function updatePerformanceChart(data) {
                 labels: data.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                 datasets: [{
                     label: 'Average Score',
-                    data: data.scores || [65, 72, 68, 75, 78, 82, 85],
+                    data: data.scores || [0, 0, 0, 0, 0, 0, 0],
                     borderColor: '#6366f1',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     tension: 0.4,
@@ -752,31 +792,10 @@ function updatePerformanceChart(data) {
             }
         });
         
-        console.log('✅ Performance chart rendered');
+        console.log('✅ Performance chart rendered with REAL data');
     } catch (error) {
         console.error('Error updating performance chart:', error);
     }
-}
-
-function loadDashboardFallbackData() {
-    console.log('📋 Loading demo dashboard data...');
-    
-    updateDashboardStats({
-        activeTests: 24,
-        testsTrend: 12,
-        totalStudents: 1250,
-        studentsTrend: 8,
-        todayExams: 3,
-        monthlyRevenue: 240000,
-        revenueTrend: 15
-    });
-    
-    updatePerformanceChart({
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        scores: [65, 72, 68, 75, 78, 82, 85]
-    });
-    
-    console.log('✅ Demo data loaded successfully');
 }
 
 // Initialize on page load
