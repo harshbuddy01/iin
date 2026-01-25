@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
 import { PaymentTransaction } from "../models/PaymentTransaction.js";
+import mongoose from "mongoose";
 
 // Create Nodemailer transporter with Hostinger SMTP
 const transporter = nodemailer.createTransport({
@@ -45,6 +46,25 @@ const extractFirstName = (email) => {
   } catch (error) {
     console.error('Error extracting first name:', error.message);
     return 'User';
+  }
+};
+
+// 🆕 Database Health Check
+const checkDatabaseConnection = async () => {
+  try {
+    const isConnected = mongoose.connection.readyState === 1;
+    console.log(`🔍 Database Status: ${isConnected ? '✅ CONNECTED' : '❌ DISCONNECTED'}`);
+    
+    if (!isConnected) {
+      console.error('❌ MongoDB is NOT connected! Cannot save student records.');
+      console.error('   Connection state:', mongoose.connection.readyState);
+      console.error('   0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting');
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error('❌ Error checking database:', error.message);
+    return false;
   }
 };
 
@@ -173,11 +193,29 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION
+// 3. 🔧 FIXED PAYMENT VERIFICATION WITH GUARANTEED STUDENT CREATION
 export const paymentVerification = async (req, res) => {
   console.log("🔹 ========== PAYMENT VERIFICATION STARTED ==========");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
+  console.log("⏰ Timestamp:", new Date().toISOString());
 
+  // 🆕 STEP 1: Check database connection FIRST
+  const dbConnected = await checkDatabaseConnection();
+  if (!dbConnected) {
+    console.error('❌ CRITICAL: Database not connected! Cannot process payment.');
+    return res.status(500).json({
+      success: false,
+      message: "Database connection error. Please contact support.",
+      debug: {
+        databaseConnected: false,
+        connectionState: mongoose.connection.readyState
+      }
+    });
+  }
+
+  // Start a session for transaction support
+  let session = null;
+  
   try {
     if (!razorpayInstance) {
       console.error('❌ Razorpay instance not configured for payment verification');
@@ -209,7 +247,8 @@ export const paymentVerification = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing payment verification data" });
     }
 
-    // Verify Razorpay signature
+    // 🆕 STEP 2: Verify Razorpay signature
+    console.log("🔐 Verifying payment signature...");
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
@@ -223,10 +262,14 @@ export const paymentVerification = async (req, res) => {
 
     console.log("✅ Payment signature verified!");
 
-    // Payment verified! Now handle roll number logic
+    // 🆕 STEP 3: Start MongoDB session for atomic operations
+    session = await mongoose.startSession();
+    session.startTransaction();
+    console.log("🔄 Database transaction started");
+
     const normalizedEmail = email.toLowerCase().trim();
 
-    let existingStudent = await StudentPayment.findOne({ email: normalizedEmail });
+    let existingStudent = await StudentPayment.findOne({ email: normalizedEmail }).session(session);
 
     let rollNumber;
     let isNewStudent = false;
@@ -241,23 +284,27 @@ export const paymentVerification = async (req, res) => {
       const existingPurchase = await PurchasedTest.findOne({
         email: normalizedEmail,
         test_id: testId
-      });
+      }).session(session);
 
       if (existingPurchase) {
         console.log(`⚠️ Student already purchased ${testId}`);
+        await session.abortTransaction();
         return res.status(400).json({
           success: false,
           message: "You have already purchased this test"
         });
       }
 
-      await PurchasedTest.create({
+      // 🆕 Create purchased test record
+      const newPurchase = await PurchasedTest.create([{
         email: normalizedEmail,
         test_id: testId,
         purchased_at: new Date()
-      });
+      }], { session });
+      console.log("✅ Purchase record created:", newPurchase[0]._id);
 
-      await PaymentTransaction.create({
+      // 🆕 Create transaction record
+      const newTransaction = await PaymentTransaction.create([{
         email: normalizedEmail,
         razorpay_order_id,
         razorpay_payment_id,
@@ -266,33 +313,80 @@ export const paymentVerification = async (req, res) => {
         amount: amount || 199,
         status: 'paid',
         created_at: new Date()
-      });
+      }], { session });
+      console.log("✅ Transaction record created:", newTransaction[0]._id);
 
-      const tests = await PurchasedTest.find({ email: normalizedEmail });
+      const tests = await PurchasedTest.find({ email: normalizedEmail }).session(session);
       purchasedTests = tests.map(t => t.test_id);
 
       console.log(`✅ Updated existing student: ${normalizedEmail}, Tests: ${purchasedTests.join(', ')}`);
 
     } else {
-      // NEW STUDENT - Generate roll number ONLY after payment success
-      rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
-      isNewStudent = true;
+      // 🆕 NEW STUDENT - Generate roll number with retry logic
+      console.log("🆕 NEW STUDENT REGISTRATION STARTING...");
+      
+      let rollCreated = false;
+      let attempts = 0;
+      const maxAttempts = 5;
+      
+      while (!rollCreated && attempts < maxAttempts) {
+        attempts++;
+        rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
+        console.log(`🎲 Generated Roll Number Attempt ${attempts}: ${rollNumber}`);
+        
+        try {
+          // Check if roll number already exists
+          const duplicateRoll = await StudentPayment.findOne({ roll_number: rollNumber }).session(session);
+          
+          if (duplicateRoll) {
+            console.warn(`⚠️ Roll number ${rollNumber} already exists, retrying...`);
+            continue;
+          }
+          
+          // 🆕 CREATE STUDENT RECORD WITH EXPLICIT ERROR HANDLING
+          console.log("💾 CREATING STUDENT RECORD IN DATABASE...");
+          console.log("   Email:", normalizedEmail);
+          console.log("   Roll:", rollNumber);
+          console.log("   Session:", session ? "Active" : "None");
+          
+          const newStudent = await StudentPayment.create([{
+            email: normalizedEmail,
+            roll_number: rollNumber,
+            created_at: new Date()
+          }], { session });
+          
+          console.log("✅ STUDENT RECORD CREATED SUCCESSFULLY!");
+          console.log("   ID:", newStudent[0]._id);
+          console.log("   Email:", newStudent[0].email);
+          console.log("   Roll:", newStudent[0].roll_number);
+          
+          rollCreated = true;
+          isNewStudent = true;
+          
+        } catch (rollError) {
+          console.error(`❌ Error creating student record (attempt ${attempts}):`, rollError.message);
+          if (attempts >= maxAttempts) {
+            throw new Error(`Failed to create student record after ${maxAttempts} attempts: ${rollError.message}`);
+          }
+        }
+      }
 
-      console.log(`🆕 New Student! Generated Roll Number: ${rollNumber}`);
+      if (!rollCreated) {
+        throw new Error("Failed to generate unique roll number");
+      }
 
-      await StudentPayment.create({
-        email: normalizedEmail,
-        roll_number: rollNumber,
-        created_at: new Date()
-      });
-
-      await PurchasedTest.create({
+      // 🆕 Create purchased test record
+      console.log("💾 Creating purchased test record...");
+      const newPurchase = await PurchasedTest.create([{
         email: normalizedEmail,
         test_id: testId,
         purchased_at: new Date()
-      });
+      }], { session });
+      console.log("✅ Purchase record created:", newPurchase[0]._id);
 
-      await PaymentTransaction.create({
+      // 🆕 Create transaction record
+      console.log("💾 Creating transaction record...");
+      const newTransaction = await PaymentTransaction.create([{
         email: normalizedEmail,
         razorpay_order_id,
         razorpay_payment_id,
@@ -301,14 +395,34 @@ export const paymentVerification = async (req, res) => {
         amount: amount || 199,
         status: 'paid',
         created_at: new Date()
-      });
+      }], { session });
+      console.log("✅ Transaction record created:", newTransaction[0]._id);
 
       purchasedTests = [testId];
 
-      console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
+      console.log(`✅ NEW STUDENT CREATED SUCCESSFULLY: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // ✨ SEND EMAIL - MINIMAL & CLEAN DESIGN
+    // 🆕 STEP 4: Commit transaction to database
+    console.log("💾 COMMITTING ALL CHANGES TO DATABASE...");
+    await session.commitTransaction();
+    console.log("✅ DATABASE TRANSACTION COMMITTED SUCCESSFULLY!");
+    
+    // 🆕 STEP 5: Verify student was actually saved
+    console.log("🔍 VERIFYING STUDENT RECORD IN DATABASE...");
+    const verifyStudent = await StudentPayment.findOne({ email: normalizedEmail });
+    
+    if (!verifyStudent) {
+      console.error("❌ CRITICAL ERROR: Student record not found after commit!");
+      throw new Error("Student record verification failed");
+    }
+    
+    console.log("✅ VERIFIED: Student record exists in database");
+    console.log("   Email:", verifyStudent.email);
+    console.log("   Roll:", verifyStudent.roll_number);
+    console.log("   Created:", verifyStudent.created_at);
+
+    // ✨ SEND EMAIL
     console.log("📧 Attempting to send email via Nodemailer...");
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
@@ -438,12 +552,38 @@ export const paymentVerification = async (req, res) => {
     }
 
     console.log("🔹 ========== PAYMENT VERIFICATION SUCCESS ==========");
+    console.log("📊 Final Response:", JSON.stringify(responseData, null, 2));
     res.status(200).json(responseData);
 
   } catch (error) {
     console.error("🔴 ========== PAYMENT VERIFICATION ERROR ==========");
     console.error("❌ Error:", error.message);
     console.error("❌ Stack:", error.stack);
-    res.status(500).json({ success: false, message: "Internal Server Error: " + error.message });
+    
+    // 🆕 Rollback transaction on error
+    if (session) {
+      try {
+        await session.abortTransaction();
+        console.log("🔄 Database transaction rolled back");
+      } catch (abortError) {
+        console.error("❌ Error aborting transaction:", abortError.message);
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal Server Error: " + error.message,
+      debug: {
+        errorName: error.name,
+        errorMessage: error.message,
+        databaseConnected: mongoose.connection.readyState === 1
+      }
+    });
+  } finally {
+    // 🆕 Always end session
+    if (session) {
+      session.endSession();
+      console.log("🔄 Database session ended");
+    }
   }
 };
