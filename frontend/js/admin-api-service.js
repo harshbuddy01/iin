@@ -1,7 +1,7 @@
 /**
  * Admin API Service - Complete Backend Integration
  * Backend: Hostinger (https://backend-vigyanpreap.vigyanprep.com)
- * Updated: 2026-01-24
+ * Updated: 2026-01-25 - FIXED PORT TO 3000
  */
 
 const AdminAPI = {
@@ -9,7 +9,7 @@ const AdminAPI = {
     get baseURL() {
         // If running locally, use local backend
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:8080';
+            return 'http://localhost:3000'; // ✅ FIXED: Changed from 8080 to 3000
         }
 
         // ✅ HOSTINGER BACKEND URL (subdomain)
