@@ -1,0 +1,259 @@
+import express from 'express';
+import Student from '../models/Student.js';
+import StudentAttempt from '../models/StudentAttempt.js';
+import PaymentTransaction from '../models/PaymentTransaction.js';
+
+const router = express.Router();
+
+// ==================== GET ALL STUDENTS ====================
+// GET /api/admin/students?search=xyz
+router.get('/students', async (req, res) => {
+    try {
+        const { search = '' } = req.query;
+        
+        console.log(`👥 [STUDENTS] Fetching students... Search: "${search}"`);
+        
+        let query = {};
+        
+        if (search) {
+            query = {
+                $or: [
+                    { email: { $regex: search, $options: 'i' } },
+                    { fullName: { $regex: search, $options: 'i' } },
+                    { rollNumber: { $regex: search, $options: 'i' } }
+                ]
+            };
+        }
+        
+        const students = await Student.find(query)
+            .sort({ createdAt: -1 })
+            .limit(100);
+        
+        // Get additional stats for each student
+        const studentsWithStats = await Promise.all(
+            students.map(async (student) => {
+                const testsAttempted = await StudentAttempt.countDocuments({ 
+                    studentId: student._id 
+                });
+                
+                const payments = await PaymentTransaction.find({
+                    orderId: { $regex: student.email, $options: 'i' },
+                    status: 'captured'
+                });
+                
+                const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+                
+                return {
+                    id: student._id,
+                    email: student.email,
+                    fullName: student.fullName || 'N/A',
+                    rollNumber: student.rollNumber || 'N/A',
+                    testsAttempted,
+                    totalPaid: totalPaid / 100, // Convert paise to rupees
+                    lastLogin: student.lastLoginAt,
+                    registeredOn: student.createdAt,
+                    status: 'active'
+                };
+            })
+        );
+        
+        console.log(`✅ [STUDENTS] Found ${studentsWithStats.length} students`);
+        
+        res.json({
+            success: true,
+            students: studentsWithStats,
+            total: studentsWithStats.length
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error fetching students:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== GET SINGLE STUDENT ====================
+// GET /api/admin/students/:id
+router.get('/students/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log(`👤 [STUDENTS] Fetching student: ${id}`);
+        
+        const student = await Student.findById(id);
+        
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                error: 'Student not found'
+            });
+        }
+        
+        // Get attempts
+        const attempts = await StudentAttempt.find({ studentId: id })
+            .sort({ attemptDate: -1 })
+            .limit(10);
+        
+        // Get payments
+        const payments = await PaymentTransaction.find({
+            orderId: { $regex: student.email, $options: 'i' }
+        }).sort({ createdAt: -1 });
+        
+        res.json({
+            success: true,
+            student: {
+                id: student._id,
+                email: student.email,
+                fullName: student.fullName,
+                rollNumber: student.rollNumber,
+                createdAt: student.createdAt,
+                lastLoginAt: student.lastLoginAt,
+                attempts,
+                payments
+            }
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error fetching student:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== ADD NEW STUDENT ====================
+// POST /api/admin/students
+router.post('/students', async (req, res) => {
+    try {
+        const { email, fullName, rollNumber } = req.body;
+        
+        console.log(`➕ [STUDENTS] Adding new student: ${email}`);
+        
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email is required'
+            });
+        }
+        
+        // Check if student already exists
+        const existingStudent = await Student.findOne({ email });
+        if (existingStudent) {
+            return res.status(400).json({
+                success: false,
+                error: 'Student with this email already exists'
+            });
+        }
+        
+        const newStudent = new Student({
+            email,
+            fullName: fullName || null,
+            rollNumber: rollNumber || null
+        });
+        
+        await newStudent.save();
+        
+        console.log(`✅ [STUDENTS] Student added: ${newStudent._id}`);
+        
+        res.status(201).json({
+            success: true,
+            message: 'Student added successfully',
+            student: {
+                id: newStudent._id,
+                email: newStudent.email,
+                fullName: newStudent.fullName,
+                rollNumber: newStudent.rollNumber
+            }
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error adding student:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== UPDATE STUDENT ====================
+// PUT /api/admin/students/:id
+router.put('/students/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { email, fullName, rollNumber } = req.body;
+        
+        console.log(`✏️ [STUDENTS] Updating student: ${id}`);
+        
+        const updatedStudent = await Student.findByIdAndUpdate(
+            id,
+            { email, fullName, rollNumber },
+            { new: true, runValidators: true }
+        );
+        
+        if (!updatedStudent) {
+            return res.status(404).json({
+                success: false,
+                error: 'Student not found'
+            });
+        }
+        
+        console.log(`✅ [STUDENTS] Student updated: ${id}`);
+        
+        res.json({
+            success: true,
+            message: 'Student updated successfully',
+            student: updatedStudent
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error updating student:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== DELETE STUDENT ====================
+// DELETE /api/admin/students/:id
+router.delete('/students/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log(`🗑️ [STUDENTS] Deleting student: ${id}`);
+        
+        const deletedStudent = await Student.findByIdAndDelete(id);
+        
+        if (!deletedStudent) {
+            return res.status(404).json({
+                success: false,
+                error: 'Student not found'
+            });
+        }
+        
+        // Also delete related data
+        await StudentAttempt.deleteMany({ studentId: id });
+        
+        console.log(`✅ [STUDENTS] Student deleted: ${id}`);
+        
+        res.json({
+            success: true,
+            message: 'Student deleted successfully'
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error deleting student:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ==================== GET STUDENT RESULTS ====================
+// GET /api/admin/students/:id/results
+router.get('/students/:id/results', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        console.log(`📊 [STUDENTS] Fetching results for student: ${id}`);
+        
+        const attempts = await StudentAttempt.find({ studentId: id })
+            .sort({ attemptDate: -1 });
+        
+        res.json({
+            success: true,
+            results: attempts
+        });
+    } catch (error) {
+        console.error('❌ [STUDENTS] Error fetching results:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+console.log('✅ Student routes loaded');
+
+export default router;
