@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 15:48 IST - PAYMENT FLOW FIX - NO EMAIL VERIFICATION -->
+    <!-- CACHE CLEAR: 2026-01-25 16:57 IST - PRICE CHANGE TO ₹1 FOR TESTING -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1548">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1548">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1548">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1548">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1548">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1657">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1657">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1657">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1657">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1657">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -425,15 +425,16 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-1548"></script>
-    <script src="frontend/js/auth.js?v=20260125-1548"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-1548"></script>
+    <script src="frontend/js/config.js?v=20260125-1657"></script>
+    <script src="frontend/js/auth.js?v=20260125-1657"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-1657"></script>
 
     <script>
+        // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
         const testSeries = [
-            { id: 'iat', name: 'IAT SERIES', price: 199 },
-            { id: 'nest', name: 'NEST SERIES', price: 199 },
-            { id: 'isi', name: 'ISI SERIES', price: 199 }
+            { id: 'iat', name: 'IAT SERIES', price: 1 },
+            { id: 'nest', name: 'NEST SERIES', price: 1 },
+            { id: 'isi', name: 'ISI SERIES', price: 1 }
         ];
 
         // Generate cards
