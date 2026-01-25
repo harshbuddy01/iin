@@ -1,6 +1,9 @@
 /**
- * Results Page - Complete Implementation
+ * Results Page - Complete Backend Integration
+ * FIXED: 2026-01-25 - Fetching from backend instead of localStorage
  */
+
+let allResults = [];
 
 function initResults() {
     console.log('Initializing Results page...');
@@ -30,41 +33,86 @@ function initResults() {
             </button>
         </div>
         
-        <div id="resultsTableContainer"></div>
+        <div id="resultsTableContainer">
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><br>
+                Loading results from database...
+            </div>
+        </div>
     `;
     
     loadResults();
-    document.getElementById('testFilter')?.addEventListener('change', loadResults);
-    document.getElementById('searchResults')?.addEventListener('input', loadResults);
+    document.getElementById('testFilter')?.addEventListener('change', applyFilters);
+    document.getElementById('searchResults')?.addEventListener('input', applyFilters);
     
     console.log('✅ Results page initialized');
 }
 
-function loadResults() {
-    const container = document.getElementById('resultsTableContainer');
-    if (!container) return;
-    
+async function loadResults() {
+    try {
+        console.log('🔄 Fetching results from backend...');
+        
+        // ✅ FIXED: Fetch from backend API instead of localStorage
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/results`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        allResults = data.results || [];
+        
+        console.log(`✅ Loaded ${allResults.length} results from database`);
+        displayResults(allResults);
+        
+    } catch (error) {
+        console.error('❌ Failed to load results:', error);
+        
+        // Show error message
+        const container = document.getElementById('resultsTableContainer');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                    <p style="font-size: 18px; margin-bottom: 8px;">Failed to load results</p>
+                    <p style="font-size: 14px; color: #94a3b8;">${error.message}</p>
+                    <button onclick="loadResults()" class="btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-sync"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+function applyFilters() {
     const testFilter = document.getElementById('testFilter')?.value || '';
     const searchText = document.getElementById('searchResults')?.value.toLowerCase() || '';
     
-    let results = JSON.parse(localStorage.getItem('results') || '[]');
-    
-    if (results.length === 0) {
-        results = [
-            { id: 1, studentName: 'Rahul Sharma', testName: 'NEST Mock Test 1', score: 85, totalMarks: 100, percentage: 85, rank: 1, date: '2025-12-20' },
-            { id: 2, studentName: 'Priya Patel', testName: 'NEST Mock Test 1', score: 78, totalMarks: 100, percentage: 78, rank: 2, date: '2025-12-20' },
-            { id: 3, studentName: 'Amit Kumar', testName: 'IAT Mock Test 1', score: 72, totalMarks: 100, percentage: 72, rank: 3, date: '2025-12-21' }
-        ];
-    }
-    
-    let filteredResults = results.filter(r => {
-        const matchesTest = !testFilter || r.testName === testFilter;
-        const matchesSearch = !searchText || r.studentName.toLowerCase().includes(searchText) || r.testName.toLowerCase().includes(searchText);
+    let filtered = allResults.filter(r => {
+        const matchesTest = !testFilter || (r.testName && r.testName === testFilter) || (r.test_name && r.test_name === testFilter);
+        const studentName = r.studentName || r.student_name || '';
+        const testName = r.testName || r.test_name || '';
+        const matchesSearch = !searchText || 
+            studentName.toLowerCase().includes(searchText) || 
+            testName.toLowerCase().includes(searchText);
         return matchesTest && matchesSearch;
     });
     
-    if (filteredResults.length === 0) {
-        container.innerHTML = '<div class="coming-soon">No results found.</div>';
+    displayResults(filtered);
+}
+
+function displayResults(results) {
+    const container = document.getElementById('resultsTableContainer');
+    if (!container) return;
+    
+    if (results.length === 0) {
+        container.innerHTML = `
+            <div class="coming-soon" style="text-align: center; padding: 60px 20px; color: #94a3b8;">
+                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p style="font-size: 18px;">No results found</p>
+            </div>
+        `;
         return;
     }
     
@@ -82,41 +130,91 @@ function loadResults() {
                 </tr>
             </thead>
             <tbody>
-                ${filteredResults.map(r => `
-                    <tr>
-                        <td><span class="rank-badge">#${r.rank}</span></td>
-                        <td>${r.studentName}</td>
-                        <td>${r.testName}</td>
-                        <td><strong>${r.score}/${r.totalMarks}</strong></td>
-                        <td><strong>${r.percentage}%</strong></td>
-                        <td>${r.date}</td>
-                        <td>
-                            <button class="action-btn" onclick="viewResult(${r.id})" title="View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('')}
+                ${results.map(r => {
+                    const rank = r.rank || '-';
+                    const studentName = r.studentName || r.student_name || 'Unknown';
+                    const testName = r.testName || r.test_name || 'Unknown Test';
+                    const score = r.score || 0;
+                    const totalMarks = r.totalMarks || r.total_marks || 100;
+                    const percentage = r.percentage || Math.round((score / totalMarks) * 100);
+                    const date = r.date || r.created_at || new Date().toISOString().split('T')[0];
+                    const resultId = r.id || r.result_id;
+                    
+                    return `
+                        <tr>
+                            <td><span class="rank-badge">#${rank}</span></td>
+                            <td>${studentName}</td>
+                            <td>${testName}</td>
+                            <td><strong>${score}/${totalMarks}</strong></td>
+                            <td><strong>${percentage}%</strong></td>
+                            <td>${new Date(date).toLocaleDateString('en-IN')}</td>
+                            <td>
+                                <button class="action-btn" onclick="viewResult(${resultId})" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')}
             </tbody>
         </table>
     `;
 }
 
 function viewResult(id) {
-    const results = JSON.parse(localStorage.getItem('results') || '[]');
-    const result = results.find(r => r.id == id);
-    if (result) {
-        alert(`Student: ${result.studentName}\nTest: ${result.testName}\nScore: ${result.score}/${result.totalMarks}\nPercentage: ${result.percentage}%\nRank: #${result.rank}\nDate: ${result.date}`);
+    const result = allResults.find(r => r.id == id || r.result_id == id);
+    if (!result) {
+        alert('Result not found');
+        return;
     }
+    
+    const studentName = result.studentName || result.student_name || 'Unknown';
+    const testName = result.testName || result.test_name || 'Unknown Test';
+    const score = result.score || 0;
+    const totalMarks = result.totalMarks || result.total_marks || 100;
+    const percentage = result.percentage || Math.round((score / totalMarks) * 100);
+    const rank = result.rank || '-';
+    const date = result.date || result.created_at || '-';
+    
+    alert(`Student: ${studentName}\nTest: ${testName}\nScore: ${score}/${totalMarks}\nPercentage: ${percentage}%\nRank: #${rank}\nDate: ${date}`);
 }
 
 function exportResults() {
-    const results = JSON.parse(localStorage.getItem('results') || '[]');
+    if (allResults.length === 0) {
+        alert('No results to export');
+        return;
+    }
+    
     if (typeof AdminUtils !== 'undefined') {
-        AdminUtils.exportToCSV(results, 'results.csv');
+        AdminUtils.exportToCSV(allResults, 'results.csv');
+    } else {
+        // Fallback CSV export
+        const csv = 'Rank,Student,Test,Score,Percentage,Date\n' +
+            allResults.map(r => {
+                const rank = r.rank || '-';
+                const studentName = r.studentName || r.student_name || 'Unknown';
+                const testName = r.testName || r.test_name || 'Unknown Test';
+                const score = r.score || 0;
+                const totalMarks = r.totalMarks || r.total_marks || 100;
+                const percentage = r.percentage || Math.round((score / totalMarks) * 100);
+                const date = r.date || r.created_at || '-';
+                return `${rank},"${studentName}","${testName}",${score}/${totalMarks},${percentage}%,${date}`;
+            }).join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `results-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
     }
 }
 
 if (document.getElementById('view-results-page')) {
     initResults();
 }
+
+window.initResults = initResults;
+window.viewResult = viewResult;
+window.exportResults = exportResults;
+window.loadResults = loadResults;
