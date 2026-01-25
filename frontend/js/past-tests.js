@@ -1,6 +1,6 @@
 /**
  * Past Tests Module - Backend Integration
- * FIXED: 2026-01-25 - Fetching from backend instead of hardcoded data
+ * FIXED: 2026-01-25 - Correct API endpoints and better error handling
  */
 
 let pastTests = [];
@@ -103,15 +103,34 @@ async function loadPastTests() {
     try {
         console.log('🔄 Fetching past tests from backend...');
         
-        // ✅ FIXED: Fetch from backend API
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/past-tests`);
+        // ✅ FIXED: Use correct results endpoint
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/results`);
+        
+        console.log('📥 Response status:', response.status);
+        
+        // Handle empty data (not an error)
+        if (response.status === 404 || response.status === 204) {
+            console.log('ℹ️ No past tests found (empty database)');
+            pastTests = [];
+            showEmptyState();
+            return;
+        }
         
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
-        pastTests = data.tests || [];
+        
+        // Handle successful response with empty results
+        if (data.success && (!data.results || data.results.length === 0)) {
+            console.log('ℹ️ Database returned empty results');
+            pastTests = [];
+            showEmptyState();
+            return;
+        }
+        
+        pastTests = data.results || data.tests || [];
         
         console.log(`✅ Loaded ${pastTests.length} past tests from database`);
         
@@ -120,28 +139,55 @@ async function loadPastTests() {
         
     } catch (error) {
         console.error('❌ Failed to load past tests:', error);
-        
-        // Show error message
-        const container = document.getElementById('testsContainer');
-        if (container) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
-                    <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
-                    <p style="font-size: 18px; margin-bottom: 8px;">Failed to load past tests</p>
-                    <p style="font-size: 14px; color: #94a3b8;">${error.message}</p>
-                    <button onclick="loadPastTests()" class="btn-primary" style="margin-top: 20px;">
-                        <i class="fas fa-sync"></i> Retry
-                    </button>
-                </div>
-            `;
-        }
+        showErrorState(error);
     }
+}
+
+function showEmptyState() {
+    const container = document.getElementById('testsContainer');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div style="text-align: center; padding: 80px 20px; color: #94a3b8; background: white; border-radius: 12px;">
+            <i class="fas fa-history" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
+            <h3 style="margin: 0 0 12px 0; font-size: 20px; color: #64748b;">No Past Tests Yet</h3>
+            <p style="margin: 0 0 24px 0; font-size: 14px; color: #94a3b8;">
+                Past tests will appear here after students complete their exams
+            </p>
+            <button onclick="window.location.href='#create-test'" class="btn-primary">
+                <i class="fas fa-plus"></i> Create Your First Test
+            </button>
+        </div>
+    `;
+    
+    // Update stats to show zeros
+    document.getElementById('totalTests').textContent = '0';
+    document.getElementById('totalParticipants').textContent = '0';
+    document.getElementById('avgScore').textContent = '0%';
+}
+
+function showErrorState(error) {
+    const container = document.getElementById('testsContainer');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: #ef4444; background: white; border-radius: 12px;">
+            <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <h3 style="margin: 0 0 8px 0; font-size: 18px;">Unable to Load Past Tests</h3>
+            <p style="margin: 0 0 20px 0; font-size: 14px; color: #94a3b8;">
+                Please check your connection and try again
+            </p>
+            <button onclick="loadPastTests()" class="btn-primary" style="margin-top: 20px;">
+                <i class="fas fa-sync"></i> Retry
+            </button>
+        </div>
+    `;
 }
 
 function updateStats() {
     const totalTests = pastTests.length;
-    const totalParticipants = pastTests.reduce((sum, t) => sum + (t.participants || 0), 0);
-    const avgScore = totalTests > 0 ? (pastTests.reduce((sum, t) => sum + (t.avgScore || t.avg_score || 0), 0) / totalTests).toFixed(1) : 0;
+    const totalParticipants = pastTests.reduce((sum, t) => sum + (t.participants || t.total_participants || 0), 0);
+    const avgScore = totalTests > 0 ? (pastTests.reduce((sum, t) => sum + (t.avgScore || t.avg_score || t.average_score || 0), 0) / totalTests).toFixed(1) : 0;
     
     document.getElementById('totalTests').textContent = totalTests;
     document.getElementById('totalParticipants').textContent = totalParticipants;
@@ -158,13 +204,13 @@ function applyPastTestsFilters() {
     
     if (year !== 'all') {
         filtered = filtered.filter(t => {
-            const testDate = t.date || t.exam_date || '';
+            const testDate = t.date || t.exam_date || t.test_date || '';
             return testDate.includes(year);
         });
     }
     if (month !== 'all') {
         filtered = filtered.filter(t => {
-            const testDate = t.date || t.exam_date || '';
+            const testDate = t.date || t.exam_date || t.test_date || '';
             const testMonth = new Date(testDate).getMonth() + 1;
             return testMonth == month;
         });
@@ -189,23 +235,25 @@ function displayPastTests(tests) {
     if (tests.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #94a3b8;">
-                <i class="fas fa-history" style="font-size: 48px; margin-bottom: 16px;"></i>
-                <p style="font-size: 18px;">No past tests found</p>
+                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                <p style="font-size: 18px;">No tests match your filters</p>
+                <p style="font-size: 14px; color: #94a3b8;">Try adjusting your search criteria</p>
             </div>
         `;
         return;
     }
     
     container.innerHTML = tests.map(test => {
-        const name = test.name || test.test_name || 'Unnamed Test';
-        const type = test.type || test.test_type || 'TEST';
-        const date = test.date || test.exam_date || '-';
+        // Handle multiple possible field names
+        const name = test.name || test.test_name || test.testName || 'Unnamed Test';
+        const type = test.type || test.test_type || test.testType || 'TEST';
+        const date = test.date || test.exam_date || test.test_date || '-';
         const subject = test.subject || test.subjects || 'General';
-        const participants = test.participants || test.total_participants || 0;
-        const avgScore = test.avgScore || test.avg_score || 0;
-        const highestScore = test.highestScore || test.highest_score || 0;
-        const lowestScore = test.lowestScore || test.lowest_score || 0;
-        const testId = test.id || test.test_id;
+        const participants = test.participants || test.total_participants || test.totalParticipants || 0;
+        const avgScore = test.avgScore || test.avg_score || test.average_score || 0;
+        const highestScore = test.highestScore || test.highest_score || test.max_score || 0;
+        const lowestScore = test.lowestScore || test.lowest_score || test.min_score || 0;
+        const testId = test.id || test.test_id || test.testId;
         
         return `
             <div class="card" style="padding: 24px; border-left: 4px solid ${type === 'IAT' ? '#3b82f6' : type === 'NEST' ? '#10b981' : '#f59e0b'};">
@@ -246,7 +294,7 @@ function displayPastTests(tests) {
 function archiveTest(id) {
     if (confirm('Archive this test?')) {
         // Call backend API to archive
-        fetch(`${window.API_BASE_URL}/api/admin/past-tests/${id}/archive`, {
+        fetch(`${window.API_BASE_URL}/api/admin/results/${id}/archive`, {
             method: 'POST'
         })
         .then(res => res.json())
