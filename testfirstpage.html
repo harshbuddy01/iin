@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 01:10 IST - CALENDAR BANNER REDESIGN -->
+    <!-- CACHE CLEAR: 2026-01-26 01:14 IST - ULTRA MINIMAL CALENDAR BANNER WITH SVG -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0110">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0110">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0110">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0110">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0110">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0114">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0114">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0114">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0114">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0114">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -79,88 +79,92 @@
             padding-left: 24px;
         }
 
-        /* ========== MINIMAL CALENDAR BANNER - REDESIGNED ========== */
+        /* ========== ULTRA MINIMAL CALENDAR BANNER ========== */
         .calendar-banner {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
             border: 1.5px solid rgba(20, 184, 166, 0.25);
-            border-radius: 16px;
-            padding: 24px 28px;
+            border-radius: 14px;
+            padding: 14px 24px;
             margin-bottom: 48px;
             display: none;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
             backdrop-filter: blur(15px);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            height: auto;
         }
 
         .calendar-banner:hover {
             border-color: rgba(20, 184, 166, 0.5);
             box-shadow: 0 8px 32px rgba(20, 184, 166, 0.15);
-            transform: translateY(-4px);
+            transform: translateY(-2px);
         }
 
-        /* ANIMATED ICON - ELEGANT & MINIMAL */
+        /* ANIMATED SVG CALENDAR GRAPHIC */
         .calendar-icon {
-            font-size: 2.4rem;
-            background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: floatCalendar 3s ease-in-out infinite;
-            margin-bottom: 4px;
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: calendarPulse 2.5s ease-in-out infinite;
         }
 
-        @keyframes floatCalendar {
+        @keyframes calendarPulse {
             0%, 100% { 
-                transform: translateY(0px) scale(1);
+                transform: scale(1);
             }
             50% { 
-                transform: translateY(-6px) scale(1.05);
+                transform: scale(1.08);
             }
         }
 
         .calendar-content {
-            text-align: center;
+            flex: 1;
+            min-width: 0;
         }
 
         .calendar-title {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             font-weight: 800;
             color: #ffffff;
-            margin: 0 0 6px 0;
+            margin: 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             font-family: 'Outfit', sans-serif;
         }
 
         .calendar-subtitle {
-            color: rgba(148, 163, 184, 0.9);
-            font-size: 0.85rem;
-            line-height: 1.4;
-            margin: 0;
+            color: rgba(148, 163, 184, 0.85);
+            font-size: 0.8rem;
+            margin: 2px 0 0 0;
             font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .calendar-btn {
             background: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
             color: white;
             font-weight: 700;
-            padding: 10px 24px;
+            padding: 10px 20px;
             border-radius: 10px;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.8rem;
+            letter-spacing: 0.8px;
+            font-size: 0.75rem;
             border: none;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
-            margin-top: 8px;
             box-shadow: 0 4px 16px rgba(20, 184, 166, 0.3);
+            flex-shrink: 0;
         }
 
         .calendar-btn:hover {
@@ -577,17 +581,23 @@
 
         @media (max-width: 768px) {
             .calendar-banner {
-                padding: 18px 20px;
+                flex-wrap: wrap;
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            .calendar-icon {
+                width: 40px;
+                height: 40px;
             }
             .calendar-title {
-                font-size: 0.95rem;
+                font-size: 0.85rem;
             }
             .calendar-subtitle {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
             .calendar-btn {
-                padding: 8px 18px;
-                font-size: 0.75rem;
+                padding: 8px 16px;
+                font-size: 0.7rem;
             }
             .action-buttons {
                 flex-direction: column;
@@ -747,24 +757,39 @@
 
         <div id="calendarBanner" class="calendar-banner">
             <div class="calendar-icon">
-                <i class="fas fa-sparkles"></i>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Calendar graphic with animated effect -->
+                    <rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="url(#calendarGradient)" stroke-width="1.5" stroke-linejoin="round"/>
+                    <line x1="2" y1="9" x2="22" y2="9" stroke="url(#calendarGradient)" stroke-width="1.5"/>
+                    <circle cx="7" cy="14" r="1.5" fill="url(#calendarGradient)" opacity="0.8"/>
+                    <circle cx="12" cy="14" r="1.5" fill="url(#calendarGradient)" opacity="0.6"/>
+                    <circle cx="17" cy="14" r="1.5" fill="url(#calendarGradient)" opacity="0.4"/>
+                    <line x1="6" y1="6" x2="6" y2="4" stroke="url(#calendarGradient)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="18" y1="6" x2="18" y2="4" stroke="url(#calendarGradient)" stroke-width="1.5" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="calendarGradient" x1="0" y1="0" x2="24" y2="24">
+                            <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
             </div>
             <div class="calendar-content">
                 <h2 class="calendar-title">View Your Upcoming Tests</h2>
-                <p class="calendar-subtitle">Check your personalized test schedule and prepare</p>
+                <p class="calendar-subtitle">Check your test schedule</p>
             </div>
             <a href="student-calendar.html" class="calendar-btn">
                 <i class="fas fa-arrow-right"></i>
-                MY TEST CALENDAR
+                MY TESTS
             </a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-20" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0110"></script>
-    <script src="frontend/js/auth.js?v=20260126-0110"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0110"></script>
+    <script src="frontend/js/config.js?v=20260126-0114"></script>
+    <script src="frontend/js/auth.js?v=20260126-0114"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0114"></script>
 
     <script>
         const testSeries = [
