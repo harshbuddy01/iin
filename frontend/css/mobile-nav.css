@@ -84,6 +84,11 @@
         padding: 5px 0;
         color: white !important;
         /* Ensure visibility */
+        display: flex;
+        /* Inherited from desktop potentially, but ensure it */
+        justify-content: center;
+        /* FIX: Centers the flex content (text + icon) */
+        align-items: center;
     }
 
     .nav-links.nav-active>a,
