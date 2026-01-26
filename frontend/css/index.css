@@ -898,3 +898,79 @@ body::before {
         top: calc(4px + 160px);
     }
 }
+
+/* ================================================
+   MOBILE-RESPONSIVE NAVBAR - ADDED JAN 26, 2026
+   ================================================ */
+
+@media screen and (max-width: 768px) {
+
+    /* Stack navbar content vertically */
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 15px 5%;
+        gap: 15px;
+    }
+
+    /* Make logo smaller on mobile */
+    .logo .logo-vigyan {
+        font-size: 1.8rem;
+    }
+
+    .logo .logo-dot {
+        font-size: 1rem;
+    }
+
+    .logo .logo-prep {
+        font-size: 0.8rem;
+    }
+
+    /* Stack navigation links vertically */
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+    }
+
+    /* Make links full width and centered */
+    .nav-links > a,
+    .nav-links .nav-dropdown,
+    #navLoginPlaceholder {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Adjust link padding and font size for mobile */
+    .nav-links > a,
+    .nav-links .dropdown-trigger,
+    #navLoginPlaceholder a {
+        display: block;
+        padding: 12px 0;
+        font-size: 16px;
+    }
+
+    /* Dropdown menu adjustments for mobile */
+    .dropdown-menu {
+        position: static;
+        margin-top: 8px;
+        transform: none;
+        width: 90%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .dropdown-menu::before {
+        display: none;
+    }
+
+    /* Login button full width on mobile */
+    .btn-login {
+        width: 100%;
+        display: block;
+        padding: 12px 20px;
+        text-align: center;
+    }
+}

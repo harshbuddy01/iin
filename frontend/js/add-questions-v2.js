@@ -2,6 +2,7 @@
  * Add Questions Page V2 - Complete Admin to Student Flow
  * Properly integrates with exam structure (IISER/ISI/NEST + Year + Subject)
  * Created: 2025-12-30
+ * Updated: 2026-01-26 - Added 2026 year default and auto-generated question IDs
  */
 
 function initAddQuestions() {
@@ -44,6 +45,7 @@ function initAddQuestions() {
                             <label for="examYear">Year *</label>
                             <select id="examYear" required class="form-input" onchange="updateTestIdPreview()">
                                 <option value="">Select Year</option>
+                                <option value="2026" selected>2026</option>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
                                 <option value="2023">2023</option>
@@ -69,7 +71,7 @@ function initAddQuestions() {
                             <strong style="color: #0c4a6e;">Generated Test ID:</strong>
                         </div>
                         <div id="testIdPreview" style="font-size: 24px; font-weight: bold; color: #0284c7; font-family: monospace;">
-                            Select exam type and year
+                            Select exam type
                         </div>
                         <small style="color: #075985; margin-top: 8px; display: block;">
                             This will be used to group questions for student exams
@@ -97,9 +99,11 @@ function initAddQuestions() {
                         </div>
                         
                         <div class="form-group">
-                            <label for="questionNumber">Question Number *</label>
-                            <input type="number" id="questionNumber" required class="form-input" min="1" placeholder="e.g., 1, 2, 3...">
-                            <small style="color: #64748b;">Unique within this test</small>
+                            <label for="questionNumber">Question ID *</label>
+                            <input type="text" id="questionNumber" required class="form-input" readonly 
+                                   style="background: #f1f5f9; cursor: not-allowed;" 
+                                   placeholder="Auto-generated">
+                            <small style="color: #64748b;">Auto-generated: EXAM_YEAR_randomnumber</small>
                         </div>
                         
                         <div class="form-group">
@@ -282,13 +286,22 @@ function initAddQuestions() {
             document.getElementById('paperType').required = false;
             document.getElementById('paperType').value = '';
         }
+        // Generate question ID when exam type changes
+        generateQuestionId();
     });
+
+    // Generate question ID when year changes
+    document.getElementById('examYear')?.addEventListener('change', generateQuestionId);
+    document.getElementById('paperType')?.addEventListener('change', generateQuestionId);
 
     // Handle reset
     document.getElementById('resetBtn')?.addEventListener('click', () => {
         if (confirm('Are you sure you want to reset the form?')) {
             document.getElementById('addQuestionForm').reset();
-            document.getElementById('testIdPreview').textContent = 'Select exam type and year';
+            // Reset year back to 2026
+            document.getElementById('examYear').value = '2026';
+            document.getElementById('testIdPreview').textContent = 'Select exam type';
+            document.getElementById('questionNumber').value = '';
             document.getElementById('paperTypeGroup').style.display = 'none';
         }
     });
@@ -308,7 +321,7 @@ function initAddQuestions() {
             const examYear = document.getElementById('examYear').value;
             const paperType = document.getElementById('paperType').value;
             const subject = document.getElementById('subject').value;
-            const questionNumber = parseInt(document.getElementById('questionNumber').value);
+            const questionNumber = document.getElementById('questionNumber').value; // Now it's the generated ID
             const marks = parseInt(document.getElementById('marks').value);
             const questionText = document.getElementById('questionText').value.trim();
             const correctAnswer = document.getElementById('correctAnswer').value;
@@ -339,7 +352,7 @@ function initAddQuestions() {
             // Prepare payload matching backend expectations
             const payload = {
                 testId: testId,
-                questionNumber: questionNumber,
+                questionNumber: questionNumber, // This is now the unique ID like NEST_2026_123456
                 questionText: questionText,
                 options: options,
                 correctAnswer: correctAnswer,
@@ -361,9 +374,11 @@ function initAddQuestions() {
                 alert(`✅ Question ${questionNumber} added successfully for ${testId}!`);
             }
 
-            // Reset form
+            // Reset form but keep year as 2026
             document.getElementById('addQuestionForm').reset();
-            document.getElementById('testIdPreview').textContent = 'Select exam type and year';
+            document.getElementById('examYear').value = '2026';
+            document.getElementById('testIdPreview').textContent = 'Select exam type';
+            document.getElementById('questionNumber').value = '';
             document.getElementById('paperTypeGroup').style.display = 'none';
 
         } catch (error) {
@@ -381,7 +396,40 @@ function initAddQuestions() {
         }
     });
 
+    // Initialize with 2026 year selected and update preview
+    document.getElementById('examYear').value = '2026';
+    updateTestIdPreview();
+
     console.log('✅ Add Questions V2 page initialized');
+}
+
+// Generate unique question ID in format: EXAM_YEAR_randomnumber
+function generateQuestionId() {
+    const examType = document.getElementById('examType')?.value;
+    const examYear = document.getElementById('examYear')?.value;
+    const paperType = document.getElementById('paperType')?.value;
+    const questionNumberField = document.getElementById('questionNumber');
+
+    if (!questionNumberField) return;
+
+    if (!examType || !examYear) {
+        questionNumberField.value = '';
+        return;
+    }
+
+    // Generate random 6-digit number
+    const randomNum = Math.floor(100000 + Math.random() * 900000);
+
+    // Build question ID
+    let questionId = `${examType}_${examYear}`;
+    if (paperType) {
+        questionId += `_${paperType}`;
+    }
+    questionId += `_${randomNum}`;
+
+    questionNumberField.value = questionId;
+
+    console.log('🔢 Generated Question ID:', questionId);
 }
 
 // Update Test ID Preview
@@ -394,7 +442,7 @@ window.updateTestIdPreview = function () {
     if (!preview) return;
 
     if (!examType || !examYear) {
-        preview.textContent = 'Select exam type and year';
+        preview.textContent = 'Select exam type';
         preview.style.color = '#94a3b8';
         return;
     }
