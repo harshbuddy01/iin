@@ -1,8 +1,9 @@
 /**
  * Admin API Service - Complete Backend Integration
  * Backend: Hostinger (https://backend-vigyanpreap.vigyanprep.com)
- * Updated: 2026-01-25 - COMPLETE API COVERAGE
+ * Updated: 2026-01-26 - VERSION 700 (CACHE BUSTER)
  */
+console.log('🚀 AdminAPI Service v700 Loading...');
 
 const AdminAPI = {
     // 🚀 PRODUCTION Hostinger Backend URL
