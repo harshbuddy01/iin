@@ -903,74 +903,171 @@ body::before {
    MOBILE-RESPONSIVE NAVBAR - ADDED JAN 26, 2026
    ================================================ */
 
-@media screen and (max-width: 768px) {
+/* =========================================
+   MOBILE NAVIGATION (DRAWER) - UPDATED
+   ========================================= */
 
-    /* Stack navbar content vertically */
+/* Default: Hide Hamburger on Desktop */
+.hamburger {
+    display: none;
+    cursor: pointer;
+    z-index: 1100;
+}
+
+.bar {
+    display: block;
+    width: 25px;
+    height: 3px;
+    margin: 5px auto;
+    -webkit-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+    background-color: white;
+    border-radius: 2px;
+}
+
+/* Mobile Styling */
+@media screen and (max-width: 768px) {
+    /* Reset Navbar Flex for Mobile */
     .navbar {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
-        padding: 15px 5%;
-        gap: 15px;
+        padding: 20px 5%;
     }
 
-    /* Make logo smaller on mobile */
+    /* Logo adjustment */
     .logo .logo-vigyan {
         font-size: 1.8rem;
     }
 
-    .logo .logo-dot {
-        font-size: 1rem;
+    .hamburger {
+        display: block;
     }
 
-    .logo .logo-prep {
-        font-size: 0.8rem;
+    .hamburger.active .bar:nth-child(2) {
+        opacity: 0;
     }
 
-    /* Stack navigation links vertically */
+    .hamburger.active .bar:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .hamburger.active .bar:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+
+    /* Drawer Styles */
     .nav-links {
-        display: flex;
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        width: 100%;
+        background: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        display: flex; /* Flex is needed for centering */
         flex-direction: column;
         align-items: center;
-        width: 100%;
-        gap: 10px;
+        justify-content: center;
+        gap: 30px;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1050;
+        padding-top: 60px;
     }
 
-    /* Make links full width and centered */
+    .nav-links.nav-active {
+        transform: translateX(0);
+    }
+
+    /* Links inside drawer */
     .nav-links > a,
-    .nav-links .nav-dropdown,
+    .dropdown-trigger {
+        font-size: 1.5rem;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        text-align: center;
+        width: 100%;
+        margin: 0;
+        padding: 5px 0;
+    }
+
+    .nav-links.nav-active > a,
+    .nav-links.nav-active .nav-dropdown {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Staggered animation */
+    .nav-links.nav-active > *:nth-child(1) { transition-delay: 0.1s; }
+    .nav-links.nav-active > *:nth-child(2) { transition-delay: 0.2s; }
+    .nav-links.nav-active > *:nth-child(3) { transition-delay: 0.3s; }
+    .nav-links.nav-active > *:nth-child(4) { transition-delay: 0.4s; }
+    .nav-links.nav-active > *:nth-child(5) { transition-delay: 0.5s; }
+    .nav-links.nav-active > *:nth-child(6) { transition-delay: 0.6s; }
+
+    /* Login Button in Drawer */
     #navLoginPlaceholder {
+        width: auto;
+        margin-top: 20px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.4s ease 0.7s, transform 0.4s ease 0.7s;
+    }
+    
+    .nav-links.nav-active #navLoginPlaceholder {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .btn-login {
+        width: auto;
+        display: inline-block;
+        font-size: 1.2rem;
+        padding: 12px 40px;
+    }
+
+    /* Dropdowns in Drawer */
+    .nav-dropdown {
         width: 100%;
         text-align: center;
     }
 
-    /* Adjust link padding and font size for mobile */
-    .nav-links > a,
-    .nav-links .dropdown-trigger,
-    #navLoginPlaceholder a {
-        display: block;
-        padding: 12px 0;
-        font-size: 16px;
-    }
-
-    /* Dropdown menu adjustments for mobile */
     .dropdown-menu {
         position: static;
-        margin-top: 8px;
         transform: none;
-        width: 90%;
-        margin-left: auto;
-        margin-right: auto;
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        margin-top: 10px;
+        display: none; 
+        padding: 0;
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .nav-dropdown:hover .dropdown-menu,
+    .nav-dropdown:focus-within .dropdown-menu {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .dropdown-menu a {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        padding: 8px 0;
+        display: block;
     }
 
     .dropdown-menu::before {
         display: none;
     }
-
-    /* Login button full width on mobile */
-    .btn-login {
-        width: 100%;
-        display: block;
-        padding: 12px 20px;
-        text-align: center;
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 }
