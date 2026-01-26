@@ -930,10 +930,10 @@ body::before {
 
     /* Reset Navbar Flex for Mobile */
     .navbar {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 5%;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 20px 5% !important;
     }
 
     /* Logo adjustment */
