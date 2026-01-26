@@ -3,8 +3,10 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
-import { pool } from '../config/mysql.js';
 import { fileURLToPath } from 'url';
+// ✅ MONGODB MIGRATION: Using Mongoose Models
+import QuestionModel from '../schemas/QuestionSchema.js';
+import PdfUpload from '../schemas/PdfUploadSchema.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -41,40 +43,40 @@ const upload = multer({
 router.get('/test-python', async (req, res) => {
     try {
         console.log('🧪 Testing Python and PyPDF2...');
-        
+
         // Test 1: Python version
         const pythonTest = spawn('python3', ['--version']);
         let pythonVersion = '';
-        
+
         pythonTest.stdout.on('data', (data) => {
             pythonVersion += data.toString();
         });
-        
+
         pythonTest.stderr.on('data', (data) => {
             pythonVersion += data.toString();
         });
-        
+
         await new Promise((resolve) => pythonTest.on('close', resolve));
-        
+
         // Test 2: PyPDF2 availability
         const pypdfTest = spawn('python3', ['-c', 'import PyPDF2; print("PyPDF2 version:", PyPDF2.__version__)']);
         let pypdfResult = '';
         let pypdfError = '';
-        
+
         pypdfTest.stdout.on('data', (data) => {
             pypdfResult += data.toString();
         });
-        
+
         pypdfTest.stderr.on('data', (data) => {
             pypdfError += data.toString();
         });
-        
+
         await new Promise((resolve) => pypdfTest.on('close', resolve));
-        
+
         // Test 3: Check if pdf_processor.py exists
         const pythonScriptPath = path.join(__dirname, '../pdf_processor.py');
         const scriptExists = fs.existsSync(pythonScriptPath);
-        
+
         res.json({
             success: true,
             tests: {
@@ -119,7 +121,7 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
         // If auto-extract is enabled, run Python script
         if (autoExtract === 'true') {
             console.log('🤖 Running AI extraction...');
-            
+
             // Check if Python script exists
             const pythonScriptPath = path.join(__dirname, '../pdf_processor.py');
             if (!fs.existsSync(pythonScriptPath)) {
@@ -129,10 +131,10 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                     details: 'The pdf_processor.py script is missing from the backend folder'
                 });
             }
-            
+
             console.log('🐍 Spawning Python process...');
             console.log('Command: python3', [pythonScriptPath, pdfPath, examType || '', subject || '', topic || '', year || '']);
-            
+
             const pythonProcess = spawn('python3', [
                 pythonScriptPath,
                 pdfPath,
@@ -208,18 +210,18 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                     // Validate JSON before parsing
                     const trimmedOutput = pythonOutput.trim();
                     console.log('📝 First 500 chars of output:', trimmedOutput.substring(0, 500));
-                    
+
                     if (!trimmedOutput.startsWith('{') && !trimmedOutput.startsWith('[')) {
                         throw new Error('Output is not valid JSON. First 100 chars: ' + trimmedOutput.substring(0, 100));
                     }
-                    
+
                     const result = JSON.parse(trimmedOutput);
                     console.log('✅ Successfully parsed JSON result');
                     console.log('📊 Result contains:', Object.keys(result));
-                    
+
                     if (result.error || result.success === false) {
                         console.error('❌ Python script returned error:', result.error);
-                        return res.status(500).json({ 
+                        return res.status(500).json({
                             error: result.error || 'PDF processing failed',
                             pythonError: true,
                             details: result.error_type || 'Unknown error type'
@@ -237,8 +239,8 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
 
                     console.log('✅ Extracted', result.questions.length, 'questions');
 
-                    // Save questions to database
-                    const savedQuestions = await saveQuestionsToDb(result.questions);
+                    // Save questions to database (MongoDB)
+                    const savedQuestions = await saveQuestionsToDb(result.questions, fileName);
                     console.log('💾 Saved', savedQuestions.length, 'questions to database');
 
                     // Save upload record
@@ -256,15 +258,8 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
 
                     await saveUploadRecord(uploadRecord);
 
-                    // Create notification
-                    try {
-                        await pool.query(
-                            'INSERT INTO admin_notifications (title, message, type, is_read, created_at) VALUES (?, ?, ?, 0, NOW())',
-                            ['PDF Processed', `${result.total_questions || result.questions.length} questions extracted from ${fileName}`, 'success']
-                        );
-                    } catch (e) { 
-                        console.warn('⚠️ Could not create notification:', e.message);
-                    }
+                    // Create check for notifications (can implement proper MongoDB notification later)
+                    console.log('✅ Notification Logic Skipped (Notifications table deprecated in Mongo migration)');
 
                     res.json({
                         success: true,
@@ -321,82 +316,74 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
     }
 });
 
-// Helper function to save questions to database
-async function saveQuestionsToDb(questions) {
+// Helper function to save questions to database (MongoDB)
+async function saveQuestionsToDb(questions, source = 'PDF_UPLOAD') {
     const savedIds = [];
-    
+
     for (const q of questions) {
         try {
-            const query = `
-                INSERT INTO questions 
-                (question_text, subject, exam_type, difficulty, topic, year, options, correct_answer, marks_positive, has_math, section, test_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
-            
-            const options = JSON.stringify(q.options);
-            const values = [
-                q.question_text,
-                q.subject || '',
-                q.examType || '',
-                q.difficulty || 'medium',
-                q.topic || '',
-                q.year || '',
-                options,
-                q.answer || null,
-                q.marks || 1,
-                q.has_math ? 1 : 0,
-                q.subject || 'Physics',
-                'PDF_UPLOAD'
-            ];
-            
-            const [result] = await pool.query(query, values);
-            savedIds.push(result.insertId);
-            console.log('✅ Question', q.question_number || savedIds.length, 'saved with ID:', result.insertId);
+            const options = Array.isArray(q.options)
+                ? q.options
+                : (typeof q.options === 'string' ? JSON.parse(q.options) : []);
+
+            const newQuestion = new QuestionModel({
+                questionText: q.question_text || q.questionText,
+                options: options,
+                correctAnswer: q.answer || q.correctAnswer || 'A',
+                section: q.section || q.subject || 'Physics',
+                topic: q.topic || 'General',
+                difficulty: q.difficulty || 'Medium',
+                marksPositive: q.marks || 4,
+                marksNegative: q.negativeMarks || -1,
+                testId: `PDF_${source}_${Date.now()}`, // Or link to a specific test
+                questionNumber: q.question_number || (savedIds.length + 1),
+                type: 'MCQ'
+            });
+
+            const saved = await newQuestion.save();
+            savedIds.push(saved._id);
+            console.log('✅ Question', q.question_number || savedIds.length, 'saved with ID:', saved._id);
         } catch (err) {
             console.error('❌ Error saving question:', err.message);
         }
     }
-    
+
     return savedIds;
 }
 
-// Helper function to save upload record
+// Helper function to save upload record (MongoDB)
 async function saveUploadRecord(record) {
-    const query = `
-        INSERT INTO pdf_uploads 
-        (file_name, file_path, exam_type, subject, topic, year, notes, questions_extracted, upload_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    const values = [
-        record.fileName,
-        record.filePath,
-        record.examType,
-        record.subject,
-        record.topic,
-        record.year,
-        record.notes,
-        record.questionsExtracted,
-        record.uploadDate
-    ];
-    
-    const [result] = await pool.query(query, values);
-    console.log('✅ Upload record saved with ID:', result.insertId);
-    return result;
+    try {
+        const newUpload = new PdfUpload(record);
+        const saved = await newUpload.save();
+        console.log('✅ Upload record saved with ID:', saved._id);
+        return saved;
+    } catch (err) {
+        console.error('❌ Error saving upload record:', err.message);
+        throw err;
+    }
 }
 
 // GET /api/pdf/history - Get upload history
 router.get('/history', async (req, res) => {
     try {
-        const query = `
-            SELECT id, file_name, exam_type, subject, topic, year, 
-                   questions_extracted, upload_date 
-            FROM pdf_uploads 
-            ORDER BY upload_date DESC 
-            LIMIT 50
-        `;
-        
-        const [results] = await pool.query(query);
+        // Fetch last 50 uploads
+        const uploads = await PdfUpload.find()
+            .sort({ uploadDate: -1 })
+            .limit(50);
+
+        // Map to frontend expected format if needed, but schema is close enough
+        const results = uploads.map(u => ({
+            id: u._id,
+            file_name: u.fileName,
+            exam_type: u.examType,
+            subject: u.subject,
+            topic: u.topic,
+            year: u.year,
+            questions_extracted: u.questionsExtracted,
+            upload_date: u.uploadDate
+        }));
+
         console.log(`✅ Fetched ${results.length} upload records`);
         res.json({ success: true, uploads: results });
     } catch (error) {
@@ -409,23 +396,25 @@ router.get('/history', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
-        // Get file path before deleting
-        const getQuery = 'SELECT file_path FROM pdf_uploads WHERE id = ?';
-        const [result] = await pool.query(getQuery, [id]);
-        
-        if (result.length > 0 && result[0].file_path) {
+
+        // Find by ID
+        const upload = await PdfUpload.findById(id);
+
+        if (upload && upload.filePath) {
             // Delete physical file
-            if (fs.existsSync(result[0].file_path)) {
-                fs.unlinkSync(result[0].file_path);
-                console.log('✅ PDF file deleted:', result[0].file_path);
+            if (fs.existsSync(upload.filePath)) {
+                try {
+                    fs.unlinkSync(upload.filePath);
+                    console.log('✅ PDF file deleted:', upload.filePath);
+                } catch (e) {
+                    console.warn('⚠️ Could not delete file:', e.message);
+                }
             }
         }
-        
+
         // Delete database record
-        const deleteQuery = 'DELETE FROM pdf_uploads WHERE id = ?';
-        await pool.query(deleteQuery, [id]);
-        
+        await PdfUpload.findByIdAndDelete(id);
+
         console.log('✅ Upload record deleted:', id);
         res.json({ success: true, message: 'Upload deleted' });
     } catch (error) {
@@ -435,3 +424,4 @@ router.delete('/:id', async (req, res) => {
 });
 
 export default router;
+
