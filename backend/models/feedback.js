@@ -1,40 +1,76 @@
 import mongoose from "mongoose";
 
 const feedbackSchema = new mongoose.Schema({
-  email: { 
-    type: String, 
+  email: {
+    type: String,
     required: true,
     lowercase: true,
-    trim: true 
+    trim: true
   },
-  
-  rollNumber: { 
-    type: String, 
-    required: true
+  rollNumber: {
+    type: String,
+    required: true,
+    trim: true
   },
-  
   testId: {
     type: String,
-    required: true
+    required: true,
+    enum: ['iat', 'nest', 'isi'],
+    lowercase: true
   },
-  
   ratings: {
-    login: { type: Number, min: 0, max: 5, default: 0 },
-    interface: { type: Number, min: 0, max: 5, default: 0 },
-    quality: { type: Number, min: 0, max: 5, default: 0 },
-    server: { type: Number, min: 0, max: 5, default: 0 }
+    login: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    interface: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    quality: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    server: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    }
   },
-  
   comment: {
     type: String,
-    default: ""
+    required: true,
+    trim: true,
+    maxlength: 1000
   },
-  
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  submittedAt: {
+    type: Date,
+    default: Date.now
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'reviewed', 'resolved'],
+    default: 'pending'
   }
 });
 
-const Feedback = mongoose.model("Feedback", feedbackSchema);
+// Calculate average rating before saving
+feedbackSchema.pre('save', function(next) {
+  const { login, interface: interfaceRating, quality, server } = this.ratings;
+  this.averageRating = (login + interfaceRating + quality + server) / 4;
+  next();
+});
+
+const Feedback = mongoose.model('Feedback', feedbackSchema);
 export default Feedback;
