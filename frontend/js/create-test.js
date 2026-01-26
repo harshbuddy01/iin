@@ -184,7 +184,7 @@ async function handleCreateTest(e) {
 
     // Get form values
     const testName = document.getElementById('testName').value;
-    const examType = document.getElementById('examType').value.toUpperCase();
+    const examType = document.getElementById('examType').value.toLowerCase(); // 🔥 FIXED: Convert to lowercase for backend
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
     const testDescription = document.getElementById('testDescription').value;
@@ -195,14 +195,14 @@ async function handleCreateTest(e) {
     // 🔥 CRITICAL FIX: Backend server.js expects snake_case field names
     const testData = {
         test_name: testName,                             // backend expects: test_name (snake_case)
-        test_type: examType,                             // backend expects: test_type (snake_case)
-        test_id: `TEST-${examType}-${Date.now()}`,       // backend expects: test_id (snake_case)
+        test_type: examType,                             // backend expects: test_type (snake_case) - now lowercase
+        test_id: `TEST-${examType.toUpperCase()}-${Date.now()}`,       // test_id can use uppercase for readability
         exam_date: testDate,                             // backend expects: exam_date (snake_case)
         start_time: testTime + ':00',                    // backend expects: start_time (snake_case with seconds)
         duration_minutes: durationMinutes,               // backend expects: duration_minutes (snake_case)
         total_marks: totalMarks,                         // backend expects: total_marks (snake_case)
         subjects: sectionsString,                        // backend expects: subjects
-        description: testDescription || `${examType} test: ${testName}`, // backend expects: description
+        description: testDescription || `${examType.toUpperCase()} test: ${testName}`, // backend expects: description
         total_questions: 0,                              // backend expects: total_questions
         status: 'scheduled'                              // backend expects: status
     };
