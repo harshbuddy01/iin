@@ -360,7 +360,7 @@
                         url: '/api/admin/tests',
                         testData: {
                             test_name: 'Diagnostic Test',
-                            test_type: 'iat',  // 🔥 FIXED: lowercase to match backend enum ['iat', 'nest', 'isi']
+                            test_type: 'iat',
                             test_id: 'TEST-IAT-' + Date.now(),
                             exam_date: '2026-02-01',
                             start_time: '10:00:00',
@@ -403,7 +403,31 @@
                 endpoints: [
                     { name: 'Get All Questions', method: 'GET', url: '/api/admin/questions' },
                     { name: 'Get Single Question', method: 'GET', url: '/api/admin/questions/1', expectValidation: true },
-                    { name: 'Add New Question', method: 'POST', url: '/api/admin/questions', expectValidation: true },
+                    { 
+                        name: 'Add New Question', 
+                        method: 'POST', 
+                        url: '/api/admin/questions',
+                        testData: {
+                            testId: 'NEST_2026',
+                            examType: 'NEST',
+                            year: '2026',
+                            paperType: null,
+                            questionNumber: 1,
+                            questionText: 'What is the value of acceleration due to gravity on Earth?',
+                            options: [
+                                '9.8 m/s²',
+                                '10.8 m/s²',
+                                '8.8 m/s²',
+                                '11.8 m/s²'
+                            ],
+                            correctAnswer: 'A',
+                            section: 'Physics',
+                            marks: 4,
+                            difficulty: 'Easy',
+                            topic: 'Mechanics',
+                            explanation: 'Standard value of g on Earth surface is approximately 9.8 m/s²'
+                        }
+                    },
                     { name: 'Update Question', method: 'PUT', url: '/api/admin/questions/1', expectValidation: true },
                     { name: 'Delete Question', method: 'DELETE', url: '/api/admin/questions/1', expectValidation: true },
                     { name: 'Link Image to Question', method: 'POST', url: '/api/admin/questions/1/image', expectValidation: true }
