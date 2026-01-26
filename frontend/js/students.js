@@ -119,7 +119,7 @@ function displayStudents(students) {
             <td>${student.name || 'N/A'}</td>
             <td>${student.email}</td>
             <td><strong>${student.rollNumber || 'Not Assigned'}</strong></td>
-            <td><span class="badge badge-${student.course.toLowerCase()}">${student.course}</span></td>
+            <td><span class="badge badge-${(student.course || 'IAT').toLowerCase()}">${student.course || 'IAT'}</span></td>
             <td>${student.joinDate}</td>
             <td><span class="status-active">${student.status}</span></td>
             <td>

@@ -16,6 +16,10 @@ const StudentSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  course: { // 📚 ADDED: Course field for frontend compatibility
+    type: String,
+    default: 'IAT' // Default to IAT if missing
+  },
   createdAt: {
     type: Date,
     default: Date.now

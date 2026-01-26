@@ -10,11 +10,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const { search = '' } = req.query;
-        
+
         console.log(`👥 [STUDENTS] Fetching students... Search: "${search}"`);
-        
+
         let query = {};
-        
+
         if (search) {
             query = {
                 $or: [
@@ -24,30 +24,31 @@ router.get('/', async (req, res) => {
                 ]
             };
         }
-        
+
         const students = await Student.find(query)
             .sort({ createdAt: -1 })
             .limit(100);
-        
+
         // Get additional stats for each student
         const studentsWithStats = await Promise.all(
             students.map(async (student) => {
-                const testsAttempted = await StudentAttempt.countDocuments({ 
-                    email: student.email 
+                const testsAttempted = await StudentAttempt.countDocuments({
+                    email: student.email
                 });
-                
+
                 const payments = await PaymentTransaction.find({
                     email: student.email,
                     status: 'paid'
                 });
-                
+
                 const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-                
+
                 return {
                     id: student._id,
                     email: student.email,
                     fullName: student.fullName || 'N/A',
                     rollNumber: student.rollNumber || 'N/A',
+                    course: student.course || 'IAT', // ✅ ADDED: Include course
                     testsAttempted,
                     totalPaid: totalPaid / 100, // Convert paise to rupees
                     lastLogin: student.lastLoginAt,
@@ -56,9 +57,9 @@ router.get('/', async (req, res) => {
                 };
             })
         );
-        
+
         console.log(`✅ [STUDENTS] Found ${studentsWithStats.length} students`);
-        
+
         res.json({
             success: true,
             students: studentsWithStats,
@@ -75,28 +76,28 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         console.log(`👤 [STUDENTS] Fetching student: ${id}`);
-        
+
         const student = await Student.findById(id);
-        
+
         if (!student) {
             return res.status(404).json({
                 success: false,
                 error: 'Student not found'
             });
         }
-        
+
         // Get attempts
         const attempts = await StudentAttempt.find({ email: student.email })
             .sort({ submitted_at: -1 })
             .limit(10);
-        
+
         // Get payments
         const payments = await PaymentTransaction.find({
             email: student.email
         }).sort({ created_at: -1 });
-        
+
         res.json({
             success: true,
             student: {
@@ -121,16 +122,16 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const { email, fullName, rollNumber } = req.body;
-        
+
         console.log(`➕ [STUDENTS] Adding new student: ${email}`);
-        
+
         if (!email) {
             return res.status(400).json({
                 success: false,
                 error: 'Email is required'
             });
         }
-        
+
         // Check if student already exists
         const existingStudent = await Student.findOne({ email });
         if (existingStudent) {
@@ -139,17 +140,17 @@ router.post('/', async (req, res) => {
                 error: 'Student with this email already exists'
             });
         }
-        
+
         const newStudent = new Student({
             email,
             fullName: fullName || null,
             rollNumber: rollNumber || null
         });
-        
+
         await newStudent.save();
-        
+
         console.log(`✅ [STUDENTS] Student added: ${newStudent._id}`);
-        
+
         res.status(201).json({
             success: true,
             message: 'Student added successfully',
@@ -172,24 +173,24 @@ router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { email, fullName, rollNumber } = req.body;
-        
+
         console.log(`✏️ [STUDENTS] Updating student: ${id}`);
-        
+
         const updatedStudent = await Student.findByIdAndUpdate(
             id,
             { email, fullName, rollNumber },
             { new: true, runValidators: true }
         );
-        
+
         if (!updatedStudent) {
             return res.status(404).json({
                 success: false,
                 error: 'Student not found'
             });
         }
-        
+
         console.log(`✅ [STUDENTS] Student updated: ${id}`);
-        
+
         res.json({
             success: true,
             message: 'Student updated successfully',
@@ -206,23 +207,23 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         console.log(`🗑️ [STUDENTS] Deleting student: ${id}`);
-        
+
         const deletedStudent = await Student.findByIdAndDelete(id);
-        
+
         if (!deletedStudent) {
             return res.status(404).json({
                 success: false,
                 error: 'Student not found'
             });
         }
-        
+
         // Also delete related data
         await StudentAttempt.deleteMany({ email: deletedStudent.email });
-        
+
         console.log(`✅ [STUDENTS] Student deleted: ${id}`);
-        
+
         res.json({
             success: true,
             message: 'Student deleted successfully'
@@ -238,9 +239,9 @@ router.delete('/:id', async (req, res) => {
 router.get('/:id/results', async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         console.log(`📊 [STUDENTS] Fetching results for student: ${id}`);
-        
+
         const student = await Student.findById(id);
         if (!student) {
             return res.status(404).json({
@@ -248,10 +249,10 @@ router.get('/:id/results', async (req, res) => {
                 error: 'Student not found'
             });
         }
-        
+
         const attempts = await StudentAttempt.find({ email: student.email })
             .sort({ submitted_at: -1 });
-        
+
         res.json({
             success: true,
             results: attempts

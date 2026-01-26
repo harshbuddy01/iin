@@ -101,21 +101,21 @@ const AdminAPI = {
 
     // ==================== NOTIFICATIONS ====================
     async getNotifications() {
-        return await this.request('/api/admin/notifications');
+        return await this.request('/api/admin/dashboard/notifications');
     },
 
     async getNotificationsCount() {
-        return await this.request('/api/admin/notifications/count');
+        return await this.request('/api/admin/dashboard/notifications/count');
     },
 
     async markNotificationRead(notificationId) {
-        return await this.request(`/api/admin/notifications/${notificationId}/read`, {
+        return await this.request(`/api/admin/dashboard/notifications/${notificationId}/read`, {
             method: 'POST'
         });
     },
 
     async markAllNotificationsRead() {
-        return await this.request('/api/admin/notifications/mark-all-read', {
+        return await this.request('/api/admin/dashboard/notifications/mark-all-read', {
             method: 'POST'
         });
     },
