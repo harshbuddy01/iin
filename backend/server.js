@@ -94,17 +94,17 @@ const allowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500',
   'http://127.0.0.1:3000',
-  
+
   // Production domains - ALL VARIATIONS
   'https://vigyanprep.com',
   'http://vigyanprep.com',
   'https://www.vigyanprep.com',
   'http://www.vigyanprep.com',
-  
+
   // Backend domain (for API calls)
   'https://backend-vigyanpreap.vigyanprep.com',
   'http://backend-vigyanpreap.vigyanprep.com',
-  
+
   // Environment variable
   process.env.FRONTEND_URL
 ].filter(Boolean);
@@ -117,19 +117,19 @@ const corsOptions = {
       console.log('✅ CORS: Allowing request with no origin (same-origin/Postman)');
       return callback(null, true);
     }
-    
+
     // Check if origin is in whitelist
     if (allowedOrigins.indexOf(origin) !== -1) {
       console.log(`✅ CORS: Allowed whitelisted origin: ${origin}`);
       return callback(null, true);
     }
-    
+
     // 🔧 FIX: In production, allow all vigyanprep.com subdomains
     if (origin.includes('vigyanprep.com')) {
       console.log(`✅ CORS: Allowing vigyanprep.com subdomain: ${origin}`);
       return callback(null, true);
     }
-    
+
     // 🔧 CRITICAL: Allow all origins in production for Hostinger (temporary fix)
     console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
     callback(null, true);
@@ -235,14 +235,24 @@ app.use('/api/admin', migrationRoute);
 console.log('✅ Migration endpoint mounted');
 
 // ✅ NEW ADMIN ROUTES - Full Admin Panel Support (FIXED PATHS)
+import pdfRoutes from './routes/pdf.js'; // Import PDF routes
+
 app.use('/api/admin/dashboard', adminDashboardRoutes); // ✅ FIXED: Added /dashboard prefix
 console.log('✅ Admin Dashboard routes mounted at /api/admin/dashboard/*');
+
 app.use('/api/admin/students', studentRoutes); // ✅ FIXED: Added /students prefix
 console.log('✅ Student routes mounted at /api/admin/students/*');
+
 app.use('/api/admin/transactions', transactionRoutes); // ✅ FIXED: Added /transactions prefix
 console.log('✅ Transaction routes mounted at /api/admin/transactions/*');
+
 app.use('/api/admin/results', resultRoutes); // ✅ FIXED: Added /results prefix
 console.log('✅ Result routes mounted at /api/admin/results/*');
+
+// ✅ PDF Routes
+app.use('/api/pdf', pdfRoutes);
+console.log('✅ PDF routes mounted at /api/pdf/*');
+
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');

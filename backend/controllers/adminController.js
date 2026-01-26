@@ -23,57 +23,57 @@ const safeJsonParse = (jsonString, fallback = null) => {
 export const getDashboardStats = async (req, res) => {
   try {
     console.log('🔹 Getting dashboard stats...');
-    
+
     // Get total students
     const totalStudents = await StudentPayment.countDocuments();
-    
+
     // Get total transactions count
     const totalTransactions = await PaymentTransaction.countDocuments();
-    
+
     // Get paid transactions for revenue calculation
     const paidTransactions = await PaymentTransaction.find({ status: 'paid' });
     const monthlyRevenue = paidTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
-    
+
     // Get total purchased tests (active tests count)
     const activeTests = await PurchasedTest.countDocuments();
-    
+
     // Get today's exams (tests purchased today)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    
+
     const todayExams = await PurchasedTest.countDocuments({
       purchased_at: { $gte: today, $lt: tomorrow }
     });
-    
+
     // Calculate trends (simplified - compare with yesterday)
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const yesterdayStudents = await StudentPayment.countDocuments({
       created_at: { $gte: yesterday, $lt: today }
     });
-    
-    const studentsTrend = yesterdayStudents > 0 
-      ? Math.round(((totalStudents - yesterdayStudents) / yesterdayStudents) * 100) 
+
+    const studentsTrend = yesterdayStudents > 0
+      ? Math.round(((totalStudents - yesterdayStudents) / yesterdayStudents) * 100)
       : 0;
-    
+
     const yesterdayRevenue = (await PaymentTransaction.find({
       status: 'paid',
       created_at: { $gte: yesterday, $lt: today }
     })).reduce((sum, t) => sum + (t.amount || 0), 0);
-    
+
     const revenueTrend = yesterdayRevenue > 0
       ? Math.round(((monthlyRevenue - yesterdayRevenue) / yesterdayRevenue) * 100)
       : 15; // Default positive trend
-    
+
     // Performance data for chart (last 7 days)
     const performanceData = {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
       scores: [0, 0, 0, 0, 0, 0, 0] // Placeholder - add actual performance calculation
     };
-    
+
     const stats = {
       activeTests,
       totalStudents,
@@ -84,13 +84,13 @@ export const getDashboardStats = async (req, res) => {
       revenueTrend,
       performanceData
     };
-    
+
     console.log('✅ Dashboard stats:', stats);
     res.status(200).json({
       success: true,
       ...stats
     });
-    
+
   } catch (error) {
     console.error('❌ Error getting dashboard stats:', error.message);
     res.status(500).json({
@@ -105,7 +105,7 @@ export const getDashboardStats = async (req, res) => {
 export const getAdminProfile = async (req, res) => {
   try {
     console.log('🔹 Getting admin profile...');
-    
+
     // Get admin stats
     const totalStudents = await StudentPayment.countDocuments();
     const totalTransactions = await PaymentTransaction.countDocuments();
@@ -147,12 +147,12 @@ export const getAdminProfile = async (req, res) => {
 export const getNotifications = async (req, res) => {
   try {
     console.log('🔹 Getting admin notifications...');
-    
+
     // Get recent transactions and students for notifications
     const recentTransactions = await PaymentTransaction.find()
       .sort({ created_at: -1 })
       .limit(10);
-    
+
     const recentStudents = await StudentPayment.find()
       .sort({ created_at: -1 })
       .limit(10);
@@ -207,7 +207,7 @@ export const getNotifications = async (req, res) => {
 export const getNotificationsCount = async (req, res) => {
   try {
     console.log('🔹 Getting notifications count...');
-    
+
     // Count recent activity (last 24 hours)
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
@@ -245,14 +245,14 @@ export const getScheduledTests = async (req, res) => {
   try {
     console.log('🔹 Getting scheduled tests...');
     const { status, type } = req.query;
-    
+
     // Build filter
     const filter = {};
     if (status) filter.status = status;
     if (type) filter.test_type = type;
-    
+
     const tests = await ScheduledTest.find(filter).sort({ exam_date: 1 });
-    
+
     console.log(`✅ Retrieved ${tests.length} scheduled tests`);
     res.status(200).json({
       success: true,
@@ -268,12 +268,40 @@ export const getScheduledTests = async (req, res) => {
   }
 };
 
+// Get past tests (completed or date passed)
+export const getPastTests = async (req, res) => {
+  try {
+    console.log('🔹 Getting past tests...');
+
+    // Find tests that are completed OR exam date is in the past
+    const tests = await ScheduledTest.find({
+      $or: [
+        { status: 'completed' },
+        { status: 'archived' }
+      ]
+    }).sort({ exam_date: -1 });
+
+    console.log(`✅ Retrieved ${tests.length} past tests`);
+    res.status(200).json({
+      success: true,
+      tests
+    });
+  } catch (error) {
+    console.error('❌ Error getting past tests:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve past tests',
+      error: error.message
+    });
+  }
+};
+
 // 🔥 CREATE SCHEDULED TEST - FIXED to handle frontend field names
 export const createScheduledTest = async (req, res) => {
   try {
     console.log('🔹 Creating scheduled test...');
     console.log('📥 Request body:', req.body);
-    
+
     // Extract all possible field names from frontend
     const {
       // Frontend sends these (snake_case)
@@ -348,11 +376,11 @@ export const createScheduledTest = async (req, res) => {
 
     console.log('💾 Saving test to MongoDB:', newTest);
     await newTest.save();
-    
+
     console.log('✅ Scheduled test created successfully!');
     console.log('   Test ID:', newTest._id);
     console.log('   Test Type:', newTest.test_type);
-    
+
     res.status(201).json({
       success: true,
       message: 'Test scheduled successfully',
@@ -376,14 +404,14 @@ export const getTestDetails = async (req, res) => {
   try {
     console.log('🔹 Getting test details for:', req.params.testId);
     const test = await ScheduledTest.findById(req.params.testId);
-    
+
     if (!test) {
       return res.status(404).json({
         success: false,
         message: 'Test not found'
       });
     }
-    
+
     console.log('✅ Test details retrieved');
     res.status(200).json({
       success: true,
@@ -404,20 +432,20 @@ export const updateTestStatus = async (req, res) => {
   try {
     console.log('🔹 Updating test status:', req.params.testId);
     const { status } = req.body;
-    
+
     const test = await ScheduledTest.findByIdAndUpdate(
       req.params.testId,
       { status, updated_at: new Date() },
       { new: true }
     );
-    
+
     if (!test) {
       return res.status(404).json({
         success: false,
         message: 'Test not found'
       });
     }
-    
+
     console.log('✅ Test status updated');
     res.status(200).json({
       success: true,
@@ -439,14 +467,14 @@ export const deleteTest = async (req, res) => {
   try {
     console.log('🔹 Deleting test:', req.params.testId);
     const test = await ScheduledTest.findByIdAndDelete(req.params.testId);
-    
+
     if (!test) {
       return res.status(404).json({
         success: false,
         message: 'Test not found'
       });
     }
-    
+
     console.log('✅ Test deleted');
     res.status(200).json({
       success: true,
@@ -464,9 +492,9 @@ export const deleteTest = async (req, res) => {
 
 // ========== TEMP: Not fully implemented functions ==========
 const notImplemented = (req, res) => {
-  res.status(501).json({ 
-    success: false, 
-    message: "This endpoint is temporarily disabled during MongoDB migration. Use OOP endpoints instead." 
+  res.status(501).json({
+    success: false,
+    message: "This endpoint is temporarily disabled during MongoDB migration. Use OOP endpoints instead."
   });
 };
 
