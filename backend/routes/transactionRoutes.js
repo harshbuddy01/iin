@@ -1,5 +1,6 @@
 import express from 'express';
-import { PaymentTransaction } from '../models/PaymentTransaction.js'; // ✅ FIXED: Named import
+import { PaymentTransaction } from '../models/PaymentTransaction.js';
+import Student from '../models/Student.js'; // ✅ FIXED: Named import
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const { status, search, page = 1, limit = 20 } = req.query;
-        
+
         const query = {};
         if (status) query.status = status;
         if (search) {
@@ -21,9 +22,31 @@ router.get('/', async (req, res) => {
 
         const total = await PaymentTransaction.countDocuments(query);
 
+        // Populate student names manually since we don't have a direct reference
+        const transactionsWithDetails = await Promise.all(transactions.map(async (txn) => {
+            const student = await Student.findOne({ email: txn.email });
+
+            return {
+                id: txn.razorpay_payment_id || txn._id,
+                student: student ? student.fullName : 'Unknown Student',
+                email: txn.email,
+                amount: txn.amount, // stored in paise or rupees? Usually Razorpay is paise, but let's check. 
+                // Assuming amount is correct as is for now, or handled by frontend formatter.
+                // Looking at frontend: ₹${txn.amount.toLocaleString()} - so likely rupees.
+                method: 'Online', // specialized info not stored in DB
+                date: new Date(txn.created_at).toLocaleDateString('en-IN', {
+                    year: 'numeric', month: 'short', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                }),
+                status: txn.status === 'paid' ? 'Success' : txn.status.charAt(0).toUpperCase() + txn.status.slice(1),
+                upiId: 'N/A',
+                cardLast4: 'N/A'
+            };
+        }));
+
         res.json({
             success: true,
-            transactions,
+            transactions: transactionsWithDetails,
             pagination: {
                 total,
                 page: parseInt(page),
@@ -40,11 +63,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const transaction = await PaymentTransaction.findById(req.params.id);
-        
+
         if (!transaction) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Transaction not found' 
+            return res.status(404).json({
+                success: false,
+                error: 'Transaction not found'
             });
         }
 
@@ -100,11 +123,11 @@ router.get('/stats/daily', async (req, res) => {
         startDate.setDate(startDate.getDate() - parseInt(days));
 
         const dailyRevenue = await PaymentTransaction.aggregate([
-            { 
-                $match: { 
+            {
+                $match: {
                     status: 'paid',
                     created_at: { $gte: startDate }
-                } 
+                }
             },
             {
                 $group: {

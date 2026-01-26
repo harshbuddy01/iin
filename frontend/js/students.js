@@ -17,9 +17,9 @@ function initAddStudent() {
 }
 
 function renderStudentsPage() {
-    const container = document.getElementById('all-students-page');
+    const container = document.getElementById('students-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="page-header">
             <h1><i class="fas fa-users"></i> All Students</h1>
@@ -60,7 +60,7 @@ function renderStudentsPage() {
             </table>
         </div>
     `;
-    
+
     document.getElementById('studentSearch').addEventListener('input', (e) => {
         const search = e.target.value.toLowerCase();
         filterStudents(search);
@@ -71,10 +71,10 @@ function renderStudentsPage() {
 async function loadStudents() {
     try {
         console.log('🔄 Fetching students from backend...');
-        
+
         // ✅ Use AdminAPI service (automatically handles Railway URL)
         const data = await window.AdminAPI.getStudents();
-        
+
         allStudents = data.students || [];
         console.log(`✅ Loaded ${allStudents.length} students from database`);
         displayStudents(allStudents);
@@ -90,7 +90,7 @@ async function loadStudents() {
 }
 
 function filterStudents(search) {
-    const filtered = allStudents.filter(s => 
+    const filtered = allStudents.filter(s =>
         s.name.toLowerCase().includes(search) ||
         s.email.toLowerCase().includes(search) ||
         (s.rollNumber && s.rollNumber.toLowerCase().includes(search)) ||
@@ -102,7 +102,7 @@ function filterStudents(search) {
 function displayStudents(students) {
     const tbody = document.getElementById('studentsTableBody');
     if (!tbody) return;
-    
+
     if (students.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
@@ -112,7 +112,7 @@ function displayStudents(students) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = students.map(student => `
         <tr>
             <td><strong>#${student.id}</strong></td>
@@ -140,38 +140,38 @@ function displayStudents(students) {
 function viewStudent(id) {
     const student = allStudents.find(s => s.id === id);
     if (!student) return;
-    
+
     alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate}\nStatus: ${student.status}`);
 }
 
 function editStudent(id) {
     const student = allStudents.find(s => s.id === id);
     if (!student) return;
-    
+
     currentEditId = id;
     const name = prompt('Student Name:', student.name);
     if (!name) return;
-    
+
     const email = prompt('Email:', student.email);
     if (!email) return;
-    
+
     const rollNumber = prompt('Roll Number:', student.rollNumber || '');
     if (!rollNumber) return;
-    
+
     const course = prompt('Course (IAT/NEST/ISI):', student.course);
     if (!course) return;
-    
-    updateStudent(id, {name, email, rollNumber, course, status: student.status});
+
+    updateStudent(id, { name, email, rollNumber, course, status: student.status });
 }
 
 // 🔥 FIXED: Use AdminAPI.updateStudent()
 async function updateStudent(id, data) {
     try {
         console.log(`✏️ Updating student #${id}...`);
-        
+
         // ✅ Use AdminAPI service
         await window.AdminAPI.updateStudent(id, data);
-        
+
         console.log('✅ Student updated successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student updated successfully', 'success');
         loadStudents();
@@ -184,13 +184,13 @@ async function updateStudent(id, data) {
 // 🔥 FIXED: Use AdminAPI.deleteStudent()
 async function deleteStudent(id) {
     if (!confirm('Are you sure you want to delete this student?')) return;
-    
+
     try {
         console.log(`🗑️ Deleting student #${id}...`);
-        
+
         // ✅ Use AdminAPI service
         await window.AdminAPI.deleteStudent(id);
-        
+
         console.log('✅ Student deleted successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student deleted successfully', 'success');
         loadStudents();
@@ -203,7 +203,7 @@ async function deleteStudent(id) {
 function renderAddStudentPage() {
     const container = document.getElementById('add-student-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="page-header">
             <h1><i class="fas fa-user-plus"></i> Add New Student</h1>
@@ -263,7 +263,7 @@ function renderAddStudentPage() {
 // 🔥 FIXED: Use AdminAPI.addStudent()
 async function handleAddStudent(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const studentData = {
         name: formData.get('name'),
@@ -273,17 +273,17 @@ async function handleAddStudent(event) {
         course: formData.get('course'),
         address: formData.get('address') || 'India'
     };
-    
+
     try {
         console.log('➕ Adding new student...');
-        
+
         // ✅ Use AdminAPI service
         await window.AdminAPI.addStudent(studentData);
-        
+
         console.log('✅ Student added successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student added successfully!', 'success');
         event.target.reset();
-        
+
         setTimeout(() => {
             document.querySelector('[data-page="all-students"]').click();
         }, 1000);
