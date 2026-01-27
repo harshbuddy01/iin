@@ -46,7 +46,6 @@ window.initCreateTest = function () {
                         <select id="examType" class="form-input-modern" required>
                             <option value="">Select Exam Type</option>
                             <option value="IAT">IAT (IISER Aptitude Test)</option>
-                            <option value="ISI">ISI (Indian Statistical Institute)</option>
                             <option value="NEST">NEST (National Entrance Screening Test)</option>
                         </select>
                     </div>
@@ -232,8 +231,8 @@ async function handleModernCreateTest(e) {
     // Some UIs might send Uppercase, we force conversion here.
     const examType = rawExamType.toLowerCase().trim();
 
-    if (!['iat', 'nest', 'isi'].includes(examType)) {
-        if (window.AdminUtils) window.AdminUtils.showToast(`Invalid exam type: ${rawExamType}. Only IAT, NEST, and ISI supported.`, 'error');
+    if (!['iat', 'nest'].includes(examType)) {
+        if (window.AdminUtils) window.AdminUtils.showToast(`Invalid exam type: ${rawExamType}. Only IAT and NEST supported.`, 'error');
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
         return;

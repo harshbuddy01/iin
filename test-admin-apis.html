@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin API Diagnostic Tool - Complete</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -20,9 +27,17 @@
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
-        h1 { color: #667eea; margin-bottom: 10px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
-        
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
         .top-controls {
             display: flex;
             gap: 15px;
@@ -70,41 +85,60 @@
             font-weight: 600;
         }
 
-        .endpoint { 
+        .endpoint {
             background: white;
             padding: 20px;
             margin-bottom: 12px;
             border-radius: 10px;
             border-left: 5px solid #cbd5e1;
             transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-        .endpoint:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+
+        .endpoint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        .endpoint.testing { border-left-color: #f59e0b; background: #fffbeb; }
-        .endpoint.success { border-left-color: #10b981; background: #f0fdf4; }
-        .endpoint.error { border-left-color: #ef4444; background: #fef2f2; }
-        .endpoint.warning { border-left-color: #f59e0b; background: #fffbeb; }
-        
-        .endpoint-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: start; 
-            margin-bottom: 10px; 
+
+        .endpoint.testing {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
         }
-        .endpoint-name { 
-            font-weight: bold; 
-            color: #2d3748; 
-            font-size: 1.05em; 
+
+        .endpoint.success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
         }
-        .endpoint-meta { 
-            display: flex; 
-            gap: 10px; 
-            align-items: center; 
+
+        .endpoint.error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
         }
-        
+
+        .endpoint.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .endpoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .endpoint-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 1.05em;
+        }
+
+        .endpoint-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
         .method-badge {
             padding: 5px 12px;
             border-radius: 6px;
@@ -113,22 +147,34 @@
             color: white;
             text-transform: uppercase;
         }
-        .method-GET { background: #3b82f6; }
-        .method-POST { background: #10b981; }
-        .method-PUT { background: #f59e0b; }
-        .method-DELETE { background: #ef4444; }
-        
-        .endpoint-url { 
-            color: #64748b; 
-            font-family: 'Courier New', monospace; 
-            font-size: 0.85em; 
+
+        .method-GET {
+            background: #3b82f6;
+        }
+
+        .method-POST {
+            background: #10b981;
+        }
+
+        .method-PUT {
+            background: #f59e0b;
+        }
+
+        .method-DELETE {
+            background: #ef4444;
+        }
+
+        .endpoint-url {
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
             margin-top: 8px;
             background: #f1f5f9;
             padding: 8px 12px;
             border-radius: 6px;
         }
-        
-        .endpoint-status { 
+
+        .endpoint-status {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -137,13 +183,33 @@
             font-size: 0.85em;
             font-weight: 600;
         }
-        .status-pending { background: #e2e8f0; color: #64748b; }
-        .status-testing { background: #fef3c7; color: #92400e; }
-        .status-success { background: #d1fae5; color: #065f46; }
-        .status-error { background: #fee2e2; color: #991b1b; }
-        .status-warning { background: #fef3c7; color: #92400e; }
-        
-        .response { 
+
+        .status-pending {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .status-testing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .response {
             background: #1e293b;
             color: #94a3b8;
             padding: 15px;
@@ -156,15 +222,26 @@
             display: none;
             line-height: 1.5;
         }
-        .endpoint.success .response, 
+
+        .endpoint.success .response,
         .endpoint.error .response,
-        .endpoint.warning .response { 
-            display: block; 
+        .endpoint.warning .response {
+            display: block;
         }
 
-        .response::-webkit-scrollbar { width: 8px; }
-        .response::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
-        .response::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .response::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .response::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 4px;
+        }
+
+        .response::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
 
         .note {
             background: #fef3c7;
@@ -176,8 +253,10 @@
             color: #92400e;
             display: none;
         }
-        
-        .endpoint.warning .note { display: block; }
+
+        .endpoint.warning .note {
+            display: block;
+        }
 
         button {
             padding: 12px 28px;
@@ -194,22 +273,25 @@
             align-items: center;
             gap: 8px;
         }
-        button:hover { 
-            background: #5568d3; 
+
+        button:hover {
+            background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
         }
-        button:disabled { 
-            background: #cbd5e1; 
-            cursor: not-allowed; 
-            transform: none; 
-            box-shadow: none; 
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .btn-section {
             background: #8b5cf6;
             box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
         }
+
         .btn-section:hover {
             background: #7c3aed;
             box-shadow: 0 6px 12px rgba(139, 92, 246, 0.4);
@@ -232,7 +314,7 @@
             padding: 15px;
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .stat-value {
@@ -249,14 +331,29 @@
             letter-spacing: 0.5px;
         }
 
-        .json-key { color: #a5d6ff; }
-        .json-string { color: #7dd3fc; }
-        .json-number { color: #86efac; }
-        .json-boolean { color: #fbbf24; }
-        .json-null { color: #f87171; }
+        .json-key {
+            color: #a5d6ff;
+        }
+
+        .json-string {
+            color: #7dd3fc;
+        }
+
+        .json-number {
+            color: #86efac;
+        }
+
+        .json-boolean {
+            color: #fbbf24;
+        }
+
+        .json-null {
+            color: #f87171;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <div class="container">
         <h1><i class="fas fa-flask"></i> Admin API Diagnostic Tool</h1>
@@ -264,7 +361,7 @@
             Complete endpoint testing for Vigyan.prep Admin Portal
             <br><strong>Backend URL:</strong> <span id="baseUrlDisplay">...</span>
         </p>
-        
+
         <div class="top-controls">
             <button onclick="testAllEndpoints()">
                 <i class="fas fa-play-circle"></i> Run All Tests
@@ -296,7 +393,7 @@
                 <div class="stat-label">Pending</div>
             </div>
         </div>
-        
+
         <div id="results"></div>
     </div>
 
@@ -304,7 +401,7 @@
     <script>
         const BASE_URL = window.APP_CONFIG?.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
         document.getElementById('baseUrlDisplay').textContent = BASE_URL;
-        
+
         // Complete API structure with all endpoints
         const apiStructure = [
             {
@@ -354,9 +451,9 @@
                 endpoints: [
                     { name: 'Get All Tests', method: 'GET', url: '/api/admin/tests' },
                     { name: 'Get Single Test', method: 'GET', url: '/api/admin/tests/1', expectValidation: true },
-                    { 
-                        name: 'Create New Test', 
-                        method: 'POST', 
+                    {
+                        name: 'Create New Test',
+                        method: 'POST',
                         url: '/api/admin/tests',
                         testData: {
                             test_name: 'Diagnostic Test',
@@ -403,9 +500,9 @@
                 endpoints: [
                     { name: 'Get All Questions', method: 'GET', url: '/api/admin/questions' },
                     { name: 'Get Single Question', method: 'GET', url: '/api/admin/questions/1', expectValidation: true },
-                    { 
-                        name: 'Add New Question', 
-                        method: 'POST', 
+                    {
+                        name: 'Add New Question',
+                        method: 'POST',
                         url: '/api/admin/questions',
                         testData: {
                             testId: 'NEST_2026',
@@ -507,9 +604,9 @@
             if (status === 400) return true;
             if (status === 500 && data && typeof data === 'object') {
                 const errorMsg = data.error || data.message || '';
-                return errorMsg.includes('Cast to ObjectId') || 
-                       errorMsg.includes('required') ||
-                       errorMsg.includes('validation');
+                return errorMsg.includes('Cast to ObjectId') ||
+                    errorMsg.includes('required') ||
+                    errorMsg.includes('validation');
             }
             return false;
         }
@@ -517,16 +614,16 @@
         async function testEndpoint(endpoint, elementId) {
             const resultDiv = document.getElementById(elementId);
             const noteDiv = resultDiv.querySelector('.note');
-            
+
             try {
                 // Set Testing State
                 resultDiv.className = 'endpoint testing';
                 const statusSpan = resultDiv.querySelector('.endpoint-status');
                 statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
                 statusSpan.className = 'endpoint-status status-testing';
-                
+
                 const startTime = performance.now();
-                
+
                 // Build request options
                 const options = {
                     method: endpoint.method,
@@ -540,12 +637,12 @@
                 if (endpoint.method === 'POST' || endpoint.method === 'PUT') {
                     options.body = JSON.stringify(endpoint.testData || { demo: 'data' });
                 }
-                
+
                 const response = await fetch(BASE_URL + endpoint.url, options);
-                
+
                 const endTime = performance.now();
                 const duration = Math.round(endTime - startTime);
-                
+
                 let data;
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
@@ -553,14 +650,14 @@
                 } else {
                     data = await response.text();
                 }
-                
+
                 if (response.ok) {
                     resultDiv.className = 'endpoint success';
                     statusSpan.innerHTML = `<i class="fas fa-check-circle"></i> ${response.status} OK (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-success';
                     stats.success++;
                     stats.pending--;
-                    
+
                     const responsePre = resultDiv.querySelector('.response');
                     const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
                     responsePre.innerHTML = formattedData;
@@ -571,9 +668,9 @@
                     statusSpan.className = 'endpoint-status status-warning';
                     stats.warning++;
                     stats.pending--;
-                    
+
                     noteDiv.innerHTML = '<i class="fas fa-lightbulb"></i> <strong>Note:</strong> This error is expected - route works correctly but requires valid data/IDs from database.';
-                    
+
                     const responsePre = resultDiv.querySelector('.response');
                     const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
                     responsePre.innerHTML = formattedData;
@@ -584,7 +681,7 @@
                     statusSpan.className = 'endpoint-status status-error';
                     stats.error++;
                     stats.pending--;
-                    
+
                     const responsePre = resultDiv.querySelector('.response');
                     const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
                     responsePre.innerHTML = formattedData;
@@ -596,7 +693,7 @@
                 statusSpan.className = 'endpoint-status status-error';
                 stats.error++;
                 stats.pending--;
-                
+
                 resultDiv.querySelector('.response').textContent = error.message;
             }
 
@@ -606,15 +703,15 @@
         async function testSection(categoryIndex) {
             const category = apiStructure[categoryIndex];
             const btn = document.querySelector(`[data-section="${categoryIndex}"]`);
-            
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
-            
+
             for (const endpoint of category.endpoints) {
                 await testEndpoint(endpoint, endpoint._elementId);
                 await new Promise(resolve => setTimeout(resolve, 200));
             }
-            
+
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-play"></i> Run Section';
         }
@@ -623,13 +720,13 @@
             const btn = event.target;
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running All Tests...';
-            
+
             // Reset stats
             stats = { total: 0, success: 0, warning: 0, error: 0, pending: 0 };
-            
+
             // Generate UI first
             generateUI();
-            
+
             // Run all tests sequentially
             for (const category of apiStructure) {
                 for (const endpoint of category.endpoints) {
@@ -637,7 +734,7 @@
                     await new Promise(resolve => setTimeout(resolve, 200));
                 }
             }
-            
+
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-play-circle"></i> Run All Tests';
         }
@@ -653,14 +750,14 @@
             resultsDiv.innerHTML = '';
             stats.total = 0;
             stats.pending = 0;
-            
+
             for (let catIndex = 0; catIndex < apiStructure.length; catIndex++) {
                 const category = apiStructure[catIndex];
-                
+
                 // Category Section
                 const section = document.createElement('div');
                 section.className = 'category-section';
-                
+
                 // Category Header
                 const header = document.createElement('div');
                 header.className = 'category-header';
@@ -682,7 +779,7 @@
                     endpoint._elementId = id;
                     stats.total++;
                     stats.pending++;
-                    
+
                     const div = document.createElement('div');
                     div.id = id;
                     div.className = 'endpoint';
@@ -702,13 +799,13 @@
                     `;
                     section.appendChild(div);
                 }
-                
+
                 resultsDiv.appendChild(section);
             }
 
             updateStats();
         }
-        
+
         // Auto-generate UI on page load
         window.addEventListener('load', () => {
             generateUI();
@@ -716,4 +813,5 @@
         });
     </script>
 </body>
+
 </html>
