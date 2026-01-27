@@ -1,5 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
+// 🚂 RAILWAY MIGRATION: Updated URLs - Jan 28, 2026 4:00 AM IST
 // 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 // 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
 // 🔥 ADMIN AUTH: Added admin authentication routes - Jan 26, 2026 1:59 AM IST
@@ -14,7 +15,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🛠️ STARTUP LOGGING (File-based for Hostinger debugging)
+// 🛠️ STARTUP LOGGING (File-based for Railway debugging)
 const LOG_FILE = path.join(__dirname, '../startup_log.txt');
 function logStartup(message) {
   const timestamp = new Date().toISOString();
@@ -33,7 +34,7 @@ logStartup(`Env PORT: ${process.env.PORT}`);
 const envKeys = Object.keys(process.env).sort();
 logStartup(`Available Env Keys: ${envKeys.join(', ')}`);
 if (envKeys.length < 5) {
-  logStartup('⚠️ WARNING: Environment seems empty! Hostinger vars not injected?');
+  logStartup('⚠️ WARNING: Environment seems empty! Railway vars not injected?');
 }
 
 // Load environment variables
@@ -43,9 +44,9 @@ console.log('🔵 Loading environment variables...');
 const app = express();
 console.log('🔵 Creating Express app...');
 
-// 🔧 CRITICAL FIX #1: Enable trust proxy for Hostinger (fixes rate-limit warnings)
+// 🔧 CRITICAL FIX #1: Enable trust proxy for Railway (fixes rate-limit warnings)
 app.set('trust proxy', true);
-console.log('✅ Trust proxy enabled for Hostinger');
+console.log('✅ Trust proxy enabled for Railway');
 
 const PORT = process.env.PORT || 3000;
 
@@ -74,7 +75,7 @@ const validateEnvironmentVariables = () => {
     console.error('\n⚠️ WARNING: Missing environment variables:');
     missingVars.forEach((v, i) => console.error(`   ${i + 1}. ${v}`));
     console.error('\n📝 Some features may not work correctly.');
-    console.warn('⚠️  Hostinger Tip: Ensure variables are set in the Hosting Panel, NOT just in .env');
+    console.warn('⚠️  Railway Tip: Ensure variables are set in the Railway Dashboard');
     console.error('📚 See .env.example for reference\n');
     // Continue running instead of exiting - let individual features fail gracefully
   } else {
@@ -101,15 +102,15 @@ const allowedOrigins = [
   'https://www.vigyanprep.com',
   'http://www.vigyanprep.com',
 
-  // Backend domain (for API calls)
-  'https://backend-vigyanpreap.vigyanprep.com',
-  'http://backend-vigyanpreap.vigyanprep.com',
+  // 🚂 RAILWAY BACKEND DOMAIN (Updated Jan 28, 2026)
+  'https://vigyan-production.up.railway.app',
+  'http://vigyan-production.up.railway.app',
 
   // Environment variable
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-// 🔧 ENHANCED: More permissive CORS for Hostinger deployment
+// 🔧 ENHANCED: More permissive CORS for Railway deployment
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, Postman, or same-origin)
@@ -124,13 +125,13 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // 🔧 FIX: In production, allow all vigyanprep.com subdomains
-    if (origin.includes('vigyanprep.com')) {
-      console.log(`✅ CORS: Allowing vigyanprep.com subdomain: ${origin}`);
+    // 🔧 FIX: In production, allow vigyanprep.com and railway.app subdomains
+    if (origin.includes('vigyanprep.com') || origin.includes('railway.app')) {
+      console.log(`✅ CORS: Allowing trusted subdomain: ${origin}`);
       return callback(null, true);
     }
 
-    // 🔧 CRITICAL: Allow all origins in production for Hostinger (temporary fix)
+    // 🔧 CRITICAL: Allow all origins in production for Railway (temporary fix)
     console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
     callback(null, true);
   },
@@ -153,7 +154,7 @@ app.options('/api/payment/getkey', cors(corsOptions));
 app.options(/^\/api\/admin\/.*$/, cors(corsOptions)); // 🔥 ADMIN FIX: RegExp to avoid path-to-regexp errors
 
 console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
-console.log('✅ CORS: Allowing all vigyanprep.com subdomains');
+console.log('✅ CORS: Allowing vigyanprep.com and railway.app subdomains');
 console.log('✅ Payment endpoints have explicit preflight handling');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
@@ -170,10 +171,11 @@ app.use((req, res, next) => {
       if (fs.existsSync(filePath)) {
         let html = fs.readFileSync(filePath, 'utf8');
 
+        // 🚂 RAILWAY DEPLOYMENT: Updated default API URL
         const envScript = `
     <script>
       window.__ENV__ = {
-        API_URL: "${process.env.API_URL || 'https://vigyanprep.com:3000'}",
+        API_URL: "${process.env.API_URL || 'https://vigyan-production.up.railway.app'}",
         ENVIRONMENT: "${process.env.NODE_ENV || 'production'}",
         DEBUG: ${process.env.DEBUG_MODE === 'true' ? 'true' : 'false'}
       };
@@ -221,7 +223,8 @@ app.get('/api/config', (req, res) => {
   res.json({
     RAZORPAY_KEY_ID: process.env.RAZORPAY_API_KEY || '',
     NODE_ENV: process.env.NODE_ENV || 'production',
-    API_URL: process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com',
+    // 🚂 RAILWAY DEPLOYMENT: Updated API URLs
+    API_URL: process.env.API_URL || 'https://vigyan-production.up.railway.app',
     FRONTEND_URL: process.env.FRONTEND_URL || 'https://vigyanprep.com'
   });
 });
@@ -274,7 +277,8 @@ app.get('/health', (req, res) => {
     status: 'ok',
     database: 'MongoDB',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    deployment: 'Railway'
   });
 });
 
@@ -305,6 +309,7 @@ app.get('/api', (req, res) => {
     message: 'Vigyan.prep Platform API',
     version: '2.0.0',
     database: 'MongoDB',
+    deployment: 'Railway',
     endpoints: {
       health: '/health',
       config: '/api/config',
@@ -347,8 +352,9 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
       console.log(`\n${msg}`);
       console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
       console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
-      console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+      console.log(`🚂 Deployment: Railway`);
+      console.log(`🌐 API URL: ${process.env.API_URL || 'https://vigyan-production.up.railway.app'}`);
+      console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'https://vigyanprep.com'}`);
       console.log('\n🟢 Server is ready to accept requests\n');
     });
   } catch (error) {
