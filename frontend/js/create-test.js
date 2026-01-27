@@ -3,26 +3,37 @@
 function smartSanitize(data) {
     const clean = {};
 
+    // Schema-aware rules
+    const numberFields = ['duration_minutes', 'duration', 'total_marks', 'total_questions', 'passing_score', 'marks_per_question'];
+    const lowerCaseFields = ['test_type'];
+
     for (const [key, value] of Object.entries(data)) {
-        // 1. Detect Numbers (strings that look like numbers)
-        // Check if value is a string, represents a finite number, and is not an empty string
-        if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
-            // Convert to number
-            clean[key] = Number(value);
-        }
-        // 2. Detect Strings that need trimming or lowercasing
-        else if (typeof value === 'string') {
-            let processed = value.trim();
+        let processed = value;
 
-            // Special Rule: 'test_type' must ALWAYS be lowercase for backend enum
-            if (key === 'test_type') {
-                processed = processed.toLowerCase();
+        // 1. Force Numbers for specific fields
+        if (numberFields.includes(key)) {
+            // "180 mins" -> 180, "200" -> 200
+            const num = parseInt(value, 10);
+            if (!isNaN(num)) {
+                clean[key] = num;
+            } else {
+                clean[key] = 0; // Fallback
             }
-
-            clean[key] = processed;
+            continue;
         }
-        // 3. Keep other types (booleans, null, existing numbers) as is
-        else {
+
+        // 2. Force Lowercase for specific fields
+        if (lowerCaseFields.includes(key) && typeof value === 'string') {
+            clean[key] = value.trim().toLowerCase();
+            continue;
+        }
+
+        // 3. General "Smart Detect" for others
+        if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
+            clean[key] = Number(value);
+        } else if (typeof value === 'string') {
+            clean[key] = value.trim();
+        } else {
             clean[key] = value;
         }
     }
