@@ -1,6 +1,7 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
 // 🚂 RAILWAY MIGRATION: Updated URLs - Jan 28, 2026 4:00 AM IST
+// 🔧 CORS FIX: Allow all origins for Railway deployment - Jan 28, 2026 4:24 AM IST
 // 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 // 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
 // 🔥 ADMIN AUTH: Added admin authentication routes - Jan 26, 2026 1:59 AM IST
@@ -87,76 +88,30 @@ const validateEnvironmentVariables = () => {
 // Validate env vars before starting
 validateEnvironmentVariables();
 
-// 🔧 CRITICAL FIX #2: ENHANCED CORS Configuration - MUST BE FIRST middleware!
+// 🔧 CRITICAL FIX #2: SIMPLIFIED CORS Configuration - Allow All Origins for Railway
 console.log('🔵 Setting up CORS...');
-const allowedOrigins = [
-  // Local development
-  'http://localhost:5173',
-  'http://localhost:3000',
-  'http://localhost:5500',
-  'http://127.0.0.1:5500',
-  'http://127.0.0.1:3000',
 
-  // Production domains - ALL VARIATIONS
-  'https://vigyanprep.com',
-  'http://vigyanprep.com',
-  'https://www.vigyanprep.com',
-  'http://www.vigyanprep.com',
-
-  // 🚂 RAILWAY BACKEND DOMAIN (Updated Jan 28, 2026)
-  'https://vigyan-production.up.railway.app',
-  'http://vigyan-production.up.railway.app',
-
-  // Environment variable
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
-// 🔧 ENHANCED: More permissive CORS for Railway deployment
+// 🔥 RAILWAY FIX: Simplified CORS - Allow ALL origins temporarily
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, Postman, or same-origin)
-    if (!origin) {
-      console.log('✅ CORS: Allowing request with no origin (same-origin/Postman)');
-      return callback(null, true);
-    }
-
-    // Check if origin is in whitelist
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      console.log(`✅ CORS: Allowed whitelisted origin: ${origin}`);
-      return callback(null, true);
-    }
-
-    // 🔧 FIX: In production, allow vigyanprep.com and railway.app subdomains
-    if (origin.includes('vigyanprep.com') || origin.includes('railway.app')) {
-      console.log(`✅ CORS: Allowing trusted subdomain: ${origin}`);
-      return callback(null, true);
-    }
-
-    // 🔧 CRITICAL: Allow all origins in production for Railway (temporary fix)
-    console.warn(`⚠️ CORS: Allowing non-whitelisted origin: ${origin}`);
-    callback(null, true);
-  },
+  origin: true, // ✅ Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 600, // Cache preflight for 10 minutes
   preflightContinue: false,
-  optionsSuccessStatus: 200  // 🔥 FIX: Changed from 204 to 200 for better compatibility
+  optionsSuccessStatus: 200
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
 
-// 🔥 PAYMENT FIX: Explicit preflight handling for payment endpoint
-app.options('/api/payment/checkout', cors(corsOptions));
-app.options('/api/payment/paymentverification', cors(corsOptions));
-app.options('/api/payment/getkey', cors(corsOptions));
-app.options(/^\/api\/admin\/.*$/, cors(corsOptions)); // 🔥 ADMIN FIX: RegExp to avoid path-to-regexp errors
+console.log('✅ CORS configured to allow ALL origins (Railway deployment)');
+console.log('⚠️  Note: This is for testing. Restrict origins in production!');
 
-console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
-console.log('✅ CORS: Allowing vigyanprep.com and railway.app subdomains');
-console.log('✅ Payment endpoints have explicit preflight handling');
+// 🔥 EXPLICIT OPTIONS HANDLERS for all API routes
+app.options('*', cors(corsOptions));
+console.log('✅ Wildcard OPTIONS handler configured');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
@@ -285,7 +240,8 @@ app.get('/health', (req, res) => {
     database: 'MongoDB',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    deployment: 'Railway'
+    deployment: 'Railway',
+    cors: 'Allowing all origins'
   });
 });
 
@@ -317,6 +273,7 @@ app.get('/api', (req, res) => {
     version: '2.0.0',
     database: 'MongoDB',
     deployment: 'Railway',
+    cors: 'Open (All origins allowed)',
     endpoints: {
       health: '/health',
       config: '/api/config',
@@ -363,6 +320,7 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
       console.log(`🚂 Deployment: Railway`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'https://vigyan-production.up.railway.app'}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'https://vigyanprep.com'}`);
+      console.log(`🔓 CORS: Allowing ALL origins (for testing)`);
       console.log('\n🟢 Server is ready to accept requests\n');
     });
   } catch (error) {
