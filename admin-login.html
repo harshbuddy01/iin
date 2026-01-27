@@ -332,9 +332,9 @@
         console.log('🔐 Admin Login Page Loaded');
         console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
 
-        // Check if already logged in
+        // Check if already logged in - FIXED: Redirect to v3
         if (sessionStorage.getItem('adminAuth') === 'true') {
-            window.location.href = 'admin-dashboard-v2.html';
+            window.location.href = 'admin-dashboard-v3.html'; // ✅ CHANGED FROM v2 TO v3
         }
 
         // Toggle password visibility
@@ -407,9 +407,9 @@
                     // Show success message
                     successMessage.style.display = 'block';
 
-                    // Redirect to dashboard after 1 second
+                    // Redirect to dashboard v3 after 1 second - ✅ FIXED
                     setTimeout(() => {
-                        window.location.href = 'admin-dashboard-v2.html';
+                        window.location.href = 'admin-dashboard-v3.html'; // ✅ CHANGED FROM v2 TO v3
                     }, 1000);
 
                 } else {
