@@ -6,6 +6,7 @@ import { PurchasedTest } from "../models/PurchasedTest.js";
 import { PaymentTransaction } from "../models/PaymentTransaction.js";
 import Student from "../models/Student.js";
 import mongoose from "mongoose";
+import { generateAuthToken } from '../middlewares/auth.js';
 
 // Create Nodemailer transporter with Hostinger SMTP
 const transporter = nodemailer.createTransport({
@@ -194,7 +195,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. 🔧 FIXED PAYMENT VERIFICATION WITH GUARANTEED STUDENT CREATION
+// 3. 🔧 FIXED PAYMENT VERIFICATION WITH JWT TOKEN GENERATION
 export const paymentVerification = async (req, res) => {
   console.log("🔹 ========== PAYMENT VERIFICATION STARTED ==========");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -404,7 +405,6 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ NEW STUDENT CREATED SUCCESSFULLY: ${normalizedEmail}, Roll: ${rollNumber}`);
 
       // 🆕 SYNC WITH DASHBOARD STUDENT MODEL
-      // This ensures the student appears in the Admin Dashboard "All Students" list
       console.log("🔄 Syncing with Dashboard Student Model...");
       try {
         await Student.findOneAndUpdate(
@@ -420,7 +420,6 @@ export const paymentVerification = async (req, res) => {
         console.log("✅ Dashboard Student record synced");
       } catch (syncError) {
         console.error("❌ Error syncing Dashboard Student record:", syncError.message);
-        // Don't fail the transaction for this, but log it critical
       }
     }
 
@@ -555,22 +554,39 @@ export const paymentVerification = async (req, res) => {
       emailWarning = "Email notifications are currently disabled";
     }
 
+    // 🔐 GENERATE JWT TOKEN FOR AUTHENTICATION
+    console.log("🔐 Generating JWT authentication token...");
+    
+    const authToken = generateAuthToken(
+      normalizedEmail,
+      rollNumber,
+      purchasedTests
+    );
+
+    // Set HTTP-only cookie (secure in production)
+    res.cookie('auth_token', authToken, {
+      httpOnly: true,  // Cannot be accessed by JavaScript (XSS protection)
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: 'strict', // CSRF protection
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/' // Available across entire site
+    });
+
+    console.log("✅ JWT token generated and set in cookie");
     console.log("✅ Sending success response to frontend...");
 
     const responseData = {
       success: true,
-      rollNumber,
-      isNewStudent,
-      purchasedTests,
+      rollNumber: rollNumber,
+      isNewStudent: isNewStudent,
+      purchasedTests: purchasedTests,
+      authToken: authToken, // Send token in response too (fallback)
       message: isNewStudent
         ? "Payment successful! Your Roll Number has been sent to your email."
-        : "Payment successful! Test added to your account."
+        : "Payment successful! Test added to your account.",
+      emailSent: !emailWarning,
+      emailWarning: emailWarning
     };
-
-    if (emailWarning) {
-      responseData.warning = emailWarning;
-      console.warn(`⚠️ Response includes email warning: ${emailWarning}`);
-    }
 
     console.log("🔹 ========== PAYMENT VERIFICATION SUCCESS ==========");
     console.log("📊 Final Response:", JSON.stringify(responseData, null, 2));
