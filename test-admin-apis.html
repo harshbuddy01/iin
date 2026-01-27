@@ -646,15 +646,6 @@
                     console.log(`🔗 Chained ID for ${endpoint.name}: ${finalUrl}`);
                 }
 
-
-                // Dynamic URL replacement (e.g. replacing '1' with real ID)
-                let finalUrl = endpoint.url;
-                if (endpoint.useRuntimeId && runtimeData[endpoint.useRuntimeId]) {
-                    // Replace the last segment if it's '1' or similar placeholder
-                    finalUrl = finalUrl.replace(/\/([^\/]+)$/, '/' + runtimeData[endpoint.useRuntimeId]);
-                    console.log(`🔗 Chained ID for ${endpoint.name}: ${finalUrl} `);
-                }
-
                 // Build request options
                 const options = {
                     method: endpoint.method,
