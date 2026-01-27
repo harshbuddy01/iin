@@ -1,8 +1,8 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
 // 🚂 RAILWAY MIGRATION: Updated URLs - Jan 28, 2026 4:00 AM IST
+// 🔥 HOTFIX: Fixed path-to-regexp wildcard error - Jan 28, 2026 4:29 AM IST
 // 🔧 CORS FIX: Allow all origins for Railway deployment - Jan 28, 2026 4:24 AM IST
-// 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 // 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
 // 🔥 ADMIN AUTH: Added admin authentication routes - Jan 26, 2026 1:59 AM IST
 // 📄 PDF AI: Added AI-powered PDF to quiz converter - Jan 28, 2026 4:12 AM IST
@@ -103,15 +103,12 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware
+// Apply CORS middleware - this automatically handles OPTIONS requests
 app.use(cors(corsOptions));
 
 console.log('✅ CORS configured to allow ALL origins (Railway deployment)');
 console.log('⚠️  Note: This is for testing. Restrict origins in production!');
-
-// 🔥 EXPLICIT OPTIONS HANDLERS for all API routes
-app.options('*', cors(corsOptions));
-console.log('✅ Wildcard OPTIONS handler configured');
+console.log('✅ CORS middleware handles all OPTIONS requests automatically');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
