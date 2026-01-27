@@ -636,8 +636,6 @@
 
                 const startTime = performance.now();
 
-                const startTime = performance.now();
-
                 // Dynamic URL replacement (e.g. replacing '1' with real ID)
                 let finalUrl = endpoint.url;
                 if (endpoint.useRuntimeId && runtimeData[endpoint.useRuntimeId]) {
@@ -686,7 +684,7 @@
 
                 if (response.ok) {
                     resultDiv.className = 'endpoint success';
-                    statusSpan.innerHTML = `< i class="fas fa-check-circle" ></i > ${response.status} OK(${duration}ms)`;
+                    statusSpan.innerHTML = `<i class="fas fa-check-circle"></i> ${response.status} OK (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-success';
                     stats.success++;
                     stats.pending--;
@@ -697,7 +695,7 @@
                 } else if (endpoint.expectValidation && isValidationError(response.status, data)) {
                     // Expected validation error - mark as warning
                     resultDiv.className = 'endpoint warning';
-                    statusSpan.innerHTML = `< i class="fas fa-info-circle" ></i > ${response.status} Validated Error(${duration}ms)`;
+                    statusSpan.innerHTML = `<i class="fas fa-info-circle"></i> ${response.status} Validated Error (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-warning';
                     stats.warning++;
                     stats.pending--;
@@ -711,7 +709,7 @@
                     // ... (rest of error handling)
                     // Real error
                     resultDiv.className = 'endpoint error';
-                    statusSpan.innerHTML = `< i class="fas fa-exclamation-circle" ></i > ${response.status} ${response.statusText} (${duration}ms)`;
+                    statusSpan.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${response.status} ${response.statusText} (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-error';
                     stats.error++;
                     stats.pending--;
