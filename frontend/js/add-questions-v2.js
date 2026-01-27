@@ -340,6 +340,10 @@ function initAddQuestions() {
                 throw new Error('Please fill all four options');
             }
 
+            if (questionText.length < 5) {
+                throw new Error('Question text must be at least 5 characters long');
+            }
+
             // Generate testId
             let testId = `${examType}_${examYear}`;
             if (paperType) {
