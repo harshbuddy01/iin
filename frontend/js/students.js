@@ -1,7 +1,6 @@
 /**
  * Students Management Module - REAL DATA ONLY
- * FIXED: Handle both data.students and data.users formats
- * FIXED: Ensure tbody exists before rendering
+ * FIXED: Retry mechanism to ensure tbody exists before rendering
  */
 
 let allStudents = [];
@@ -10,9 +9,27 @@ let currentEditId = null;
 function initStudents() {
     console.log('👥 Initializing Students page...');
     renderStudentsPage();
-    // Add a small delay to ensure DOM is ready
+    
+    // Wait for DOM to be fully rendered before loading data
     setTimeout(() => {
-        loadStudents();
+        console.log('🔍 Checking if tbody is ready...');
+        const tbody = document.getElementById('studentsTableBody');
+        if (tbody) {
+            console.log('✅ tbody found! Loading students...');
+            loadStudents();
+        } else {
+            console.error('❌ tbody NOT found after 100ms! Retrying...');
+            // Retry after another 200ms
+            setTimeout(() => {
+                const tbody2 = document.getElementById('studentsTableBody');
+                if (tbody2) {
+                    console.log('✅ tbody found on retry! Loading students...');
+                    loadStudents();
+                } else {
+                    console.error('❌ CRITICAL: tbody still not found after retry!');
+                }
+            }, 200);
+        }
     }, 100);
 }
 
@@ -28,6 +45,8 @@ function renderStudentsPage() {
         return;
     }
 
+    console.log('📝 Rendering students page HTML...');
+    
     container.innerHTML = `
         <div class="page-header">
             <h1><i class="fas fa-users"></i> All Students</h1>
@@ -71,30 +90,30 @@ function renderStudentsPage() {
 
     console.log('✅ Students page HTML rendered');
     
-    // Verify tbody exists
+    // Immediate check
     const tbody = document.getElementById('studentsTableBody');
-    console.log('🔍 Checking tbody:', tbody ? '✅ Found' : '❌ Not found');
+    console.log('🔍 Immediate tbody check:', tbody ? '✅ EXISTS' : '❌ NOT FOUND');
 
+    // Setup search
     const searchInput = document.getElementById('studentSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const search = e.target.value.toLowerCase();
             filterStudents(search);
         });
+        console.log('✅ Search input listener attached');
     }
 }
 
-// 🔥 FIXED: Handle both data.students and data.users formats
 async function loadStudents() {
     try {
         console.log('🔄 Fetching students from backend...');
 
-        // ✅ Use AdminAPI service (automatically handles Railway URL)
         const data = await window.AdminAPI.getStudents();
         
         console.log('📦 Raw API response:', data);
 
-        // 🔥 Handle BOTH formats: data.students OR data.users OR direct array
+        // Handle multiple response formats
         if (Array.isArray(data)) {
             allStudents = data;
         } else if (data.students && Array.isArray(data.students)) {
@@ -106,9 +125,11 @@ async function loadStudents() {
         }
 
         console.log(`✅ Loaded ${allStudents.length} students from database`);
-        console.log('👥 Student data:', allStudents);
+        console.log('👥 Student data sample:', allStudents[0]);
         
-        displayStudents(allStudents);
+        // Try to display - with retry if tbody not found
+        displayStudentsWithRetry(allStudents);
+        
     } catch (error) {
         console.error('❌ Failed to load students:', error);
         const tbody = document.getElementById('studentsTableBody');
@@ -121,6 +142,29 @@ async function loadStudents() {
             `;
         }
     }
+}
+
+function displayStudentsWithRetry(students, attempt = 1) {
+    console.log(`🎨 displayStudentsWithRetry() - Attempt ${attempt}`);
+    
+    const tbody = document.getElementById('studentsTableBody');
+    
+    if (!tbody) {
+        console.error(`❌ tbody NOT FOUND on attempt ${attempt}`);
+        if (attempt < 5) {
+            console.log(`⏳ Retrying in ${attempt * 100}ms...`);
+            setTimeout(() => displayStudentsWithRetry(students, attempt + 1), attempt * 100);
+        } else {
+            console.error('❌ FAILED: tbody never appeared after 5 attempts!');
+            console.log('🔍 Current page container display:', 
+                document.getElementById('all-students-page')?.style.display
+            );
+        }
+        return;
+    }
+    
+    console.log(`✅ tbody FOUND on attempt ${attempt}! Rendering now...`);
+    displayStudents(students);
 }
 
 function filterStudents(search) {
@@ -137,13 +181,10 @@ function displayStudents(students) {
     console.log(`🎨 displayStudents() called with ${students ? students.length : 0} students`);
     
     const tbody = document.getElementById('studentsTableBody');
-    console.log('🔍 Looking for tbody...', tbody ? '✅ Found!' : '❌ NOT FOUND!');
+    console.log('🔍 tbody element:', tbody ? '✅ Found' : '❌ NOT FOUND');
     
     if (!tbody) {
         console.error('❌ CRITICAL: studentsTableBody element not found in DOM!');
-        console.log('🔍 Available elements with "students" in id:', 
-            Array.from(document.querySelectorAll('[id*="student"]')).map(el => el.id)
-        );
         return;
     }
 
@@ -159,13 +200,15 @@ function displayStudents(students) {
     }
 
     console.log(`📋 Rendering ${students.length} students to table...`);
-    console.log('📊 First student data:', students[0]);
+    console.log('📊 First student:', students[0]);
 
     const rows = students.map((student, index) => {
-        console.log(`  Rendering student ${index + 1}:`, student.name, student.email);
+        const studentId = student.id || student._id || index;
+        console.log(`  Row ${index + 1}: ${student.name} (ID: ${studentId})`);
+        
         return `
         <tr>
-            <td><strong>#${student.id || student._id || 'N/A'}</strong></td>
+            <td><strong>#${studentId}</strong></td>
             <td>${student.name || 'N/A'}</td>
             <td>${student.email || 'N/A'}</td>
             <td><strong>${student.rollNumber || 'Not Assigned'}</strong></td>
@@ -173,13 +216,13 @@ function displayStudents(students) {
             <td>${student.joinDate || student.createdAt || 'N/A'}</td>
             <td><span class="status-active">${student.status || 'Active'}</span></td>
             <td>
-                <button class="action-btn" onclick="viewStudent('${student.id || student._id}')" title="View Details">
+                <button class="action-btn" onclick="viewStudent('${studentId}')" title="View Details">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn" onclick="editStudent('${student.id || student._id}')" title="Edit">
+                <button class="action-btn" onclick="editStudent('${studentId}')" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="action-btn danger" onclick="deleteStudent('${student.id || student._id}')" title="Delete">
+                <button class="action-btn danger" onclick="deleteStudent('${studentId}')" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -189,19 +232,27 @@ function displayStudents(students) {
 
     tbody.innerHTML = rows;
     console.log('✅ Students table rendered successfully!');
-    console.log('📏 Table now has', tbody.children.length, 'rows');
+    console.log('📏 Final tbody has', tbody.children.length, 'rows');
 }
 
 function viewStudent(id) {
-    const student = allStudents.find(s => (s.id || s._id) === id);
-    if (!student) return;
+    console.log('👁 Viewing student:', id);
+    const student = allStudents.find(s => (s.id || s._id) == id);
+    if (!student) {
+        console.error('❌ Student not found:', id);
+        return;
+    }
 
     alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate || student.createdAt}\nStatus: ${student.status || 'Active'}`);
 }
 
 function editStudent(id) {
-    const student = allStudents.find(s => (s.id || s._id) === id);
-    if (!student) return;
+    console.log('✏️ Editing student:', id);
+    const student = allStudents.find(s => (s.id || s._id) == id);
+    if (!student) {
+        console.error('❌ Student not found:', id);
+        return;
+    }
 
     currentEditId = id;
     const name = prompt('Student Name:', student.name);
@@ -219,14 +270,10 @@ function editStudent(id) {
     updateStudent(id, { name, email, rollNumber, course, status: student.status || 'Active' });
 }
 
-// 🔥 FIXED: Use AdminAPI.updateStudent()
 async function updateStudent(id, data) {
     try {
         console.log(`✏️ Updating student #${id}...`);
-
-        // ✅ Use AdminAPI service
         await window.AdminAPI.updateStudent(id, data);
-
         console.log('✅ Student updated successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student updated successfully', 'success');
         loadStudents();
@@ -236,16 +283,12 @@ async function updateStudent(id, data) {
     }
 }
 
-// 🔥 FIXED: Use AdminAPI.deleteStudent()
 async function deleteStudent(id) {
     if (!confirm('Are you sure you want to delete this student?')) return;
 
     try {
         console.log(`🗑️ Deleting student #${id}...`);
-
-        // ✅ Use AdminAPI service
         await window.AdminAPI.deleteStudent(id);
-
         console.log('✅ Student deleted successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student deleted successfully', 'success');
         loadStudents();
@@ -318,7 +361,6 @@ function renderAddStudentPage() {
     `;
 }
 
-// 🔥 FIXED: Use AdminAPI.addStudent()
 async function handleAddStudent(event) {
     event.preventDefault();
 
@@ -334,10 +376,7 @@ async function handleAddStudent(event) {
 
     try {
         console.log('➕ Adding new student...');
-
-        // ✅ Use AdminAPI service
         await window.AdminAPI.addStudent(studentData);
-
         console.log('✅ Student added successfully');
         if (window.AdminUtils) window.AdminUtils.showToast('Student added successfully!', 'success');
         event.target.reset();
@@ -360,4 +399,4 @@ window.deleteStudent = deleteStudent;
 window.handleAddStudent = handleAddStudent;
 window.loadStudents = loadStudents;
 
-console.log('✅ Students module loaded with enhanced debugging');
+console.log('✅ Students module loaded with retry mechanism');
