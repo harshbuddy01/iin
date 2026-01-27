@@ -268,7 +268,9 @@ function createTestCard(test) {
     const totalQuestions = test.total_questions || test.totalQuestions || 0;
     const totalMarks = test.total_marks || test.totalMarks || 0;
     const status = test.status || 'scheduled';
-    const testId = test.id || test.test_id || test.testId || test.exam_id;
+    // FIXED: Prioritize MongoDB _id
+    const testId = test._id || test.id || test.test_id || test.testId || test.exam_id;
+
     const durationMinutes = test.duration_minutes || test.duration || test.durationMinutes || 180;
 
     // Status badge colors
@@ -298,10 +300,10 @@ function createTestCard(test) {
                     </div>
                 </div>
                 <div class="test-actions" style="display: flex; gap: 8px;">
-                    <button class="btn-icon" onclick="event.stopPropagation(); editTest(${testId});" title="Edit" style="padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                    <button class="btn-icon" onclick="event.stopPropagation(); editTest('${testId}');" title="Edit" style="padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                         <i class="fas fa-edit" style="color: #475569;"></i>
                     </button>
-                    <button class="btn-icon danger" onclick="event.stopPropagation(); deleteTest(${testId});" title="Delete" style="padding: 8px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                    <button class="btn-icon danger" onclick="event.stopPropagation(); deleteTest('${testId}');" title="Delete" style="padding: 8px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
