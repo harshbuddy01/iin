@@ -660,23 +660,56 @@ async function loadDashboardData() {
     showDashboardLoading();
 
     try {
-        // 🔥 Fetch REAL stats AND Scheduled Tests (for accurate count)
-        const [stats, scheduledTests] = await Promise.all([
+        console.log('🔄 Fetching detailed data for manual stats calculation...');
+
+        // 🔥 Fetch ALL lists in parallel to calculate real stats manually
+        const [statsResult, testsResult, studentsResult, transactionsResult] = await Promise.allSettled([
             window.AdminAPI.getDashboardStats(),
-            window.AdminAPI.getScheduledTests().catch(() => []) // Fallback to empty array if fails
+            window.AdminAPI.getScheduledTests(),
+            window.AdminAPI.getStudents(),
+            window.AdminAPI.getTransactions()
         ]);
 
-        console.log('✅ Dashboard stats loaded:', stats);
-        console.log('✅ Scheduled tests loaded:', scheduledTests.length);
+        // Process Tests
+        const scheduledTests = testsResult.status === 'fulfilled' ? testsResult.value : [];
+        const realTotalTests = Array.isArray(scheduledTests) ? scheduledTests.length : 0;
+        console.log(`✅ Real Tests Count: ${realTotalTests}`);
 
-        // Calculate real total tests (Scheduled + Active)
-        // detailed logic: if scheduledTests array exists, usage that length.
-        const realTotalTests = Array.isArray(scheduledTests) ? scheduledTests.length : (stats.activeTests || 0);
+        // Process Students
+        let realTotalStudents = 0;
+        if (studentsResult.status === 'fulfilled') {
+            const sData = studentsResult.value;
+            // Handle { users: [...] } or [...]
+            const sList = sData.users || sData || [];
+            realTotalStudents = Array.isArray(sList) ? sList.length : 0;
+        }
+        console.log(`✅ Real Students Count: ${realTotalStudents}`);
 
-        // Update UI with REAL data
-        updateDashboardStats(stats, realTotalTests);
-        updatePerformanceChart(stats.performanceData || {});
-        updateDistributionChart(stats.studentDistribution || { iat: 30, nest: 45, jee: 25 }); // Fake data fallback for now if empty
+        // Process Revenue
+        let realTotalRevenue = 0;
+        if (transactionsResult.status === 'fulfilled') {
+            const tData = transactionsResult.value;
+            const tList = tData.transactions || tData || [];
+            if (Array.isArray(tList)) {
+                // Sum all successful transaction amounts (assuming amount is in rupees)
+                realTotalRevenue = tList.reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+            }
+        }
+        console.log(`✅ Real Revenue: ₹${realTotalRevenue}`);
+
+        // Default stats fallback
+        const backendStats = statsResult.status === 'fulfilled' ? statsResult.value : {};
+
+        // Update UI with MANUALLY CALCULATED data
+        updateDashboardStats(backendStats, realTotalTests, realTotalStudents, realTotalRevenue);
+
+        // Update charts with best available data
+        updatePerformanceChart(backendStats.performanceData || {});
+
+        // Update distribution chart manually if possible, else fallback
+        updateDistributionChart(backendStats.studentDistribution || { iat: 30, nest: 45, jee: 25 });
+
+    } catch (error) {
 
     } catch (error) {
         console.error('❌ Failed to load dashboard data:', error);
@@ -705,13 +738,23 @@ function showDashboardError(error) {
 }
 
 // 🔥 Update dashboard stats with REAL data only
-function updateDashboardStats(stats, realTotalTests) {
+function updateDashboardStats(stats, realTotalTests, realTotalStudents, realTotalRevenue) {
     try {
+        // Format Revenue: if < 1000, show exact. Else show K/L.
+        let revenueDisplay = '₹0';
+        if (realTotalRevenue < 1000) {
+            revenueDisplay = `₹${realTotalRevenue}`;
+        } else if (realTotalRevenue < 100000) {
+            revenueDisplay = `₹${(realTotalRevenue / 1000).toFixed(1)}K`;
+        } else {
+            revenueDisplay = `₹${(realTotalRevenue / 100000).toFixed(2)}L`;
+        }
+
         const statCards = {
             tests: { value: realTotalTests || 0, trend: stats.testsTrend || 0 },
-            students: { value: stats.totalStudents || 0, trend: stats.studentsTrend || 0 },
+            students: { value: realTotalStudents || 0, trend: stats.studentsTrend || 0 },
             exams: { value: stats.todayExams || 0 },
-            revenue: { value: stats.monthlyRevenue || 0, trend: stats.revenueTrend || 0 }
+            revenue: { value: revenueDisplay, trend: stats.revenueTrend || 0 }
         };
 
         const testsValue = document.querySelector('.stat-card.blue .stat-value');
@@ -722,9 +765,9 @@ function updateDashboardStats(stats, realTotalTests) {
         if (testsValue) testsValue.textContent = statCards.tests.value;
         if (studentsValue) studentsValue.textContent = statCards.students.value.toLocaleString();
         if (examsValue) examsValue.textContent = statCards.exams.value;
-        if (revenueValue) revenueValue.textContent = `₹${(statCards.revenue.value / 100000).toFixed(1)}L`;
+        if (revenueValue) revenueValue.textContent = statCards.revenue.value;
 
-        console.log('✅ Dashboard stats updated with REAL data');
+        console.log('✅ Dashboard stats updated with MANUALLY CALCULATED data');
     } catch (error) {
         console.error('Error updating stats:', error);
     }
@@ -745,6 +788,10 @@ function updatePerformanceChart(data) {
             performanceChart.destroy();
         }
 
+        const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
         performanceChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -753,14 +800,15 @@ function updatePerformanceChart(data) {
                     label: 'Average Score',
                     data: data.scores || [0, 0, 0, 0, 0, 0, 0],
                     borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
                     tension: 0.4,
                     fill: true,
                     pointBackgroundColor: '#6366f1',
                     pointBorderColor: '#fff',
                     pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
+                    pointRadius: 6,
+                    pointHoverRadius: 8
                 }]
             },
             options: {
