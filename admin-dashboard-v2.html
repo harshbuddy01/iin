@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="frontend/css/admin-custom.css">
 
     <style>
         * {
@@ -831,17 +832,27 @@
                     <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15%</div>
                 </div>
             </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h2>Student Performance Trend</h2>
-                    <div class="chart-controls">
-                        <button class="time-btn active">7D</button>
-                        <button class="time-btn">1M</button>
-                        <button class="time-btn">3M</button>
-                        <button class="time-btn">1Y</button>
+            <div class="stats-grid" style="grid-template-columns: 2fr 1fr;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Student Performance Trend</h2>
+                        <div class="chart-controls">
+                            <button class="time-btn active">7D</button>
+                            <button class="time-btn">1M</button>
+                            <button class="time-btn">3M</button>
+                            <button class="time-btn">1Y</button>
+                        </div>
+                    </div>
+                    <canvas id="performanceChart" style="max-height: 350px;"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h2>Student Distribution</h2>
+                    </div>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="distributionChart"></canvas>
                     </div>
                 </div>
-                <canvas id="performanceChart" style="max-height: 350px;"></canvas>
             </div>
         </div>
 
@@ -924,7 +935,7 @@
     </script>
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
-    <script src="frontend/js/create-test.js?v=20260127_FIX"></script>
+    <script src="frontend/js/create-test.js?v=20260127_MODERN_V1"></script>
     <script src="frontend/js/add-questions-v2.js"></script>
     <script src="frontend/js/view-questions.js"></script>
     <script src="frontend/js/students.js"></script>

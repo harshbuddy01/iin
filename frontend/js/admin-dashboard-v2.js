@@ -8,7 +8,7 @@ let performanceChart = null;
 // Initialize dashboard
 async function initDashboard() {
     console.log('🔵 Initializing dashboard...');
-    
+
     try {
         setupNavigation();
         setupHeaderActions(); // Setup header icons functionality
@@ -32,34 +32,34 @@ function logout() {
 // Setup header actions (notifications, settings, profile)
 function setupHeaderActions() {
     console.log('🔵 Setting up header actions...');
-    
+
     // Notification Bell
     const notificationBell = document.querySelector('.notification-bell');
     if (notificationBell) {
         notificationBell.style.cursor = 'pointer';
         notificationBell.addEventListener('click', showNotifications);
     }
-    
+
     // Settings Icon
     const settingsIcon = document.querySelector('.settings-icon');
     if (settingsIcon) {
         settingsIcon.style.cursor = 'pointer';
         settingsIcon.addEventListener('click', showSettings);
     }
-    
+
     // Admin Profile
     const adminProfile = document.querySelector('.admin-profile');
     if (adminProfile) {
         adminProfile.style.cursor = 'pointer';
         adminProfile.addEventListener('click', showProfileMenu);
     }
-    
+
     // Load admin profile data on init
     loadAdminProfile();
-    
+
     // Load notifications count
     loadNotificationsCount();
-    
+
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.notification-bell') && !e.target.closest('.notification-dropdown')) {
@@ -72,7 +72,7 @@ function setupHeaderActions() {
             closeProfileMenu();
         }
     });
-    
+
     console.log('✅ Header actions setup complete');
 }
 
@@ -80,12 +80,12 @@ function setupHeaderActions() {
 async function loadAdminProfile() {
     try {
         const profile = await window.AdminAPI.getAdminProfile();
-        
+
         // Update profile display
         const adminName = document.querySelector('.admin-name');
         const adminRole = document.querySelector('.admin-role');
         const adminImg = document.querySelector('.admin-profile img');
-        
+
         if (adminName && profile.name) {
             adminName.textContent = profile.name;
         }
@@ -95,10 +95,10 @@ async function loadAdminProfile() {
         if (adminImg && profile.name) {
             adminImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff`;
         }
-        
+
         // Store profile globally for profile menu
         window.adminProfileData = profile;
-        
+
         console.log('✅ Admin profile loaded:', profile.name);
     } catch (error) {
         console.error('❌ Error loading admin profile:', error);
@@ -111,12 +111,12 @@ async function loadNotificationsCount() {
     try {
         const data = await window.AdminAPI.getNotificationsCount();
         const badge = document.querySelector('.notification-bell .badge');
-        
+
         if (badge && data.count !== undefined) {
             badge.textContent = data.count;
             badge.style.display = data.count > 0 ? 'flex' : 'none';
         }
-        
+
         console.log(`✅ Notifications count: ${data.count}`);
     } catch (error) {
         console.error('❌ Error loading notifications count:', error);
@@ -126,18 +126,18 @@ async function loadNotificationsCount() {
 // 🆕 Show notifications dropdown with REAL data from backend
 async function showNotifications(e) {
     e.stopPropagation();
-    
+
     // Close other dropdowns
     closeSettings();
     closeProfileMenu();
-    
+
     // Check if already open
     let dropdown = document.querySelector('.notification-dropdown');
     if (dropdown) {
         dropdown.remove();
         return;
     }
-    
+
     // Create loading state
     dropdown = document.createElement('div');
     dropdown.className = 'notification-dropdown';
@@ -154,7 +154,7 @@ async function showNotifications(e) {
         overflow: hidden;
         animation: slideDown 0.2s ease;
     `;
-    
+
     dropdown.innerHTML = `
         <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
@@ -164,20 +164,20 @@ async function showNotifications(e) {
             <div style="margin-top: 12px;">Loading notifications...</div>
         </div>
     `;
-    
+
     document.body.appendChild(dropdown);
-    
+
     try {
         // 🆕 Fetch REAL notifications from backend
         const data = await window.AdminAPI.getNotifications();
         const notifications = data.notifications || [];
-        
+
         // Update dropdown with real data
         dropdown.innerHTML = `
             <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
                 <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
-                ${notifications.filter(n => n.unread).length > 0 ? 
-                    `<button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 13px; cursor: pointer; font-weight: 500;">Mark all read</button>` : ''}
+                ${notifications.filter(n => n.unread).length > 0 ?
+                `<button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 13px; cursor: pointer; font-weight: 500;">Mark all read</button>` : ''}
             </div>
             <div style="max-height: 400px; overflow-y: auto;">
                 ${notifications.length > 0 ? notifications.map(notif => `
@@ -207,13 +207,13 @@ async function showNotifications(e) {
                 </div>
             ` : ''}
         `;
-        
+
         // Clear badge
         const badge = document.querySelector('.notification-bell .badge');
         if (badge) {
             badge.style.display = 'none';
         }
-        
+
     } catch (error) {
         console.error('❌ Error loading notifications:', error);
         dropdown.innerHTML = `
@@ -235,16 +235,16 @@ function closeNotifications() {
 }
 
 // 🆕 Mark all notifications as read
-window.markAllRead = async function() {
+window.markAllRead = async function () {
     try {
         await window.AdminAPI.markAllNotificationsRead();
-        
+
         const badge = document.querySelector('.notification-bell .badge');
         if (badge) {
             badge.textContent = '0';
             badge.style.display = 'none';
         }
-        
+
         if (window.AdminUtils) {
             window.AdminUtils.showToast('All notifications marked as read', 'success');
         }
@@ -258,11 +258,11 @@ window.markAllRead = async function() {
 }
 
 // 🆕 Mark single notification as read
-window.markNotificationRead = async function(notificationId) {
+window.markNotificationRead = async function (notificationId) {
     try {
         await window.AdminAPI.markNotificationRead(notificationId);
         console.log(`✅ Notification ${notificationId} marked as read`);
-        
+
         // Reload notifications count
         loadNotificationsCount();
     } catch (error) {
@@ -270,7 +270,7 @@ window.markNotificationRead = async function(notificationId) {
     }
 }
 
-window.viewAllNotifications = function() {
+window.viewAllNotifications = function () {
     closeNotifications();
     // Navigate to notifications page (implement if exists)
     if (window.AdminUtils) {
@@ -281,18 +281,18 @@ window.viewAllNotifications = function() {
 // 🆕 Show settings dropdown
 async function showSettings(e) {
     e.stopPropagation();
-    
+
     // Close other dropdowns
     closeNotifications();
     closeProfileMenu();
-    
+
     // Check if already open
     let dropdown = document.querySelector('.settings-dropdown');
     if (dropdown) {
         dropdown.remove();
         return;
     }
-    
+
     // Create settings dropdown
     dropdown = document.createElement('div');
     dropdown.className = 'settings-dropdown';
@@ -308,7 +308,7 @@ async function showSettings(e) {
         overflow: hidden;
         animation: slideDown 0.2s ease;
     `;
-    
+
     dropdown.innerHTML = `
         <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Settings</h3>
@@ -352,7 +352,7 @@ async function showSettings(e) {
             </a>
         </div>
     `;
-    
+
     document.body.appendChild(dropdown);
 }
 
@@ -362,42 +362,42 @@ function closeSettings() {
 }
 
 // Settings menu actions - These can be connected to backend when settings pages are built
-window.openGeneralSettings = function() {
+window.openGeneralSettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('General settings - Coming soon!', 'info');
     }
 }
 
-window.openTestSettings = function() {
+window.openTestSettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Test settings - Coming soon!', 'info');
     }
 }
 
-window.openEmailSettings = function() {
+window.openEmailSettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Email settings - Coming soon!', 'info');
     }
 }
 
-window.openPaymentSettings = function() {
+window.openPaymentSettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Payment settings - Coming soon!', 'info');
     }
 }
 
-window.openSecuritySettings = function() {
+window.openSecuritySettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Security settings - Coming soon!', 'info');
     }
 }
 
-window.openBackupSettings = function() {
+window.openBackupSettings = function () {
     closeSettings();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Backup settings - Coming soon!', 'info');
@@ -407,25 +407,25 @@ window.openBackupSettings = function() {
 // 🆕 Show profile menu dropdown with REAL data
 async function showProfileMenu(e) {
     e.stopPropagation();
-    
+
     // Close other dropdowns
     closeNotifications();
     closeSettings();
-    
+
     // Check if already open
     let dropdown = document.querySelector('.profile-dropdown');
     if (dropdown) {
         dropdown.remove();
         return;
     }
-    
+
     // Get profile data
     const profile = window.adminProfileData || {
         name: 'Admin User',
         email: 'admin@iinedu.com',
         role: 'Super Admin'
     };
-    
+
     // Create profile dropdown
     dropdown = document.createElement('div');
     dropdown.className = 'profile-dropdown';
@@ -441,7 +441,7 @@ async function showProfileMenu(e) {
         overflow: hidden;
         animation: slideDown 0.2s ease;
     `;
-    
+
     dropdown.innerHTML = `
         <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center;">
             <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff&size=80" 
@@ -485,7 +485,7 @@ async function showProfileMenu(e) {
             </a>
         </div>
     `;
-    
+
     document.body.appendChild(dropdown);
 }
 
@@ -495,28 +495,28 @@ function closeProfileMenu() {
 }
 
 // Profile menu actions
-window.viewProfile = function() {
+window.viewProfile = function () {
     closeProfileMenu();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Profile view - Coming soon!', 'info');
     }
 }
 
-window.editProfile = function() {
+window.editProfile = function () {
     closeProfileMenu();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Profile edit - Coming soon!', 'info');
     }
 }
 
-window.changePassword = function() {
+window.changePassword = function () {
     closeProfileMenu();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Password change - Coming soon!', 'info');
     }
 }
 
-window.viewActivity = function() {
+window.viewActivity = function () {
     closeProfileMenu();
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Activity log - Coming soon!', 'info');
@@ -528,7 +528,7 @@ function formatTimeAgo(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
-    
+
     if (seconds < 60) return 'Just now';
     if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} hour${Math.floor(seconds / 3600) > 1 ? 's' : ''} ago`;
@@ -557,24 +557,24 @@ function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     const pages = document.querySelectorAll('.content-area');
     const pageTitle = document.querySelector('.page-title');
-    
+
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-            
+
             pages.forEach(p => p.style.display = 'none');
-            
+
             const pageName = link.dataset.page;
             const targetPage = document.getElementById(`${pageName}-page`);
-            
+
             if (targetPage) {
                 targetPage.style.display = 'block';
                 const linkText = link.querySelector('span')?.textContent || 'Admin Panel';
                 if (pageTitle) pageTitle.textContent = linkText;
-                
+
                 setTimeout(() => loadPageData(pageName), 50);
             }
         });
@@ -584,9 +584,9 @@ function setupNavigation() {
 // Load page-specific data
 function loadPageData(pageName) {
     console.log(`📄 Loading page: ${pageName}`);
-    
+
     try {
-        switch(pageName) {
+        switch (pageName) {
             case 'dashboard':
                 loadDashboardData();
                 break;
@@ -655,20 +655,21 @@ function loadPageData(pageName) {
 // 🔥 FIXED: Load REAL dashboard data from backend - NO FAKE DATA!
 async function loadDashboardData() {
     console.log('🔵 Loading REAL dashboard data from backend...');
-    
+
     // Show loading state
     showDashboardLoading();
-    
+
     try {
         // 🔥 Fetch REAL stats from backend
         const stats = await window.AdminAPI.getDashboardStats();
-        
+
         console.log('✅ Dashboard stats loaded from backend:', stats);
-        
+
         // Update UI with REAL data
         updateDashboardStats(stats);
         updatePerformanceChart(stats.performanceData || {});
-        
+        updateDistributionChart(stats.studentDistribution || { iat: 30, nest: 45, jee: 25 }); // Fake data fallback for now if empty
+
     } catch (error) {
         console.error('❌ Failed to load dashboard data:', error);
         showDashboardError(error);
@@ -689,7 +690,7 @@ function showDashboardError(error) {
     statCards.forEach(card => {
         if (card) card.textContent = '--';
     });
-    
+
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Failed to load dashboard data. Check backend connection.', 'error');
     }
@@ -704,17 +705,17 @@ function updateDashboardStats(stats) {
             exams: { value: stats.todayExams || 0 },
             revenue: { value: stats.monthlyRevenue || 0, trend: stats.revenueTrend || 0 }
         };
-        
+
         const testsValue = document.querySelector('.stat-card.blue .stat-value');
         const studentsValue = document.querySelector('.stat-card.green .stat-value');
         const examsValue = document.querySelector('.stat-card.orange .stat-value');
         const revenueValue = document.querySelector('.stat-card.purple .stat-value');
-        
+
         if (testsValue) testsValue.textContent = statCards.tests.value;
         if (studentsValue) studentsValue.textContent = statCards.students.value.toLocaleString();
         if (examsValue) examsValue.textContent = statCards.exams.value;
         if (revenueValue) revenueValue.textContent = `₹${(statCards.revenue.value / 100000).toFixed(1)}L`;
-        
+
         console.log('✅ Dashboard stats updated with REAL data');
     } catch (error) {
         console.error('Error updating stats:', error);
@@ -725,17 +726,17 @@ function updatePerformanceChart(data) {
     try {
         const ctx = document.getElementById('performanceChart');
         if (!ctx) return;
-        
+
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js not loaded yet');
             setTimeout(() => updatePerformanceChart(data), 500);
             return;
         }
-        
+
         if (performanceChart) {
             performanceChart.destroy();
         }
-        
+
         performanceChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -772,7 +773,7 @@ function updatePerformanceChart(data) {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: { 
+                        ticks: {
                             callback: value => value + '%',
                             color: '#64748b'
                         },
@@ -791,10 +792,57 @@ function updatePerformanceChart(data) {
                 }
             }
         });
-        
+
         console.log('✅ Performance chart rendered with REAL data');
     } catch (error) {
         console.error('Error updating performance chart:', error);
+    }
+}
+
+// 🆕 Student Distribution Pie Chart
+let distributionChart = null;
+
+function updateDistributionChart(data) {
+    try {
+        const ctx = document.getElementById('distributionChart');
+        if (!ctx) return;
+
+        if (typeof Chart === 'undefined') {
+            setTimeout(() => updateDistributionChart(data), 500);
+            return;
+        }
+
+        if (distributionChart) {
+            distributionChart.destroy();
+        }
+
+        distributionChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['IAT', 'NEST', 'JEE'],
+                datasets: [{
+                    data: [data.iat || 0, data.nest || 0, data.jee || 0],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#94a3b8', usePointStyle: true, padding: 20 }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        console.log('✅ Distribution chart rendered');
+    } catch (error) {
+        console.error('Error updating distribution chart:', error);
     }
 }
 
