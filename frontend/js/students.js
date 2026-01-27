@@ -1,6 +1,7 @@
 /**
  * Students Management Module - REAL DATA ONLY
  * FIXED: Handle both data.students and data.users formats
+ * FIXED: Ensure tbody exists before rendering
  */
 
 let allStudents = [];
@@ -9,7 +10,10 @@ let currentEditId = null;
 function initStudents() {
     console.log('👥 Initializing Students page...');
     renderStudentsPage();
-    loadStudents();
+    // Add a small delay to ensure DOM is ready
+    setTimeout(() => {
+        loadStudents();
+    }, 100);
 }
 
 function initAddStudent() {
@@ -65,10 +69,19 @@ function renderStudentsPage() {
         </div>
     `;
 
-    document.getElementById('studentSearch').addEventListener('input', (e) => {
-        const search = e.target.value.toLowerCase();
-        filterStudents(search);
-    });
+    console.log('✅ Students page HTML rendered');
+    
+    // Verify tbody exists
+    const tbody = document.getElementById('studentsTableBody');
+    console.log('🔍 Checking tbody:', tbody ? '✅ Found' : '❌ Not found');
+
+    const searchInput = document.getElementById('studentSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const search = e.target.value.toLowerCase();
+            filterStudents(search);
+        });
+    }
 }
 
 // 🔥 FIXED: Handle both data.students and data.users formats
@@ -93,6 +106,8 @@ async function loadStudents() {
         }
 
         console.log(`✅ Loaded ${allStudents.length} students from database`);
+        console.log('👥 Student data:', allStudents);
+        
         displayStudents(allStudents);
     } catch (error) {
         console.error('❌ Failed to load students:', error);
@@ -119,13 +134,21 @@ function filterStudents(search) {
 }
 
 function displayStudents(students) {
+    console.log(`🎨 displayStudents() called with ${students ? students.length : 0} students`);
+    
     const tbody = document.getElementById('studentsTableBody');
+    console.log('🔍 Looking for tbody...', tbody ? '✅ Found!' : '❌ NOT FOUND!');
+    
     if (!tbody) {
-        console.error('❌ studentsTableBody not found!');
+        console.error('❌ CRITICAL: studentsTableBody element not found in DOM!');
+        console.log('🔍 Available elements with "students" in id:', 
+            Array.from(document.querySelectorAll('[id*="student"]')).map(el => el.id)
+        );
         return;
     }
 
     if (!students || students.length === 0) {
+        console.log('⚠️ No students to display');
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
                 <i class="fas fa-user-slash" style="font-size: 24px;"></i><br>
@@ -135,11 +158,14 @@ function displayStudents(students) {
         return;
     }
 
-    console.log(`📋 Displaying ${students.length} students...`);
+    console.log(`📋 Rendering ${students.length} students to table...`);
+    console.log('📊 First student data:', students[0]);
 
-    tbody.innerHTML = students.map(student => `
+    const rows = students.map((student, index) => {
+        console.log(`  Rendering student ${index + 1}:`, student.name, student.email);
+        return `
         <tr>
-            <td><strong>#${student.id || 'N/A'}</strong></td>
+            <td><strong>#${student.id || student._id || 'N/A'}</strong></td>
             <td>${student.name || 'N/A'}</td>
             <td>${student.email || 'N/A'}</td>
             <td><strong>${student.rollNumber || 'Not Assigned'}</strong></td>
@@ -147,31 +173,34 @@ function displayStudents(students) {
             <td>${student.joinDate || student.createdAt || 'N/A'}</td>
             <td><span class="status-active">${student.status || 'Active'}</span></td>
             <td>
-                <button class="action-btn" onclick="viewStudent(${student.id})" title="View Details">
+                <button class="action-btn" onclick="viewStudent('${student.id || student._id}')" title="View Details">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="action-btn" onclick="editStudent(${student.id})" title="Edit">
+                <button class="action-btn" onclick="editStudent('${student.id || student._id}')" title="Edit">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="action-btn danger" onclick="deleteStudent(${student.id})" title="Delete">
+                <button class="action-btn danger" onclick="deleteStudent('${student.id || student._id}')" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>
-    `).join('');
+    `;
+    }).join('');
 
-    console.log('✅ Students table rendered successfully');
+    tbody.innerHTML = rows;
+    console.log('✅ Students table rendered successfully!');
+    console.log('📏 Table now has', tbody.children.length, 'rows');
 }
 
 function viewStudent(id) {
-    const student = allStudents.find(s => s.id === id);
+    const student = allStudents.find(s => (s.id || s._id) === id);
     if (!student) return;
 
     alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate || student.createdAt}\nStatus: ${student.status || 'Active'}`);
 }
 
 function editStudent(id) {
-    const student = allStudents.find(s => s.id === id);
+    const student = allStudents.find(s => (s.id || s._id) === id);
     if (!student) return;
 
     currentEditId = id;
@@ -331,4 +360,4 @@ window.deleteStudent = deleteStudent;
 window.handleAddStudent = handleAddStudent;
 window.loadStudents = loadStudents;
 
-console.log('✅ Students module loaded - FIXED to handle both data.students and data.users formats');
+console.log('✅ Students module loaded with enhanced debugging');
