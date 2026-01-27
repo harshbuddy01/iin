@@ -4,6 +4,7 @@ import { PurchasedTest } from "../models/PurchasedTest.js";
 import { ScheduledTest } from "../models/ScheduledTest.js";
 import QuestionModel from "../schemas/QuestionSchema.js";
 import { StudentAttempt } from "../models/StudentAttempt.js";
+import { generateAuthToken } from '../middlewares/auth.js';
 
 // Helper function to safely parse JSON
 const safeJsonParse = (jsonString, fallback = null) => {
@@ -102,7 +103,7 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-// Start test (verify student has access)
+// Start test (verify student has access) - 🔐 NOW WITH JWT TOKEN GENERATION
 export const startTest = async (req, res) => {
   try {
     const { rollNumber, email } = req.body;
@@ -134,11 +135,35 @@ export const startTest = async (req, res) => {
       email: normalizedEmail
     });
 
-    // Return purchased tests
+    const purchasedTests = purchasedTestDocs.map(t => t.test_id);
+
+    // 🔐 GENERATE JWT TOKEN
+    console.log('🔐 Generating JWT token for login...');
+    const authToken = generateAuthToken(
+      normalizedEmail,
+      student.roll_number,
+      purchasedTests
+    );
+
+    // Set HTTP-only cookie
+    res.cookie('auth_token', authToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/'
+    });
+
+    console.log('✅ JWT token generated and cookie set');
+
+    // Return with token
     res.status(200).json({ 
       success: true, 
-      purchasedTests: purchasedTestDocs.map(t => t.test_id),
-      rollNumber: student.roll_number
+      purchasedTests: purchasedTests,
+      rollNumber: student.roll_number,
+      email: normalizedEmail,
+      authToken: authToken, // Send token for sessionStorage fallback
+      message: "Login successful"
     });
     
   } catch (error) {
@@ -279,10 +304,11 @@ export const submitExam = async (req, res) => {
   }
 };
 
-// Get questions for a specific test
+// Get questions for a specific test - 🔒 NOW USES AUTHENTICATED USER
 export const getQuestions = async (req, res) => {
   try {
-    const { testId } = req.query;
+    // testId already validated by verifyTestAccess middleware
+    const testId = req.testId || req.query.testId;
     
     if (!testId) {
       return res.status(400).json({ 
@@ -290,6 +316,8 @@ export const getQuestions = async (req, res) => {
         message: "Test ID required" 
       });
     }
+    
+    console.log(`📚 Loading questions for ${testId} - User: ${req.user?.email || 'Unknown'}`);
     
     // Get questions from MongoDB
     const questions = await QuestionModel.find({
@@ -303,18 +331,20 @@ export const getQuestions = async (req, res) => {
       });
     }
     
-    // Format response
+    // Format response (remove correct answers for security)
     const formattedQuestions = questions.map(q => ({
       _id: q._id,
       testId: q.testId,
       questionNumber: q.questionNumber || q._id.toString().charCodeAt(0) % 100,
       questionText: q.questionText,
       options: Array.isArray(q.options) ? q.options : safeJsonParse(q.options, [])
+      // ⚠️ correctAnswer NOT sent to client for security
     }));
     
     res.status(200).json({ 
       success: true, 
-      questions: formattedQuestions 
+      questions: formattedQuestions,
+      totalQuestions: formattedQuestions.length
     });
     
   } catch (error) {
