@@ -152,7 +152,7 @@ function applyQuestionFilters() {
     let filtered = allQuestions;
 
     if (subject !== 'all') {
-        filtered = filtered.filter(q => q.subject === subject);
+        filtered = filtered.filter(q => (q.section || q.subject) === subject);
     }
     if (difficulty !== 'all') {
         filtered = filtered.filter(q => q.difficulty === difficulty);
@@ -185,7 +185,7 @@ function displayQuestions(questions) {
     tbody.innerHTML = questions.map(q => `
         <tr>
             <td><strong>#${q.id}</strong></td>
-            <td><span class="badge badge-${(q.subject || 'General').toLowerCase()}">${q.subject || 'General'}</span></td>
+            <td><span class="badge badge-${(q.section || q.subject || 'General').toLowerCase()}">${q.section || q.subject || 'General'}</span></td>
             <td>${q.topic || 'N/A'}</td>
             <td><span class="difficulty-${(q.difficulty || 'Medium').toLowerCase()}">${q.difficulty || 'Medium'}</span></td>
             <td><strong>${q.marks}</strong></td>
