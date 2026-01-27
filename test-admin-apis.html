@@ -796,11 +796,11 @@
                 const header = document.createElement('div');
                 header.className = 'category-header';
                 header.innerHTML = `
-                    < div class="category-title" >
+                    <div class="category-title">
                         <i class="fas ${category.icon}" style="color: ${category.color};"></i>
                         ${category.category}
-                <span class="category-count">${category.endpoints.length} APIs</span>
-                    </div >
+                        <span class="category-count">${category.endpoints.length} APIs</span>
+                    </div>
                     <button class="btn-section" data-section="${catIndex}" onclick="testSection(${catIndex})">
                         <i class="fas fa-play"></i> Run Section
                     </button>
@@ -809,7 +809,7 @@
 
                 // Endpoints
                 for (const endpoint of category.endpoints) {
-                    const id = `endpoint - ${Math.random().toString(36).substr(2, 9)} `;
+                    const id = `endpoint-${Math.random().toString(36).substr(2, 9)}`;
                     endpoint._elementId = id;
                     stats.total++;
                     stats.pending++;
@@ -818,7 +818,7 @@
                     div.id = id;
                     div.className = 'endpoint';
                     div.innerHTML = `
-                    < div class="endpoint-header" >
+                        <div class="endpoint-header">
                             <div style="flex: 1;">
                                 <div class="endpoint-name">${endpoint.name}</div>
                                 <div class="endpoint-url">
@@ -827,7 +827,7 @@
                                 </div>
                             </div>
                             <span class="endpoint-status status-pending"><i class="fas fa-clock"></i> Pending</span>
-                        </div >
+                        </div>
                         <div class="note"></div>
                         <pre class="response">Waiting for test...</pre>
                     `;
