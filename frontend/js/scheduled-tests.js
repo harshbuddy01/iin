@@ -269,7 +269,11 @@ function createTestCard(test) {
     const totalMarks = test.total_marks || test.totalMarks || 0;
     const status = test.status || 'scheduled';
     // FIXED: Prioritize MongoDB _id
+    // FIXED: Prioritize MongoDB _id with explicit check
     const testId = test._id || test.id || test.test_id || test.testId || test.exam_id;
+    if (!testId) {
+        console.warn('❌ Test ID missing for:', testName, test);
+    }
 
     const durationMinutes = test.duration_minutes || test.duration || test.durationMinutes || 180;
 

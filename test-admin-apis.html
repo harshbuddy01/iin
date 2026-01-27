@@ -499,9 +499,32 @@
                 color: '#ec4899',
                 endpoints: [
                     { name: 'Get Scheduled Tests', method: 'GET', url: '/api/admin/scheduled-tests' },
-                    { name: 'Schedule New Test', method: 'POST', url: '/api/admin/scheduled-tests', expectValidation: true },
-                    { name: 'Update Schedule', method: 'PUT', url: '/api/admin/scheduled-tests/1', expectValidation: true },
-                    { name: 'Delete Schedule', method: 'DELETE', url: '/api/admin/scheduled-tests/1', expectValidation: true }
+                    {
+                        name: 'Schedule New Test',
+                        method: 'POST',
+                        url: '/api/admin/tests', // Use base endpoint
+                        captureId: 'schedTestId',
+                        testData: {
+                            test_name: 'Scheduled Test via API',
+                            test_type: 'nest',
+                            status: 'scheduled',
+                            exam_date: '2026-05-20',
+                            start_time: '14:00'
+                        }
+                    },
+                    {
+                        name: 'Update Schedule',
+                        method: 'PUT',
+                        url: '/api/admin/tests/1',
+                        useRuntimeId: 'schedTestId',
+                        testData: { status: 'cancelled' }
+                    },
+                    {
+                        name: 'Delete Schedule',
+                        method: 'DELETE',
+                        url: '/api/admin/tests/1',
+                        useRuntimeId: 'schedTestId'
+                    }
                 ]
             },
             {
