@@ -45,13 +45,10 @@ function initAddQuestions() {
                             <label for="examYear">Year *</label>
                             <select id="examYear" required class="form-input" onchange="updateTestIdPreview()">
                                 <option value="">Select Year</option>
+                                <option value="2027">2027</option>
                                 <option value="2026" selected>2026</option>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
-                                <option value="2023">2023</option>
-                                <option value="2022">2022</option>
-                                <option value="2021">2021</option>
-                                <option value="2020">2020</option>
                             </select>
                         </div>
                         
@@ -350,14 +347,20 @@ function initAddQuestions() {
             }
 
             // Prepare payload matching backend expectations
+            // Prepare payload matching backend expectations
             const payload = {
                 testId: testId,
-                questionNumber: questionNumber, // This is now the unique ID like NEST_2026_123456
+                examType: examType, // Added
+                year: examYear,     // Added
+                paperType: paperType || null, // Added optional
+                questionNumber: questionNumber,
                 questionText: questionText,
                 options: options,
                 correctAnswer: correctAnswer,
                 section: subject,
-                marks: marks
+                marks: marks,
+                topic: "General", // Default topic
+                difficulty: "Medium" // Default difficulty
             };
 
             console.log('📤 Sending question to backend:', payload);
