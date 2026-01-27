@@ -636,32 +636,6 @@
 
                 const startTime = performance.now();
 
-                        <div class="note"></div>
-                        <pre class="response">Waiting for test...</pre>
-                `;
-                    section.appendChild(div);
-                }
-
-                resultsDiv.appendChild(section);
-            }
-
-            updateStats();
-        }
-
-        // Global store for runtime data (like captured IDs)
-        let runtimeData = {};
-
-        async function testEndpoint(endpoint, elementId) {
-            const resultDiv = document.getElementById(elementId);
-            const noteDiv = resultDiv.querySelector('.note');
-
-            try {
-                // Set Testing State
-                resultDiv.className = 'endpoint testing';
-                const statusSpan = resultDiv.querySelector('.endpoint-status');
-                statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
-                statusSpan.className = 'endpoint-status status-testing';
-
                 const startTime = performance.now();
 
                 // Dynamic URL replacement (e.g. replacing '1' with real ID)
@@ -669,7 +643,16 @@
                 if (endpoint.useRuntimeId && runtimeData[endpoint.useRuntimeId]) {
                     // Replace the last segment if it's '1' or similar placeholder
                     finalUrl = finalUrl.replace(/\/([^\/]+)$/, '/' + runtimeData[endpoint.useRuntimeId]);
-                    console.log(`🔗 Chained ID for ${ endpoint.name }: ${ finalUrl } `);
+                    console.log(`🔗 Chained ID for ${endpoint.name}: ${finalUrl}`);
+                }
+
+
+                // Dynamic URL replacement (e.g. replacing '1' with real ID)
+                let finalUrl = endpoint.url;
+                if (endpoint.useRuntimeId && runtimeData[endpoint.useRuntimeId]) {
+                    // Replace the last segment if it's '1' or similar placeholder
+                    finalUrl = finalUrl.replace(/\/([^\/]+)$/, '/' + runtimeData[endpoint.useRuntimeId]);
+                    console.log(`🔗 Chained ID for ${endpoint.name}: ${finalUrl} `);
                 }
 
                 // Build request options
@@ -702,17 +685,17 @@
                 // CAPTURE ID logic
                 if (endpoint.captureId && data && data._id) {
                     runtimeData[endpoint.captureId] = data._id;
-                    console.log(`💾 Captured ID[${ endpoint.captureId }]: ${ data._id } `);
+                    console.log(`💾 Captured ID[${endpoint.captureId}]: ${data._id} `);
                 }
                 // Fallback for some APIs that return { test: { _id: ... } }
                 if (endpoint.captureId && data && data.test && data.test._id) {
                     runtimeData[endpoint.captureId] = data.test._id;
-                    console.log(`💾 Captured ID[${ endpoint.captureId }]: ${ data.test._id } `);
+                    console.log(`💾 Captured ID[${endpoint.captureId}]: ${data.test._id} `);
                 }
 
                 if (response.ok) {
                     resultDiv.className = 'endpoint success';
-                    statusSpan.innerHTML = `< i class="fas fa-check-circle" ></i > ${ response.status } OK(${ duration }ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-check-circle" ></i > ${response.status} OK(${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-success';
                     stats.success++;
                     stats.pending--;
@@ -723,7 +706,7 @@
                 } else if (endpoint.expectValidation && isValidationError(response.status, data)) {
                     // Expected validation error - mark as warning
                     resultDiv.className = 'endpoint warning';
-                    statusSpan.innerHTML = `< i class="fas fa-info-circle" ></i > ${ response.status } Validated Error(${ duration }ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-info-circle" ></i > ${response.status} Validated Error(${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-warning';
                     stats.warning++;
                     stats.pending--;
@@ -737,7 +720,7 @@
                     // ... (rest of error handling)
                     // Real error
                     resultDiv.className = 'endpoint error';
-                    statusSpan.innerHTML = `< i class="fas fa-exclamation-circle" ></i > ${ response.status } ${ response.statusText } (${ duration }ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-exclamation-circle" ></i > ${response.status} ${response.statusText} (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-error';
                     stats.error++;
                     stats.pending--;
@@ -824,7 +807,7 @@
                 header.innerHTML = `
                     < div class="category-title" >
                         <i class="fas ${category.icon}" style="color: ${category.color};"></i>
-                        ${ category.category }
+                        ${category.category}
                 <span class="category-count">${category.endpoints.length} APIs</span>
                     </div >
                     <button class="btn-section" data-section="${catIndex}" onclick="testSection(${catIndex})">
@@ -835,7 +818,7 @@
 
                 // Endpoints
                 for (const endpoint of category.endpoints) {
-                    const id = `endpoint - ${ Math.random().toString(36).substr(2, 9) } `;
+                    const id = `endpoint - ${Math.random().toString(36).substr(2, 9)} `;
                     endpoint._elementId = id;
                     stats.total++;
                     stats.pending++;
