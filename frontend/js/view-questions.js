@@ -185,9 +185,9 @@ function displayQuestions(questions) {
     tbody.innerHTML = questions.map(q => `
         <tr>
             <td><strong>#${q.id}</strong></td>
-            <td><span class="badge badge-${q.subject.toLowerCase()}">${q.subject}</span></td>
+            <td><span class="badge badge-${(q.subject || 'General').toLowerCase()}">${q.subject || 'General'}</span></td>
             <td>${q.topic || 'N/A'}</td>
-            <td><span class="difficulty-${q.difficulty.toLowerCase()}">${q.difficulty}</span></td>
+            <td><span class="difficulty-${(q.difficulty || 'Medium').toLowerCase()}">${q.difficulty || 'Medium'}</span></td>
             <td><strong>${q.marks}</strong></td>
             <td style="max-width: 400px;">
                 <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${q.question}">
