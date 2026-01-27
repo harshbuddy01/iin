@@ -299,7 +299,7 @@ async function handleModernCreateTest(e) {
         console.log('✅ Response:', response);
 
         if (window.AdminUtils) {
-            window.AdminUtils.showToast(`Test Created Successfully! ID: ${testData.test_id}`, 'success');
+            window.AdminUtils.showToast(`Test Created Successfully! ID: ${sanitizedData.test_id}`, 'success');
         } else {
             alert('Test Created Successfully!');
         }
