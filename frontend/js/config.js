@@ -1,15 +1,15 @@
 /**
  * Centralized Configuration File
- * Updated: 2026-01-24
- * Purpose: Hostinger deployment with Node.js backend + Dynamic API_URL injection
+ * Updated: 2026-01-28 - Railway Migration
+ * Purpose: Railway deployment with Node.js backend + Dynamic API_URL injection
  */
 
 window.APP_CONFIG = {
     // Environment detection
     ENVIRONMENT: window.location.hostname.includes('localhost') ? 'development' : 'production',
 
-    // API Base URL - FIXED: Direct Hostinger URL (2026-01-26)
-    // DO NOT CHANGE - This is the production backend on Hostinger VPS
+    // API Base URL - UPDATED: Railway Deployment (2026-01-28)
+    // Production backend moved from Hostinger to Railway
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
         
@@ -23,13 +23,13 @@ window.APP_CONFIG = {
             return 'http://localhost:3000';
         }
 
-        // 3. PRODUCTION: Always use Hostinger backend
-        return 'https://backend-vigyanpreap.vigyanprep.com';
+        // 3. PRODUCTION: Railway backend
+        return 'https://vigyan-production.up.railway.app';
     })(),
 
     // Feature flags
     FEATURES: {
-        ENABLE_AUTH: false,  // Set to true when authentication is ready
+        ENABLE_AUTH: true,  // ✅ Authentication now enabled with JWT
         ENABLE_REAL_TIME: false,  // WebSocket updates
         ENABLE_IMAGE_UPLOAD: true,
         DEBUG_MODE: window.location.hostname.includes('localhost')
@@ -43,13 +43,16 @@ window.APP_CONFIG = {
         TRANSACTIONS: '/api/admin/transactions',
         RESULTS: '/api/admin/results',
         UPLOAD_IMAGE: '/api/admin/upload-image',
-        AUTH: '/api/admin/auth'
+        AUTH: '/api/admin/auth',
+        EXAM: '/api/exam',
+        PAYMENT: '/api/payment'
     },
 
     // App metadata
     APP_NAME: 'Vigyan.prep Admin Portal',
-    VERSION: '1.0.1',
-    BUILD_DATE: '2026-01-24',
+    VERSION: '1.1.0',
+    BUILD_DATE: '2026-01-28',
+    DEPLOYMENT: 'Railway',
 
     // Logging
     log: function (message, type = 'info') {
@@ -72,6 +75,7 @@ window.API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
 console.log('🚀 App Configuration Loaded');
 console.log('📍 Environment:', window.APP_CONFIG.ENVIRONMENT);
 console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
+console.log('🚂 Deployment: Railway');
 console.log('🔧 Debug Mode:', window.APP_CONFIG.FEATURES.DEBUG_MODE);
 if (typeof window.__ENV__ !== 'undefined') {
     console.log('🔌 Server-injected environment:', window.__ENV__);
