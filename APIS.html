@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔒 Vigyan API Tester (Admin Only)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+
+        .security-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-box h2 {
+            color: #dc2626;
+            margin-bottom: 20px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .login-box button:hover {
+            background: #5568d3;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .container.unlocked {
+            display: block;
+        }
+
+        .security-warning {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .security-warning h3 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .api-tester {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+
+        .api-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .method {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-right: 10px;
+            color: white;
+        }
+
+        .method-get {
+            background: #10b981;
+        }
+
+        .method-post {
+            background: #3b82f6;
+        }
+
+        .method-put {
+            background: #f59e0b;
+        }
+
+        .method-delete {
+            background: #ef4444;
+        }
+
+        .path {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-size: 1.1em;
+            flex: 1;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .test-button {
+            background: #10b981;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .test-button:hover {
+            background: #059669;
+        }
+
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .response-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1f2937;
+            color: #10b981;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .response-box.show {
+            display: block;
+        }
+
+        .response-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            margin: 30px 0 20px 0;
+            border-radius: 8px;
+            font-size: 1.3em;
+        }
+
+        .base-url-input {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .base-url-input input {
+            width: 100%;
+            padding: 10px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Security Login Overlay -->
+    <div class="security-overlay" id="securityOverlay">
+        <div class="login-box">
+            <h2>🔒 Admin Access Required</h2>
+            <p style="color: #666; margin-bottom: 20px;">This API testing tool is for authorized admins only.</p>
+            <input type="password" id="accessPassword" placeholder="Enter admin password" autocomplete="off">
+            <button onclick="checkAccess()">Unlock API Tester</button>
+            <p style="color: #999; font-size: 0.85em; margin-top: 15px;">⚠️ Unauthorized access is strictly prohibited
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Container (hidden until authenticated) -->
+    <div class="container" id="mainContainer">
+        <h1>🚀 Vigyan API Interactive Tester</h1>
+        <p style="color: #666; margin-bottom: 10px;">Test your backend APIs in real-time</p>
+        <button onclick="logout()"
+            style="float: right; padding: 8px 15px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">🔓
+            Logout</button>
+        <div style="clear: both;"></div>
+
+        <!-- Security Warning -->
+        <div class="security-warning">
+            <h3>⚠️ SECURITY NOTICE</h3>
+            <ul style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>This page is SECURE</strong> - Password protected, session-based access</li>
+                <li><strong>Client-side only</strong> - All API calls made from YOUR browser (no server storage)</li>
+                <li><strong>No data stored</strong> - Requests/responses not logged anywhere</li>
+                <li><strong>Your credentials safe</strong> - JWT tokens stay in your browser only</li>
+                <li><strong>Delete after use</strong> - Remove this file from production deployment</li>
+                <li><strong>Use only for testing</strong> - Not for production API calls</li>
+            </ul>
+        </div>
+
+        <!-- Base URL Configuration -->
+        <div class="base-url-input">
+            <label style="color: #10b981; margin-bottom: 10px; display: block; font-weight: bold;">API Base URL:</label>
+            <input type="text" id="baseURL" value="https://vigyan-production.up.railway.app"
+                placeholder="https://your-backend.railway.app">
+        </div>
+
+        <!-- JWT Token Storage -->
+        <div class="form-group">
+            <label>🔑 JWT Token (for authenticated endpoints):</label>
+            <input type="text" id="jwtToken" placeholder="Paste your JWT token here (get from login response)">
+        </div>
+
+        <!-- Authentication APIs -->
+        <div class="section-header">🔐 Authentication APIs</div>
+
+        <div class="api-tester">
+            <div class="api-header">
+                <span class="method method-post">POST</span>
+                <span class="path">/api/admin/auth/login</span>
+            </div>
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="login_username" value="admin">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="login_password" placeholder="Enter admin password">
+            </div>
+            <button class="test-button" onclick="testLogin()">🧪 Test Login</button>
+            <div class="response-box" id="response_login"></div>
+        </div>
+
+        <!-- Payment APIs -->
+        <div class="section-header">💳 Payment APIs</div>
+
+        <div class="api-tester">
+            <div class="api-header">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/payment/getkey</span>
+            </div>
+            <button class="test-button" onclick="testGetKey()">🧪 Test Get Razorpay Key</button>
+            <div class="response-box" id="response_getkey"></div>
+        </div>
+
+        <!-- User Profile APIs -->
+        <div class="section-header">👤 User Profile APIs (Requires JWT)</div>
+
+        <div class="api-tester">
+            <div class="api-header">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/user/profile</span>
+            </div>
+            <p style="color: #666; margin-bottom: 10px;">⚠️ Requires JWT token</p>
+            <button class="test-button" onclick="testGetProfile()">🧪 Test Get Profile</button>
+            <div class="response-box" id="response_profile"></div>
+        </div>
+
+        <!-- News API -->
+        <div class="section-header">📰 News APIs (Public)</div>
+
+        <div class="api-tester">
+            <div class="api-header">
+                <span class="method method-get">GET</span>
+                <span class="path">/api/news</span>
+            </div>
+            <button class="test-button" onclick="testNews()">🧪 Test Get News</button>
+            <div class="response-box" id="response_news"></div>
+        </div>
+
+        <!-- Custom API Tester -->
+        <div class="section-header">🔧 Custom API Test</div>
+
+        <div class="api-tester">
+            <div class="form-group">
+                <label>Method:</label>
+                <select id="custom_method"
+                    style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Endpoint Path:</label>
+                <input type="text" id="custom_path" placeholder="/api/endpoint">
+            </div>
+            <div class="form-group">
+                <label>Request Body (JSON):</label>
+                <textarea id="custom_body" placeholder='{"key": "value"}'></textarea>
+            </div>
+            <button class="test-button" onclick="testCustom()">🧪 Test Custom API</button>
+            <div class="response-box" id="response_custom"></div>
+        </div>
+    </div>
+
+    <script>
+        // Security: Simple password protection (Session-based)
+        const ADMIN_PASSWORD = 'vigyan_admin_2026'; // Change this!
+
+        function checkAccess() {
+            const password = document.getElementById('accessPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('securityOverlay').style.display = 'none';
+                document.getElementById('mainContainer').classList.add('unlocked');
+                sessionStorage.setItem('apiTesterAuth', 'true');
+            } else {
+                alert('❌ Access Denied! Incorrect password.');
+                document.getElementById('accessPassword').value = '';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('apiTesterAuth');
+            document.getElementById('securityOverlay').style.display = 'flex';
+            document.getElementById('mainContainer').classList.remove('unlocked');
+            document.getElementById('accessPassword').value = '';
+        }
+
+        // Check if already authenticated
+        window.onload = function () {
+            if (sessionStorage.getItem('apiTesterAuth') === 'true') {
+                document.getElementById('securityOverlay').style.display = 'none';
+                document.getElementById('mainContainer').classList.add('unlocked');
+            }
+        };
+
+        // Helper: Show response
+        function showResponse(elementId, data, isError = false) {
+            const box = document.getElementById(elementId);
+            box.classList.add('show');
+            box.innerHTML = `<pre class="${isError ? 'error' : ''}">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        // Helper: Get base URL
+        function getBaseURL() {
+            return document.getElementById('baseURL').value.trim();
+        }
+
+        // Helper: Get JWT token
+        function getJWT() {
+            return document.getElementById('jwtToken').value.trim();
+        }
+
+        // API Test Functions
+        async function testLogin() {
+            const username = document.getElementById('login_username').value;
+            const password = document.getElementById('login_password').value;
+
+            try {
+                const response = await fetch(`${getBaseURL()}/api/admin/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                showResponse('response_login', data, !response.ok);
+            } catch (error) {
+                showResponse('response_login', { error: error.message }, true);
+            }
+        }
+
+        async function testGetKey() {
+            try {
+                const response = await fetch(`${getBaseURL()}/api/payment/getkey`);
+                const data = await response.json();
+                showResponse('response_getkey', data, !response.ok);
+            } catch (error) {
+                showResponse('response_getkey', { error: error.message }, true);
+            }
+        }
+
+        async function testGetProfile() {
+            const token = getJWT();
+            if (!token) {
+                showResponse('response_profile', { error: 'JWT token required! Get it from login response.' }, true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getBaseURL()}/api/user/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                showResponse('response_profile', data, !response.ok);
+            } catch (error) {
+                showResponse('response_profile', { error: error.message }, true);
+            }
+        }
+
+        async function testNews() {
+            try {
+                const response = await fetch(`${getBaseURL()}/api/news`);
+                const data = await response.json();
+                showResponse('response_news', data, !response.ok);
+            } catch (error) {
+                showResponse('response_news', { error: error.message }, true);
+            }
+        }
+
+        async function testCustom() {
+            const method = document.getElementById('custom_method').value;
+            const path = document.getElementById('custom_path').value;
+            const body = document.getElementById('custom_body').value;
+            const token = getJWT();
+
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            if (method !== 'GET' && body) {
+                try {
+                    options.body = body;
+                } catch (e) {
+                    showResponse('response_custom', { error: 'Invalid JSON in body' }, true);
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`${getBaseURL()}${path}`, options);
+                const data = await response.json();
+                showResponse('response_custom', data, !response.ok);
+            } catch (error) {
+                showResponse('response_custom', { error: error.message }, true);
+            }
+        }
+
+        // Enter key support for password
+        document.getElementById('accessPassword')?.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkAccess();
+            }
+        });
+    </script>
+</body>
+
+</html>
