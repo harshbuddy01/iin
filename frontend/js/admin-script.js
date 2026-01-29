@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = "https://backend-vigyanpreap.vigyanprep.com";
+const API_BASE_URL = "https://vigyan-production.up.railway.app";
 
 // Global variables
 let base64Image = "";

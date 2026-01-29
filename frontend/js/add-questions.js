@@ -470,7 +470,7 @@ Tip: You can use LaTeX for math:
             console.log('📤 Sending question to backend:', payload);
 
             // Send to backend
-            const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
+            const API_BASE_URL = window.API_BASE_URL || 'https://vigyan-production.up.railway.app';
             const response = await fetch(`${API_BASE_URL}/api/admin/questions`, {
                 method: 'POST',
                 headers: {

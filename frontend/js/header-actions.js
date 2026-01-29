@@ -1,7 +1,7 @@
 // Header Actions - Notifications, Profile, Settings
 console.log('👋 Initializing header actions...');
 
-const API_BASE_URL = 'https://backend-vigyanpreap.vigyanprep.com';
+const API_BASE_URL = 'https://vigyan-production.up.railway.app';
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {

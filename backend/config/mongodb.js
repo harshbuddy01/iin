@@ -9,7 +9,7 @@ function getMongoDUriFromAnySource() {
     console.log('\n' + '='.repeat(80));
     console.log('🔍 FINDING MONGODB_URI FROM HOSTINGER ENVIRONMENT');
     console.log('='.repeat(80));
-    
+
     // List of possible variable names Hostinger might use
     const possibleNames = [
         'MONGODB_URI',
@@ -19,7 +19,7 @@ function getMongoDUriFromAnySource() {
         'DB_URI',
         'DATABASE_URL',
     ];
-    
+
     console.log('\n🔍 Checking specific variable names:');
     for (const varName of possibleNames) {
         const value = process.env[varName];
@@ -31,19 +31,19 @@ function getMongoDUriFromAnySource() {
             console.log(`  ❌ Not found: ${varName}`);
         }
     }
-    
+
     // If not found with specific names, search all process.env keys
     console.log('\n🔍 Searching all ${Object.keys(process.env).length} environment variables...');
     const allKeys = Object.keys(process.env).sort();
-    
+
     for (const key of allKeys) {
         const keyLower = key.toLowerCase();
         if (keyLower.includes('mongo') || keyLower.includes('mongodb') || (keyLower.includes('db') && keyLower.includes('uri'))) {
             const value = process.env[key];
             const valueStr = String(value);
-            
+
             console.log(`  🔔 Potential match: ${key}`);
-            
+
             // If it looks like a connection string, use it
             if (valueStr.includes('mongodb')) {
                 console.log(`  ✅ USING: ${key}`);
@@ -52,7 +52,7 @@ function getMongoDUriFromAnySource() {
             }
         }
     }
-    
+
     console.log('\n❌ MONGODB_URI NOT FOUND in process.env!');
     console.log('\n😨 ALL ENVIRONMENT VARIABLES:');
     allKeys.forEach((key, idx) => {
@@ -65,7 +65,7 @@ function getMongoDUriFromAnySource() {
     if (allKeys.length > 20) {
         console.log(`   ... and ${allKeys.length - 20} more variables`);
     }
-    
+
     return null;
 }
 
@@ -86,16 +86,16 @@ const options = {
 export async function connectDB() {
     // 🔵 READ AT RUNTIME - not at module load time
     const MONGODB_URI = getMongoDUriFromAnySource();
-    
+
     console.log('\n' + '='.repeat(80));
     console.log('🔗 MONGODB CONNECTION ATTEMPT');
     console.log('='.repeat(80));
-    
+
     // If no URI is set, just log warning and continue
     if (!MONGODB_URI) {
         console.warn('\n⚠️  MONGODB_URI NOT FOUND!');
         console.warn('\n😨 TO FIX:');
-        console.warn('   1. Go to: https://hpanel.hostinger.com/websites/backend-vigyanpreap.vigyanprep/deployments/settings');
+        console.warn('   1. Go to: https://railway.app/project/vigyan-production/settings');
         console.warn('   2. Find Environment Variables section');
         console.warn('   3. Add NEW variable:');
         console.warn('      Key: MONGODB_URI');
@@ -103,7 +103,7 @@ export async function connectDB() {
         console.warn('   4. Click "Save and Redeploy"');
         console.warn('   5. Wait 3-5 minutes for deployment');
         console.warn('\n🔗 Running in LIMITED MODE without MongoDB\n');
-        
+
         isMongoDBConnected = false;
         lastConnectionError = 'MONGODB_URI not found in Hostinger environment variables';
         return false;
@@ -113,7 +113,7 @@ export async function connectDB() {
         console.log('\n✅ MongoDB URI found in Hostinger environment!');
         console.log(`   Connecting to: ${MONGODB_URI.substring(0, 50)}...`);
         console.log('\n🔗 Connecting to MongoDB Atlas...\n');
-        
+
         await mongoose.connect(MONGODB_URI, options);
 
         console.log('\n' + '='.repeat(80));
@@ -122,7 +122,7 @@ export async function connectDB() {
         console.log(`📊 Database: ${mongoose.connection.name}`);
         console.log(`🔗 Host: ${mongoose.connection.host}`);
         console.log(`🔄 Status: Connected and ready\n`);
-        
+
         isMongoDBConnected = true;
         lastConnectionError = null;
         return true;
@@ -132,7 +132,7 @@ export async function connectDB() {
         console.error('❌ MONGODB CONNECTION FAILED');
         console.error('='.repeat(80));
         console.error(`Error Message: ${error.message}\n`);
-        
+
         // 🔴 DETAILED ERROR LOGGING FOR DEBUGGING
         if (error.message.includes('getaddrinfo ENOTFOUND')) {
             console.error('🔴 Diagnosis: DNS/Network Error');
@@ -158,10 +158,10 @@ export async function connectDB() {
             console.error('   Invalid connection string format');
             console.error('\n😨 Solution: Verify MONGODB_URI starts with: mongodb+srv://');
         }
-        
+
         console.warn('\n🔗 App will run with LIMITED FUNCTIONALITY');
         console.warn('   (Some features requiring database will not work)\n');
-        
+
         isMongoDBConnected = false;
         lastConnectionError = error.message;
         return false;

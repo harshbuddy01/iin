@@ -1,6 +1,6 @@
 /**
  * Admin API Service - Complete Backend Integration
- * Backend: Hostinger (https://backend-vigyanpreap.vigyanprep.com)
+ * Backend: Railway (https://vigyan-production.up.railway.app)
  * Updated: 2026-01-26 - VERSION 700 (CACHE BUSTER)
  */
 console.log('🚀 AdminAPI Service v700 Loading...');
@@ -17,7 +17,7 @@ const AdminAPI = {
         }
 
         // Fallback (should not happen if config.js is loaded)
-        return 'https://backend-vigyanpreap.vigyanprep.com';
+        return 'https://vigyan-production.up.railway.app';
     },
 
     // Helper method for API calls

@@ -6,7 +6,7 @@
  * Expected Fields: testId, testName, testType, examDate, startTime, durationMinutes, description
  */
 
-const RAILWAY_API = 'https://backend-vigyanpreap.vigyanprep.com/api';
+const RAILWAY_API = 'https://vigyan-production.up.railway.app/api';
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {

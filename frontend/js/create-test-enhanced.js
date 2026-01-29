@@ -8,7 +8,7 @@
 const API_BASE_URL = window.API_BASE_URL ||
     (window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
-        : 'https://backend-vigyanpreap.vigyanprep.com');
+        : 'https://vigyan-production.up.railway.app');
 
 window.initCreateTest = function () {
     console.log('🔵 Initializing Create Test page (Enhanced)...');
