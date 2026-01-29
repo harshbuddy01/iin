@@ -240,8 +240,9 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                     console.log('✅ Extracted', result.questions.length, 'questions');
 
                     // Save questions to database (MongoDB)
-                    const savedQuestions = await saveQuestionsToDb(result.questions, fileName);
-                    console.log('💾 Saved', savedQuestions.length, 'questions to database');
+                    // ✅ Now returns both savedIds and testId
+                    const { savedIds, testId } = await saveQuestionsToDb(result.questions, fileName);
+                    console.log('💾 Saved', savedIds.length, 'questions to database with testId:', testId);
 
                     // Save upload record
                     const uploadRecord = {
@@ -267,7 +268,8 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                         totalQuestions: result.total_questions || result.questions.length,
                         questionsExtracted: result.total_questions || result.questions.length,
                         questions: result.questions,
-                        savedQuestionIds: savedQuestions
+                        savedQuestionIds: savedIds,
+                        testId: testId  // ✅ Return testId so frontend can fetch questions
                     });
 
                 } catch (parseError) {
@@ -317,8 +319,15 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
 });
 
 // Helper function to save questions to database (MongoDB)
+// ✅ IMPROVEMENT: Now generates a single testId for all questions and returns it
 async function saveQuestionsToDb(questions, source = 'PDF_UPLOAD') {
     const savedIds = [];
+
+    // ✅ Generate a single testId for this upload batch
+    const timestamp = Date.now();
+    const testId = `PDF_${source.replace(/\.[^/.]+$/, '')}_${timestamp}`;
+
+    console.log(`📦 Saving ${questions.length} questions with testId: ${testId}`);
 
     for (const q of questions) {
         try {
@@ -335,7 +344,7 @@ async function saveQuestionsToDb(questions, source = 'PDF_UPLOAD') {
                 difficulty: q.difficulty || 'Medium',
                 marksPositive: q.marks || 4,
                 marksNegative: q.negativeMarks || -1,
-                testId: `PDF_${source}_${Date.now()}`, // Or link to a specific test
+                testId: testId, // ✅ Use the same testId for all questions in this batch
                 questionNumber: q.question_number || (savedIds.length + 1),
                 type: 'MCQ'
             });
@@ -348,7 +357,7 @@ async function saveQuestionsToDb(questions, source = 'PDF_UPLOAD') {
         }
     }
 
-    return savedIds;
+    return { savedIds, testId };  // ✅ Return both IDs and testId
 }
 
 // Helper function to save upload record (MongoDB)

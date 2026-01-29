@@ -140,36 +140,18 @@ router.post('/logout', (req, res) => {
 });
 
 /**
- * Utility: Generate password hash
- * Usage: Call this endpoint to generate hash for new password
- * Example: POST /api/admin/auth/generate-hash with { password: 'newpassword' }
+ * ❌ SECURITY FIX (Issue #45): /generate-hash endpoint REMOVED
+ * 
+ * This was a CRITICAL security vulnerability - it allowed ANYONE to generate
+ * bcrypt password hashes without authentication, aiding password cracking attacks.
+ * 
+ * To generate a password hash for admin credentials, use CLI tools:
+ * - Method 1: npx bcryptjs hash "your-password"
+ * - Method 2: Node REPL:
+ *     > const bcrypt = require('bcryptjs');
+ *     > bcrypt.hashSync('your-password', 10);
+ * 
+ * Then add the hash to .env as: ADMIN_PASSWORD_HASH=<generated_hash>
  */
-router.post('/generate-hash', async (req, res) => {
-    try {
-        const { password } = req.body;
-
-        if (!password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Password required'
-            });
-        }
-
-        const hash = await bcrypt.hash(password, 10);
-
-        return res.status(200).json({
-            success: true,
-            hash: hash,
-            message: 'Add this hash to your .env file as ADMIN_PASSWORD_HASH'
-        });
-
-    } catch (error) {
-        console.error('❌ Hash generation error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
-    }
-});
 
 export default router;
