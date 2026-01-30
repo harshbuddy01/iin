@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ready to Excel | Vigyan.prep</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -46,7 +46,7 @@
             align-items: baseline;
         }
 
-        /* ✅ GOLDEN LOGO from homepage */
+        /* Golden Logo */
         .logo-vigyan {
             font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
             font-weight: 700;
@@ -92,10 +92,9 @@
             color: rgba(148, 163, 184, 0.4);
         }
 
-        /* Hero Section - MINIMAL */
+        /* Hero Section */
         .hero {
             margin-top: 100px;
-            min-height: 85vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -104,13 +103,14 @@
             padding: 40px 6%;
             position: relative;
             background: url('frontend/images/hero-motivation.png') center/cover no-repeat;
+            min-height: 50vh;
         }
 
         .hero::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(2, 6, 23, 0.85), rgba(59, 130, 246, 0.15));
+            background: linear-gradient(180deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.7) 50%, #020617 100%);
         }
 
         .hero-content {
@@ -121,274 +121,271 @@
 
         .hero-title {
             font-family: 'Playfair Display', serif;
-            font-size: 5em;
+            font-size: 4em;
             font-weight: 800;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: linear-gradient(135deg, #ffffff, #fcd34d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            line-height: 1.1;
             text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        .hero-subtitle {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2em;
-            color: #e2e8f0;
-            font-style: italic;
-            margin-bottom: 50px;
-            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Modern Clock Section */
+        /* LIVE CLOCK SECTION - Rebuilt */
         .clock-section {
-            padding: 60px 6%;
-            max-width: 1000px;
-            margin: 0 auto;
-            text-align: center;
+            padding: 40px 6%;
+            max-width: 1200px;
+            margin: -80px auto 0;
+            position: relative;
+            z-index: 10;
         }
 
-        .clock-box {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(251, 191, 36, 0.1));
-            border: 2px solid rgba(251, 191, 36, 0.3);
+        .clock-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(251, 191, 36, 0.2);
             border-radius: 30px;
             padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        /* Left Side: Abstract Time Image (No Numbers) */
+        .time-visual {
             position: relative;
-            overflow: hidden;
-        }
-
-        .clock-box::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .clock-image {
             width: 300px;
             height: 300px;
-            margin: 0 auto 30px;
             border-radius: 50%;
-            box-shadow: 0 0 60px rgba(251, 191, 36, 0.4);
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent);
+        }
+
+        .time-visual-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: url('frontend/images/abstract-time.png') center/cover;
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.2);
+            animation: breathe 4s ease-in-out infinite;
             position: relative;
-            z-index: 1;
+            border: 1px solid rgba(251, 191, 36, 0.3);
         }
 
-        .clock-label {
+        @keyframes breathe {
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px rgba(251, 191, 36, 0.1);
+                transform: scale(1);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(251, 191, 36, 0.3);
+                transform: scale(1.02);
+            }
+        }
+
+        /* Right Side: Live Digital Clock */
+        .time-content {
+            text-align: center;
+            flex: 1;
+        }
+
+        .live-label {
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #94a3b8;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .live-clock {
             font-family: 'Playfair Display', serif;
-            font-size: 2em;
-            color: #fcd34d;
-            margin-bottom: 15px;
+            font-size: 6em;
             font-weight: 700;
-        }
-
-        .clock-time {
-            font-family: 'Playfair Display', serif;
-            font-size: 5em;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fcd34d, #ffffff);
+            color: #fff;
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+            line-height: 1;
+            margin-bottom: 20px;
+            background: linear-gradient(180deg, #fff 0%, #e2e8f0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
         }
 
-        .clock-desc {
-            font-size: 1.3em;
-            color: #cbd5e1;
-            line-height: 1.8;
+        .live-date {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2em;
+            color: #fcd34d;
+            font-style: italic;
         }
 
-        /* Motivational Quote - MINIMAL */
+        .test-status {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 50px;
+            display: inline-block;
+            color: #60a5fa;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 10px #10b981;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Quote Section */
         .quote-section {
-            padding: 80px 6%;
-            max-width: 1000px;
-            margin: 0 auto;
+            padding: 60px 6%;
             text-align: center;
-        }
-
-        .quote-box {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-            border: 2px solid rgba(59, 130, 246, 0.3);
-            border-radius: 25px;
-            padding: 60px;
-            position: relative;
-        }
-
-        .quote-box::before {
-            content: '"';
-            position: absolute;
-            top: -40px;
-            left: 40px;
-            font-size: 12em;
-            color: rgba(59, 130, 246, 0.1);
-            font-family: 'Playfair Display', serif;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
         .quote-text {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.2em;
+            font-size: 2em;
             font-style: italic;
-            line-height: 1.7;
-            color: #f1f5f9;
-            margin-bottom: 25px;
-            position: relative;
+            color: #cbd5e1;
+            margin-bottom: 15px;
         }
 
         .quote-author {
-            font-size: 1.3em;
-            color: #fcd34d;
-            font-weight: 600;
+            color: #64748b;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8em;
         }
 
-        /* CTA Button - PROMINENT */
+        /* CTA Button */
         .cta-section {
             text-align: center;
-            padding: 80px 6% 120px;
+            padding-bottom: 80px;
         }
 
         .cta-button {
-            display: inline-block;
-            padding: 30px 70px;
-            background: linear-gradient(135deg, #fcd34d, #f59e0b);
-            color: #7c2d12;
-            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 25px 60px;
+            background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+            color: #451a03;
+            border-radius: 100px;
             text-decoration: none;
-            font-family: 'Playfair Display', serif;
-            font-size: 2em;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5em;
             font-weight: 700;
-            transition: all 0.4s ease;
-            box-shadow: 0 20px 60px rgba(251, 191, 36, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .cta-button:hover::before {
-            left: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 50px rgba(245, 158, 11, 0.2);
         }
 
         .cta-button:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 30px 80px rgba(251, 191, 36, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(245, 158, 11, 0.3);
+            filter: brightness(1.1);
         }
 
-        .cta-button i {
-            margin-left: 15px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            50% {
-                transform: translateX(10px);
-            }
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
-                font-size: 3em;
+                font-size: 2.5em;
             }
 
-            .hero-subtitle {
-                font-size: 1.5em;
+            .live-clock {
+                font-size: 4em;
             }
 
-            .clock-time {
-                font-size: 3em;
+            .clock-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px;
             }
 
-            .quote-text {
-                font-size: 1.5em;
+            .time-visual {
+                width: 200px;
+                height: 200px;
             }
 
             .cta-button {
-                font-size: 1.5em;
                 padding: 20px 40px;
-            }
-
-            .clock-image {
-                width: 200px;
-                height: 200px;
+                font-size: 1.2em;
+                width: 90%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">
             <span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span class="logo-prep">prep</span>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <div class="hero">
         <div class="hero-content">
-            <h1 class="hero-title">You're Ready<br>To Shine ✨</h1>
-            <p class="hero-subtitle">This is your moment. Let's make it count.</p>
+            <h1 class="hero-title">Your Moment<br>Has Arrived</h1>
         </div>
     </div>
 
-    <!-- Modern Clock -->
     <div class="clock-section">
-        <div class="clock-box">
-            <img src="frontend/images/futuristic-clock.png" alt="Test Time" class="clock-image">
-            <div class="clock-label">Test Portal Opens</div>
-            <div class="clock-time" id="currentTime">9:00 AM</div>
-            <div class="clock-desc">
-                <strong style="color: #fcd34d;">Test Window:</strong> 9:00 AM - 12:00 PM<br>
-                You're all set. Let's begin when you're ready!
+        <div class="clock-card">
+            <!-- Left: Abstract Art (No Numbers) -->
+            <div class="time-visual">
+                <div class="time-visual-inner"></div>
+            </div>
+
+            <!-- Right: Real Live Data -->
+            <div class="time-content">
+                <div class="live-label">Current Time</div>
+                <div class="live-clock" id="liveClock">00:00:00</div>
+                <div class="live-date" id="liveDate">Loading...</div>
+
+                <div class="test-status">
+                    <span class="status-dot"></span>
+                    Test Portal is <strong>OPEN</strong> (9 AM - 12 PM)
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Motivational Quote -->
     <div class="quote-section">
-        <div class="quote-box">
-            <p class="quote-text">
-                Success is not final, failure is not fatal: it is the courage to continue that counts.
-            </p>
-            <div class="quote-author">— Winston Churchill</div>
-        </div>
+        <p class="quote-text">"Success is not final, failure is not fatal: it is the courage to continue that counts."
+        </p>
+        <p class="quote-author">Winston Churchill</p>
     </div>
 
-    <!-- CTA Button -->
     <div class="cta-section">
         <a href="#" class="cta-button" id="proceedBtn">
-            Let's Start The Test <i class="fas fa-rocket"></i>
+            Start Exam <i class="fas fa-arrow-right"></i>
         </a>
     </div>
 
@@ -396,19 +393,27 @@
         const urlParams = new URLSearchParams(window.location.search);
         const testId = urlParams.get('test');
 
-        // Update clock with real time
         function updateClock() {
             const now = new Date();
-            const hours = now.getHours();
+
+            // Time
+            let hours = now.getHours();
             const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours % 12 || 12;
-            document.getElementById('currentTime').textContent = `${displayHours}:${minutes} ${ampm}`;
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+
+            document.getElementById('liveClock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+            // Date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', options);
         }
+
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Proceed to instructions
         document.getElementById('proceedBtn').addEventListener('click', function (e) {
             e.preventDefault();
             window.location.href = `instructions.html?test=${testId}`;
