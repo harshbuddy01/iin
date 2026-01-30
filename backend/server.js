@@ -103,7 +103,7 @@ const corsOptions = {
       ? [
         'https://vigyanprep.com',
         'https://www.vigyanprep.com',
-        'https://vigyan-production.up.railway.app' // Railway backend public domain
+        'https://xqhrh218.up.railway.app' // Railway backend public domain (Updated 2026-01-31)
       ]
       : [
         'http://localhost:3000',

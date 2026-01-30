@@ -327,12 +327,11 @@
         </div>
     </div>
 
-    <!-- Load config first -->\n
-    <script src="frontend/js/config.js?v=20260131"></script>
-
     <script>
+        // ✅ HARDCODED Railway URL to bypass CDN cache (2026-01-31)
+        const RAILWAY_API_URL = 'https://xqhrh218.up.railway.app';
         console.log('🔐 Admin Login Page Loaded');
-        console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
+        console.log('🌐 API URL (HARDCODED):', RAILWAY_API_URL);
 
         // ✅ SECURITY FIX: Check if already logged in
         const authData = sessionStorage.getItem('adminAuth');
@@ -388,8 +387,8 @@
             spinner.style.display = 'inline-block';
 
             try {
-                // ✅ CORRECT Railway public URL
-                const API_URL = 'https://vigyan-production.up.railway.app';
+                // ✅ CORRECT Railway public URL (Updated 2026-01-31)
+                const API_URL = 'https://xqhrh218.up.railway.app';
 
                 // Call backend API for authentication
                 const response = await fetch(`${API_URL}/api/admin/auth/login`, {
