@@ -17,10 +17,7 @@ import {
   requirePurchase
 } from '../middlewares/auth.js';
 
-import {
-  validateEmail,
-  validateRollNumber
-} from '../middlewares/validation.js';
+// ✅ REMOVED: validateEmail and validateRollNumber don't exist in validation.js
 
 const router = express.Router();
 
