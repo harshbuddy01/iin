@@ -28,9 +28,9 @@ router.get('/list', listScheduledTests);
 // Used by frontend to fetch user's purchased tests
 router.post('/user-info', verifyAuth, getUserInfo);
 
-// ✅ PROTECTED + VALIDATED: Start exam / Login (verifies credentials, returns JWT)
-// This is the "login" endpoint - validates email + roll number
-router.post('/start', validateEmail, validateRollNumber, startTest);
+// ✅ PROTECTED: Start exam / Login (verifies credentials, returns JWT)
+// This is the "login" endpoint
+router.post('/start', startTest);
 
 // 🔒 PROTECTED: Get questions (requires auth + test purchase)
 // CRITICAL: This was completely open before!
