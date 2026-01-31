@@ -2,7 +2,7 @@
  * ============================================
  * VIGYAN.PREP ADMIN DASHBOARD V3
  * Real-time Data Integration & Charts
- * Created: January 27, 2026
+ * Updated: January 31, 2026 - Added Auth Check
  * ============================================
  */
 
@@ -11,12 +11,21 @@ const DashboardState = {
     stats: {},
     charts: {},
     activities: [],
-    refreshInterval: null
+    refreshInterval: null,
+    isAuthenticated: false
 };
 
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing Premium Dashboard v3...');
+
+    // ✅ CRITICAL: Check authentication first
+    const isAuth = await checkAdminAuth();
+    if (!isAuth) {
+        console.error('❌ Not authenticated - redirecting to login');
+        window.location.href = '/admin-login.html';
+        return;
+    }
 
     // Set greeting based on time
     setGreeting();
@@ -41,6 +50,109 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('✅ Dashboard initialized successfully');
 });
 
+// ✅ NEW: Check Admin Authentication
+async function checkAdminAuth() {
+    try {
+        console.log('🔐 Checking admin authentication...');
+        
+        // Try to fetch admin profile
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/profile`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Auth check failed: ${response.status}`);
+        }
+
+        const profile = await response.json();
+        console.log('✅ Authentication successful:', profile);
+        
+        // Update admin name in header
+        const adminNameEl = document.getElementById('adminName');
+        if (adminNameEl && profile.name) {
+            adminNameEl.textContent = profile.name;
+        }
+
+        DashboardState.isAuthenticated = true;
+        return true;
+
+    } catch (error) {
+        console.error('❌ Authentication failed:', error.message);
+        DashboardState.isAuthenticated = false;
+        
+        // Show error notification
+        showErrorNotification('Please login to access the dashboard');
+        
+        return false;
+    }
+}
+
+// ✅ NEW: Show Error Notification
+function showErrorNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-circle" style="font-size: 20px;"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// ✅ NEW: Show Success Notification
+function showSuccessNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.innerHTML = `
+        <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
 // Set Greeting Based on Time
 function setGreeting() {
     const hour = new Date().getHours();
@@ -59,54 +171,69 @@ function setGreeting() {
 async function loadDashboardData() {
     try {
         console.log('📊 Fetching dashboard statistics...');
+        
+        // Show loading state
+        document.getElementById('loadingOverlay').style.display = 'flex';
 
-        // Fetch all data in parallel
-        const [testsData, studentsData, transactionsData] = await Promise.all([
+        // Fetch all data in parallel with error handling
+        const [testsData, studentsData, transactionsData] = await Promise.allSettled([
             fetchTests(),
             fetchStudents(),
             fetchTransactions()
         ]);
 
-        // Update stats
-        updateStats({
-            tests: testsData,
-            students: studentsData,
-            transactions: transactionsData
-        });
+        // Extract data from settled promises
+        const tests = testsData.status === 'fulfilled' ? testsData.value : [];
+        const students = studentsData.status === 'fulfilled' ? studentsData.value : [];
+        const transactions = transactionsData.status === 'fulfilled' ? transactionsData.value : [];
+
+        // Log any errors
+        if (testsData.status === 'rejected') console.error('Tests fetch error:', testsData.reason);
+        if (studentsData.status === 'rejected') console.error('Students fetch error:', studentsData.reason);
+        if (transactionsData.status === 'rejected') console.error('Transactions fetch error:', transactionsData.reason);
 
         // Update stats
         updateStats({
-            tests: testsData,
-            students: studentsData,
-            transactions: transactionsData
+            tests,
+            students,
+            transactions
         });
 
         // Load recent activity
         await loadRecentActivity();
+        
+        console.log('✅ Dashboard data loaded successfully');
 
     } catch (error) {
         console.error('❌ Error loading dashboard data:', error);
-        showError('Failed to load dashboard data');
+        showErrorNotification('Failed to load dashboard data: ' + error.message);
+    } finally {
+        // Hide loading overlay
+        document.getElementById('loadingOverlay').style.display = 'none';
     }
 }
 
 // Fetch Tests
 async function fetchTests() {
     try {
+        console.log('📋 Fetching tests...');
         const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`, {
             method: 'GET',
-            credentials: 'include',  // ✅ Send cookies for authentication
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
         });
 
-        if (!response.ok) throw new Error('Failed to fetch tests');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch tests: ${response.status} ${response.statusText}`);
+        }
 
         const data = await response.json();
+        console.log('✅ Tests fetched:', data.tests?.length || 0);
         return data.tests || [];
     } catch (error) {
-        console.error('Error fetching tests:', error);
+        console.error('❌ Error fetching tests:', error);
         return [];
     }
 }
@@ -114,20 +241,24 @@ async function fetchTests() {
 // Fetch Students
 async function fetchStudents() {
     try {
+        console.log('👥 Fetching students...');
         const response = await fetch(`${window.API_BASE_URL}/api/admin/students`, {
             method: 'GET',
-            credentials: 'include',  // ✅ Send cookies for authentication
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
         });
 
-        if (!response.ok) throw new Error('Failed to fetch students');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch students: ${response.status} ${response.statusText}`);
+        }
 
         const data = await response.json();
+        console.log('✅ Students fetched:', data.students?.length || 0);
         return data.students || [];
     } catch (error) {
-        console.error('Error fetching students:', error);
+        console.error('❌ Error fetching students:', error);
         return [];
     }
 }
@@ -135,20 +266,24 @@ async function fetchStudents() {
 // Fetch Transactions
 async function fetchTransactions() {
     try {
+        console.log('💰 Fetching transactions...');
         const response = await fetch(`${window.API_BASE_URL}/api/admin/transactions`, {
             method: 'GET',
-            credentials: 'include',  // ✅ Send cookies for authentication
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
         });
 
-        if (!response.ok) throw new Error('Failed to fetch transactions');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch transactions: ${response.status} ${response.statusText}`);
+        }
 
         const data = await response.json();
+        console.log('✅ Transactions fetched:', data.transactions?.length || 0);
         return data.transactions || [];
     } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error('❌ Error fetching transactions:', error);
         return [];
     }
 }
@@ -385,10 +520,8 @@ function updateChart(period) {
     event.target.classList.add('active');
 
     // Update chart data based on period
-    // This would fetch new data from API in production
     const chart = DashboardState.charts.performance;
     if (chart) {
-        // Example: Update with new data
         chart.data.datasets[0].data = generateRandomData(7);
         chart.update();
     }
@@ -405,31 +538,31 @@ async function loadRecentActivity() {
         {
             icon: 'fa-user-plus',
             color: '#10B981',
-            text: 'New student registered: Rahul Sharma',
+            text: 'New student registered',
             time: '2 minutes ago'
         },
         {
             icon: 'fa-file-alt',
             color: '#3B82F6',
-            text: 'New test created: Physics Mock Test #5',
+            text: 'New test created',
             time: '15 minutes ago'
         },
         {
             icon: 'fa-rupee-sign',
             color: '#8B5CF6',
-            text: 'Payment received: ₹1,999 from Priya Patel',
+            text: 'Payment received',
             time: '1 hour ago'
         },
         {
             icon: 'fa-chart-line',
             color: '#F59E0B',
-            text: 'Test completed: 45 students',
+            text: 'Test completed by students',
             time: '2 hours ago'
         },
         {
             icon: 'fa-question-circle',
             color: '#0EA5E9',
-            text: '50 new questions added to Chemistry',
+            text: 'New questions added',
             time: '3 hours ago'
         }
     ];
@@ -495,13 +628,12 @@ function navigateTo(page) {
         pageTitle.textContent = formatPageTitle(page);
     }
 
-    // ✅ FIX: Call page initialization function to render content
+    // Call page initialization function
     callPageInit(page);
 }
 
-// ✅ NEW: Call page-specific initialization function
+// Call page-specific initialization function
 function callPageInit(page) {
-    // Map of page names to their init functions
     const pageInitMap = {
         'create-test': 'initCreateTest',
         'test-calendar': 'initTestCalendar',
@@ -510,7 +642,6 @@ function callPageInit(page) {
         'add-questions': 'initAddQuestions',
         'view-questions': 'initViewQuestions',
         'upload-pdf': 'initUploadPDF',
-        'upload-image': 'initUploadImage',
         'all-students': 'initStudents',
         'add-student': 'initAddStudent',
         'transactions': 'initTransactions',
@@ -526,22 +657,7 @@ function callPageInit(page) {
             window[initFunctionName]();
         } catch (error) {
             console.error(`❌ Error initializing ${page}:`, error);
-            // Show error message on the page
-            const targetPage = document.getElementById(`${page}-page`);
-            if (targetPage) {
-                targetPage.innerHTML = `
-                    <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
-                        <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
-                        <h3 style="margin: 0 0 8px 0;">Failed to Load Page</h3>
-                        <p style="margin: 0 0 20px 0; color: #94a3b8;">
-                            An error occurred while loading this page. Please try again.
-                        </p>
-                        <button onclick="navigateTo('${page}')" class="btn-primary">
-                            <i class="fas fa-sync"></i> Retry
-                        </button>
-                    </div>
-                `;
-            }
+            showErrorNotification(`Failed to load ${formatPageTitle(page)}`);
         }
     } else if (page !== 'dashboard') {
         console.warn(`⚠️ No init function found for page: ${page}`);
@@ -559,27 +675,29 @@ function formatPageTitle(page) {
 // Refresh Dashboard
 async function refreshDashboard() {
     console.log('🔄 Refreshing dashboard data...');
-    await loadDashboardData();
+    if (DashboardState.isAuthenticated) {
+        await loadDashboardData();
+    }
 }
 
 // Show Error
 function showError(message) {
     console.error('❌', message);
-    // You can implement a toast notification here
+    showErrorNotification(message);
 }
-
 
 // Toggle Profile Menu
 function toggleProfileMenu() {
     const dropdown = document.getElementById('profileDropdown');
     const notificationDropdown = document.getElementById('notificationDropdown');
 
-    // Close notification dropdown if open
-    if (notificationDropdown.classList.contains('active')) {
+    if (notificationDropdown && notificationDropdown.classList.contains('active')) {
         notificationDropdown.classList.remove('active');
     }
 
-    dropdown.classList.toggle('active');
+    if (dropdown) {
+        dropdown.classList.toggle('active');
+    }
 }
 
 // Toggle Notification Dropdown
@@ -587,20 +705,12 @@ function toggleNotificationDropdown() {
     const dropdown = document.getElementById('notificationDropdown');
     const profileDropdown = document.getElementById('profileDropdown');
 
-    // Close profile dropdown if open
-    if (profileDropdown.classList.contains('active')) {
+    if (profileDropdown && profileDropdown.classList.contains('active')) {
         profileDropdown.classList.remove('active');
     }
 
-    dropdown.classList.toggle('active');
-
-    // Update badge count
-    if (dropdown.classList.contains('active')) {
-        const badge = document.getElementById('notificationBadge');
-        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
-        if (badge) {
-            badge.textContent = unreadCount > 0 ? unreadCount : '0';
-        }
+    if (dropdown) {
+        dropdown.classList.toggle('active');
     }
 }
 
@@ -616,9 +726,19 @@ window.markAllAsRead = function () {
 };
 
 // Logout function
-window.logout = function () {
+window.logout = async function () {
     if (confirm('Are you sure you want to logout?')) {
-        // Clear admin token
+        try {
+            // Call logout API
+            await fetch(`${window.API_BASE_URL}/api/admin/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+        
+        // Clear local data
         document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         localStorage.removeItem('adminAuth');
         sessionStorage.clear();
@@ -628,11 +748,10 @@ window.logout = function () {
     }
 };
 
-// Theme Toggle Implementation
+// Theme Toggle
 const themeToggle = document.getElementById('themeToggle');
 const notificationBtn = document.getElementById('notificationBtn');
 
-// Load saved theme preference
 const savedTheme = localStorage.getItem('theme') || 'dark';
 if (savedTheme === 'light') {
     document.body.classList.add('light-theme');
@@ -641,7 +760,6 @@ if (savedTheme === 'light') {
     }
 }
 
-// Theme toggle click handler
 if (themeToggle) {
     themeToggle.addEventListener('click', () => {
         const isLight = document.body.classList.toggle('light-theme');
@@ -654,12 +772,9 @@ if (themeToggle) {
             icon.classList.replace('fa-sun', 'fa-moon');
             localStorage.setItem('theme', 'dark');
         }
-
-        console.log(`🎨 Theme switched to: ${isLight ? 'light' : 'dark'}`);
     });
 }
 
-// Notification button click handler
 if (notificationBtn) {
     notificationBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -674,16 +789,16 @@ document.addEventListener('click', (e) => {
     const notificationBtn = document.getElementById('notificationBtn');
     const adminProfile = document.querySelector('.admin-profile');
 
-    // Close notification dropdown if clicked outside
     if (notificationDropdown &&
         !notificationDropdown.contains(e.target) &&
+        notificationBtn &&
         !notificationBtn.contains(e.target)) {
         notificationDropdown.classList.remove('active');
     }
 
-    // Close profile dropdown if clicked outside
     if (profileDropdown &&
         !profileDropdown.contains(e.target) &&
+        adminProfile &&
         !adminProfile.contains(e.target)) {
         profileDropdown.classList.remove('active');
     }
@@ -696,9 +811,10 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// ✅ Export functions for global access
+// Export functions for global access
 window.navigateTo = navigateTo;
 window.toggleProfileMenu = toggleProfileMenu;
+window.showErrorNotification = showErrorNotification;
+window.showSuccessNotification = showSuccessNotification;
 
-console.log('✅ Dashboard v3 script loaded');
-
+console.log('✅ Dashboard v3 script loaded with authentication check');
