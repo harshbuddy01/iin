@@ -45,15 +45,32 @@ router.get('/profile', verifyAuth, async (req, res) => {
     }
 });
 
-// ✅ SECURITY FIX (Issue #48): Added authentication to user routes
-// GET /api/user/check-purchase/:testId - Check if user purchased a test
-router.get('/check-purchase/:testId', verifyAuth, async (req, res) => {
+// ✅ FIX: PUBLIC endpoint for pre-purchase verification
+// No authentication required - used before payment to check duplicates
+// GET /api/check-purchase/:testId?email=user@example.com
+router.get('/check-purchase/:testId', async (req, res) => {
     try {
         const { testId } = req.params;
+        const { email } = req.query;  // Get email from query parameter
 
-        // ✅ SECURITY: Get email from JWT token, not query param
-        const email = req.user.email;
+        // Validate email parameter
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email parameter is required'
+            });
+        }
+
         const normalizedEmail = email.toLowerCase().trim();
+
+        // Email format validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email format'
+            });
+        }
 
         const purchase = await PurchasedTest.findOne({
             email: normalizedEmail,
@@ -61,6 +78,7 @@ router.get('/check-purchase/:testId', verifyAuth, async (req, res) => {
         });
 
         res.json({
+            success: true,
             alreadyPurchased: !!purchase,
             purchaseDate: purchase?.purchased_at || null
         });
