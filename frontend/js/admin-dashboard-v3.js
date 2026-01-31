@@ -509,7 +509,7 @@ function callPageInit(page) {
         'past-tests': 'initPastTests',
         'add-questions': 'initAddQuestions',
         'view-questions': 'initViewQuestions',
-        'upload-pdf': 'initUploadPdf',
+        'upload-pdf': 'initUploadPDF',
         'upload-image': 'initUploadImage',
         'all-students': 'initStudents',
         'add-student': 'initAddStudent',
@@ -568,20 +568,126 @@ function showError(message) {
     // You can implement a toast notification here
 }
 
+
 // Toggle Profile Menu
 function toggleProfileMenu() {
-    // Implement profile dropdown menu
-    console.log('👤 Profile menu clicked');
+    const dropdown = document.getElementById('profileDropdown');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+
+    // Close notification dropdown if open
+    if (notificationDropdown.classList.contains('active')) {
+        notificationDropdown.classList.remove('active');
+    }
+
+    dropdown.classList.toggle('active');
 }
 
-// Theme Toggle
+// Toggle Notification Dropdown
+function toggleNotificationDropdown() {
+    const dropdown = document.getElementById('notificationDropdown');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    // Close profile dropdown if open
+    if (profileDropdown.classList.contains('active')) {
+        profileDropdown.classList.remove('active');
+    }
+
+    dropdown.classList.toggle('active');
+
+    // Update badge count
+    if (dropdown.classList.contains('active')) {
+        const badge = document.getElementById('notificationBadge');
+        const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+        if (badge) {
+            badge.textContent = unreadCount > 0 ? unreadCount : '0';
+        }
+    }
+}
+
+// Mark all notifications as read
+window.markAllAsRead = function () {
+    const items = document.querySelectorAll('.notification-item.unread');
+    items.forEach(item => item.classList.remove('unread'));
+
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+        badge.style.display = 'none';
+    }
+};
+
+// Logout function
+window.logout = function () {
+    if (confirm('Are you sure you want to logout?')) {
+        // Clear admin token
+        document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        localStorage.removeItem('adminAuth');
+        sessionStorage.clear();
+
+        // Redirect to login
+        window.location.href = '/admin-login.html';
+    }
+};
+
+// Theme Toggle Implementation
 const themeToggle = document.getElementById('themeToggle');
+const notificationBtn = document.getElementById('notificationBtn');
+
+// Load saved theme preference
+const savedTheme = localStorage.getItem('theme') || 'dark';
+if (savedTheme === 'light') {
+    document.body.classList.add('light-theme');
+    if (themeToggle) {
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    }
+}
+
+// Theme toggle click handler
 if (themeToggle) {
     themeToggle.addEventListener('click', () => {
-        console.log('🎨 Theme toggle clicked (coming soon)');
-        // Implement light/dark theme toggle
+        const isLight = document.body.classList.toggle('light-theme');
+        const icon = themeToggle.querySelector('i');
+
+        if (isLight) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('theme', 'light');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('theme', 'dark');
+        }
+
+        console.log(`🎨 Theme switched to: ${isLight ? 'light' : 'dark'}`);
     });
 }
+
+// Notification button click handler
+if (notificationBtn) {
+    notificationBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleNotificationDropdown();
+    });
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', (e) => {
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const profileDropdown = document.getElementById('profileDropdown');
+    const notificationBtn = document.getElementById('notificationBtn');
+    const adminProfile = document.querySelector('.admin-profile');
+
+    // Close notification dropdown if clicked outside
+    if (notificationDropdown &&
+        !notificationDropdown.contains(e.target) &&
+        !notificationBtn.contains(e.target)) {
+        notificationDropdown.classList.remove('active');
+    }
+
+    // Close profile dropdown if clicked outside
+    if (profileDropdown &&
+        !profileDropdown.contains(e.target) &&
+        !adminProfile.contains(e.target)) {
+        profileDropdown.classList.remove('active');
+    }
+});
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
@@ -590,8 +696,9 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// ✅ Export navigateTo for global access (used by HTML onclick handlers)
+// ✅ Export functions for global access
 window.navigateTo = navigateTo;
+window.toggleProfileMenu = toggleProfileMenu;
 
 console.log('✅ Dashboard v3 script loaded');
 
