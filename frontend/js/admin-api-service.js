@@ -1,12 +1,12 @@
 /**
- * Admin API Service - Complete Backend Integration
+ * Admin API Service - Complete Backend Integration with JWT
  * Backend: Railway (https://vigyan-production.up.railway.app)
- * Updated: 2026-01-26 - VERSION 700 (CACHE BUSTER)
+ * Updated: 2026-01-31 - JWT Authorization Headers
  */
-console.log('🚀 AdminAPI Service v700 Loading...');
+console.log('🚀 AdminAPI Service with JWT Loading...');
 
 const AdminAPI = {
-    // 🚀 PRODUCTION Hostinger Backend URL
+    // 🚀 PRODUCTION Railway Backend URL
     get baseURL() {
         // Use global configuration or fallback to local
         if (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) {
@@ -20,23 +20,48 @@ const AdminAPI = {
         return 'https://vigyan-production.up.railway.app';
     },
 
-    // Helper method for API calls
+    // ✅ NEW: Get JWT token from sessionStorage
+    getAuthToken() {
+        try {
+            const authData = sessionStorage.getItem('adminAuth');
+            if (!authData) {
+                console.warn('⚠️ No auth data in sessionStorage');
+                return null;
+            }
+
+            const auth = JSON.parse(authData);
+            if (!auth.token) {
+                console.warn('⚠️ No token in auth data');
+                return null;
+            }
+
+            return auth.token;
+        } catch (error) {
+            console.error('❌ Error getting auth token:', error);
+            return null;
+        }
+    },
+
+    // ✅ UPDATED: Helper method for API calls with JWT
     async request(endpoint, options = {}) {
-        // ✅ Get CSRF token from cookie
-        const csrfToken = this.getCSRFToken();
+        const token = this.getAuthToken();
 
         const defaultOptions = {
-            credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
                 'Content-Type': 'application/json',
-                ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})  // ✅ Add CSRF token if exists
-                // ✅ REMOVED: Authorization header - backend uses cookies
+                // ✅ ADD JWT Authorization header
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             }
         };
 
         try {
             const fullURL = `${this.baseURL}${endpoint}`;
             console.log(`🔗 API Request: ${fullURL}`);
+            if (token) {
+                console.log('🔑 Adding Authorization header with token');
+            } else {
+                console.warn('⚠️ No token available for request');
+            }
 
             const response = await fetch(fullURL, {
                 ...defaultOptions,
@@ -63,14 +88,6 @@ const AdminAPI = {
             throw error;
         }
     },
-
-    // ✅ Get CSRF token from cookie
-    getCSRFToken() {
-        const cookie = document.cookie.split('; ').find(row => row.startsWith('csrf_token='));
-        return cookie ? cookie.split('=')[1] : null;
-    },
-
-    // ✅ REMOVED: getAuthToken() - No longer needed with cookie-based auth
 
     // ==================== DASHBOARD ====================
     async getDashboardStats() {
@@ -280,6 +297,7 @@ const AdminAPI = {
 
     // ==================== FILE UPLOADS ====================
     async uploadPDF(file, metadata) {
+        const token = this.getAuthToken();
         const formData = new FormData();
         formData.append('file', file);
         formData.append('metadata', JSON.stringify(metadata));
@@ -287,11 +305,15 @@ const AdminAPI = {
         return await this.request('/api/admin/upload/pdf', {
             method: 'POST',
             body: formData,
-            headers: {} // Let browser set Content-Type for FormData
+            headers: {
+                // Don't set Content-Type, let browser set it for FormData
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            }
         });
     },
 
     async uploadImage(file, metadata) {
+        const token = this.getAuthToken();
         const formData = new FormData();
         formData.append('file', file);
         formData.append('metadata', JSON.stringify(metadata));
@@ -299,17 +321,23 @@ const AdminAPI = {
         return await this.request('/api/admin/upload/image', {
             method: 'POST',
             body: formData,
-            headers: {} // Let browser set Content-Type for FormData
+            headers: {
+                // Don't set Content-Type, let browser set it for FormData
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            }
         });
     },
 
     // ==================== SPECIFIC PDF MODULE ENDPOINTS ====================
-    // Matches upload-pdf.js requirements
     async uploadPdf(formData) {
+        const token = this.getAuthToken();
         return await this.request('/api/pdf/upload', {
             method: 'POST',
             body: formData,
-            headers: {} // Let browser set Content-Type
+            headers: {
+                // Don't set Content-Type, let browser set it for FormData
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            }
         });
     },
 
@@ -324,7 +352,6 @@ const AdminAPI = {
     },
 
     // ==================== QUESTION IMAGE LINKING ====================
-    // Matches upload-image.js requirements
     async uploadQuestionImage(questionId, linkData) {
         return await this.request(`/api/admin/questions/${questionId}/image`, {
             method: 'POST',
@@ -348,7 +375,7 @@ const AdminAPI = {
 window.AdminAPI = AdminAPI;
 
 // Log the backend URL being used
-console.log('🚀 Admin API Service initialized');
+console.log('✅ Admin API Service initialized with JWT authentication');
 console.log('🔗 Backend URL:', AdminAPI.baseURL);
 console.log('🌍 Environment:', window.location.hostname === 'localhost' ? 'Local' : 'Production');
 
